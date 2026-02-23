@@ -1,9 +1,9 @@
 // @version=6
-strategy("GB Master Ultimate Strategy v5 - PULLBACK PRO", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
+strategy("GB Master Ultimate Strategy v6 - PULLBACK PRO", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
 
 // ================================================================
-// GB MASTER ULTIMATE STRATEGY v5
-// Goal: Fix low win rate by switching to Pullback logic.
+// GB MASTER ULTIMATE STRATEGY v6
+// Fixed: strategy.winrate error (manual calculation added)
 // Logic: Higher TF Trend Filter + Pullback to EMA + Structure SL
 // Optimized for: NAS100, US30 (5m / 15m)
 // ================================================================
@@ -39,10 +39,7 @@ htf_bearish  = htf_ema_fast < htf_ema_slow
 ny_session = not na(time(timeframe.period, "0930-1400:23456"))
 
 // ---- PULLBACK LOGIC ----
-// LONG: HTF Trend is UP + Price above EMA 200 + RSI pulls back below 45 + Price crosses above EMA 20
 long_pullback = htf_bullish and close > ema_trend and rsi_val < rsi_low and ta.crossover(close, ema_fast) and ny_session
-
-// SHORT: HTF Trend is DOWN + Price below EMA 200 + RSI pulls back above 55 + Price crosses below EMA 20
 short_pullback = htf_bearish and close < ema_trend and rsi_val > rsi_high and ta.crossunder(close, ema_fast) and ny_session
 
 // ---- EXECUTION ----
@@ -52,7 +49,7 @@ var float ep = na
 
 if long_pullback and strategy.position_size == 0
     ep := close
-    sl := ta.lowest(low, 5) - (atr_val * 0.5) // Swing Low SL
+    sl := ta.lowest(low, 5) - (atr_val * 0.5) 
     risk = ep - sl
     tp := ep + (risk * rr_ratio)
     if tp > ep and sl < ep
@@ -60,8 +57,7 @@ if long_pullback and strategy.position_size == 0
         strategy.exit("Exit", "Long", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
 
 if short_pullback and strategy.position_size == 0
-    ep := close
-    sl := ta.highest(high, 5) + (atr_val * 0.5) // Swing High SL
+v6: Fix strategy.winrate error - manual winrate calculation added    sl := ta.highest(high, 5) + (atr_val * 0.5)
     risk = sl - ep
     tp := ep - (risk * rr_ratio)
     if tp < ep and sl > ep
@@ -72,6 +68,18 @@ if strategy.position_size == 0
     sl := na
     tp := na
     ep := na
+
+// ---- MANUAL WINRATE CALCULATION ----
+var int total_trades = 0
+var int win_trades = 0
+var float win_rate = 0.0
+
+trade_closed = strategy.closedtrades > strategy.closedtrades[1]
+if trade_closed
+    total_trades := strategy.closedtrades
+    if strategy.closedtrades.profit(strategy.closedtrades - 1) > 0
+        win_trades += 1
+    win_rate := total_trades > 0 ? (win_trades / total_trades) * 100 : 0.0
 
 // ---- VISUALS ----
 plot(ema_fast,  "EMA 20",  color=color.yellow)
@@ -84,17 +92,16 @@ plotshape(short_pullback, "SELL", style=shape.labeldown, location=location.above
 plot(sl, "SL", color=color.red,  style=plot.style_linebr, linewidth=2)
 plot(tp, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
 
-// Trend BG
 bgcolor(htf_bullish ? color.new(color.green, 90) : htf_bearish ? color.new(color.red, 90) : na)
 
 // Dashboard
 var table d = table.new(position.top_right, 2, 5, bgcolor=color.black, border_color=color.gray, border_width=1)
 if barstate.islast
-    table.cell(d, 0, 0, "GB PULLBACK v5", text_color=color.yellow)
+    table.cell(d, 0, 0, "GB PULLBACK v6", text_color=color.yellow)
     table.cell(d, 0, 1, "HTF Trend",     text_color=color.white)
     table.cell(d, 1, 1, htf_bullish ? "BULL" : "BEAR", text_color=htf_bullish ? color.green : color.red)
     table.cell(d, 0, 2, "Win Rate (Sim)", text_color=color.white)
-    table.cell(d, 1, 2, str.tostring(math.round(strategy.winrate, 1)) + "%", text_color=color.white)
+    table.cell(d, 1, 2, str.tostring(math.round(win_rate, 1)) + "%", text_color=color.white)
     table.cell(d, 0, 3, "Total Trades",  text_color=color.white)
     table.cell(d, 1, 3, str.tostring(strategy.closedtrades), text_color=color.white)
     table.cell(d, 0, 4, "Net Profit",    text_color=color.white)
