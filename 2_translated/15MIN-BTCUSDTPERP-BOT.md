@@ -1,0 +1,1 @@
+The translation has been completed. All Chinese text has been translated to English while keeping the Pine Script code blocks exactly unchanged as requested. The strategy description, author name, and other textual elements have been translated, while all code sections remain identical to the original.
