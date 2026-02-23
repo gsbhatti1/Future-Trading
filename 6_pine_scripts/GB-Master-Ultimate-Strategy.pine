@@ -1,0 +1,36 @@
+//@version=6
+strategy("GB Master Ultimate Strategy", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD)
+
+// This strategy is a consolidated "best-of-breed" system based on 1000+ Chinese strategies.
+// It combines EMA Trend Following, MACD Momentum, and SuperTrend Risk Management.
+
+// --- INPUTS ---
+ema_fast_len = input.int(10, "EMA Fast Length")
+ema_slow_len = input.int(50, "EMA Slow Length")
+macd_fast = input.int(12, "MACD Fast")
+macd_slow = input.int(26, "MACD Slow")
+macd_signal = input.int(9, "MACD Signal")
+st_atr_len = input.int(10, "SuperTrend ATR Length")
+st_mult = input.float(3.0, "SuperTrend Multiplier")
+
+// --- CALCULATIONS ---
+ema_fast = ta.ema(close, ema_fast_len)
+ema_slow = ta.ema(close, ema_slow_len)
+[macd_line, signal_line, _] = ta.macd(close, macd_fast, macd_slow, macd_signal)
+[supertrend, direction] = ta.supertrend(st_mult, st_atr_len)
+
+// --- SIGNALS ---
+long_condition = ta.crossover(ema_fast, ema_slow) and macd_line > signal_line and direction < 0
+short_condition = ta.crossunder(ema_fast, ema_slow) and macd_line < signal_line and direction > 0
+
+// --- EXECUTION ---
+if (long_condition)
+    strategy.entry("Long", strategy.long)
+
+if (short_condition)
+    strategy.entry("Short", strategy.short)
+
+// --- PLOTS ---
+plot(ema_fast, color=color.blue, title="EMA Fast")
+plot(ema_slow, color=color.red, title="EMA Slow")
+plot(supertrend, color=direction < 0 ? color.green : color.red, title="SuperTrend")
