@@ -1,31 +1,28 @@
 // @version=6
-strategy("GB Master Ultimate Strategy v19 - VWAP+ADX", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, commission_type=strategy.commission.percent, commission_value=0.01)
+strategy("GB Master Ultimate Strategy v20 - VWAP Pure", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, commission_type=strategy.commission.percent, commission_value=0.01)
 
 // ================================================================
-// GB MASTER ULTIMATE STRATEGY v19 - VWAP + SOFT ADX
-// v16: +$232, 43.48% WR (20/46), PF 1.221
-// v17: +$390.96, 48.94% WR (23/47), PF 1.404  <-- BEST
-// v18: -$433 (over-filtered, 19 trades only)
-// v19 strategy: Restore v17 base + ADX > 18 only (soft trend gate)
-// KEY LESSON: don't stack too many new filters at once
-// Changes from v17:
-//   - ADX > 18 filter (soft - only skips dead/choppy markets)
-//   - Session window restored: 0945-1400
-//   - Max 2 trades/day (restored from v17)
-//   - SL restored: 1.2x ATR (was 1.0x in v18)
-//   - Candle body restored: 40% (was 50% in v18)
-//   - RSI restored: Long 52-72, Short 28-48
-//   - R:R stays 2.5
+// GB MASTER ULTIMATE STRATEGY v20 - PURE VWAP REFINED
+// Results log:
+// v16: +$232,   43.48% WR (20/46),  PF 1.221
+// v17: +$390.96, 48.94% WR (23/47),  PF 1.404  <-- BEST so far
+// v18: -$433,   36.84% WR (7/19),   PF 0.3   (ADX+MACD too tight)
+// v19: -$149,   45.71% WR (16/35),  PF 0.817 (ADX still too tight)
+// CONCLUSION: ADX hurts NAS100 5m. Remove completely.
+// v20 changes from v17:
+//   - NO ADX filter (proven to hurt on NAS100 5m)
+//   - Min ATR filter: atr > atr_ma (only trade when volatility above avg)
+//   - SL: swing low/high ONLY (no ATR component) - cleaner levels
+//   - TP: 3.0 R:R (increase from 2.5, NAS100 has big moves)
+//   - RSI slightly wider: Long 50-75, Short 25-50 (catch more setups)
+//   - Max 3 trades/day (restore v16 frequency)
 // ================================================================
 
 // === INPUTS ===
-atr_len  = input.int(14,    "ATR Length",   group="Risk")
-atr_sl   = input.float(1.2, "SL ATR Mult",  group="Risk")
-rr       = input.float(2.5, "R:R",          group="Risk")
-adx_len  = input.int(14,    "ADX Length",   group="Filter")
-adx_min  = input.float(18,  "Min ADX",      group="Filter")
-rsi_len  = input.int(14,    "RSI Length",   group="Filter")
-mtf_tf   = input.timeframe("60", "HTF TF",  group="Trend")
+atr_len  = input.int(14,    "ATR Length",     group="Risk")
+rr       = input.float(3.0, "R:R",            group="Risk")
+rsi_len  = input.int(14,    "RSI Length",     group="Filter")
+mtf_tf   = input.timeframe("60", "HTF TF",   group="Trend")
 
 // === HTF TREND (1H) ===
 htf_ema21 = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 21))
@@ -39,11 +36,11 @@ ema50  = ta.ema(close, 50)
 ema200 = ta.ema(close, 200)
 rsi    = ta.rsi(close, rsi_len)
 atr    = ta.atr(atr_len)
+atr_ma = ta.sma(atr, 20)      // average ATR over 20 bars
 vwap   = ta.vwap(hlc3)
 
-// ADX (soft trend filter)
-[diplus, diminus, adx] = ta.dmi(adx_len, adx_len)
-trending = adx > adx_min
+// === VOLATILITY FILTER: only trade when ATR above its own average ===
+good_vol = atr > atr_ma * 0.85  // at least 85% of avg ATR
 
 // === SESSION FILTERS ===
 entry_window = not na(time(timeframe.period, "0945-1400", "America/New_York"))
@@ -74,16 +71,16 @@ strong_candle = candle_range > 0 and (candle_body / candle_range) >= 0.40
 above_ema200 = close > ema200
 below_ema200 = close < ema200
 
-// === SWING LEVELS ===
-swing_lo = ta.lowest(low, 8)
-swing_hi = ta.highest(high, 8)
+// === SWING LEVELS (for SL) ===
+swing_lo = ta.lowest(low,  10)   // wider 10-bar window for cleaner swing
+swing_hi = ta.highest(high, 10)
 
-// === ENTRY CONDITIONS v19 ===
-long_conditions  = vwap_hold_up   and bull_ema and htf_bull and rsi > 52 and rsi < 72 and above_ema200 and strong_candle and trending
-short_conditions = vwap_hold_down and bear_ema and htf_bear and rsi < 48 and rsi > 28 and below_ema200 and strong_candle and trending
+// === ENTRY CONDITIONS v20 ===
+long_conditions  = vwap_hold_up   and bull_ema and htf_bull and rsi > 50 and rsi < 75 and above_ema200 and strong_candle and good_vol
+short_conditions = vwap_hold_down and bear_ema and htf_bear and rsi < 50 and rsi > 25 and below_ema200 and strong_candle and good_vol
 
 // === ENTRY GATE ===
-gate_ok      = entry_window and daily_trades < 2 and strategy.position_size == 0
+gate_ok      = entry_window and daily_trades < 3 and strategy.position_size == 0
 long_signal  = long_conditions  and gate_ok
 short_signal = short_conditions and gate_ok
 
@@ -92,19 +89,19 @@ var float sl = na
 var float tp = na
 
 if long_signal
-    sl   := math.min(low - atr_sl * atr, swing_lo - atr * 0.5)
+    sl   := swing_lo - atr * 0.3    // swing low - small buffer
     risk  = close - sl
     tp   := close + risk * rr
-    if risk > 0 and sl < close and tp > close and risk < atr * 5
+    if risk > 0 and sl < close and tp > close and risk < atr * 6
         strategy.entry("Long", strategy.long)
         strategy.exit("XL", "Long", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
         daily_trades += 1
 
 if short_signal
-    sl   := math.max(high + atr_sl * atr, swing_hi + atr * 0.5)
+    sl   := swing_hi + atr * 0.3    // swing high + small buffer
     risk  = sl - close
     tp   := close - risk * rr
-    if risk > 0 and sl > close and tp < close and risk < atr * 5
+    if risk > 0 and sl > close and tp < close and risk < atr * 6
         strategy.entry("Short", strategy.short)
         strategy.exit("XS", "Short", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
         daily_trades += 1
@@ -141,25 +138,23 @@ bgcolor(htf_bull ? color.new(color.green, 94) : htf_bear ? color.new(color.red, 
 bgcolor(close > vwap ? color.new(color.green, 97) : color.new(color.red, 97))
 
 // === DASHBOARD ===
-var table d = table.new(position.top_right, 2, 10, bgcolor=color.black, border_color=color.gray, border_width=1)
+var table d = table.new(position.top_right, 2, 9, bgcolor=color.black, border_color=color.gray, border_width=1)
 if barstate.islast
-    table.cell(d, 0, 0, "GB v19",    text_color=color.yellow,  text_size=size.small)
-    table.cell(d, 1, 0, "VWAP+ADX",  text_color=color.fuchsia, text_size=size.small)
+    table.cell(d, 0, 0, "GB v20",    text_color=color.yellow,  text_size=size.small)
+    table.cell(d, 1, 0, "VWAP Pure", text_color=color.fuchsia, text_size=size.small)
     table.cell(d, 0, 1, "HTF",       text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 1, htf_bull ? "BULL" : "BEAR", text_color=htf_bull ? color.green : color.red, text_size=size.small)
     table.cell(d, 0, 2, "EMA",       text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 2, bull_ema ? "BULL" : "BEAR", text_color=bull_ema ? color.green : color.red, text_size=size.small)
     table.cell(d, 0, 3, "EMA200",    text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 3, above_ema200 ? "ABOVE" : "BELOW", text_color=above_ema200 ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 4, "ADX",       text_color=color.white,   text_size=size.small)
-    table.cell(d, 1, 4, str.tostring(math.round(adx, 1)), text_color=adx > adx_min ? color.green : color.red, text_size=size.small)
+    table.cell(d, 0, 4, "ATR/Avg",   text_color=color.white,   text_size=size.small)
+    table.cell(d, 1, 4, str.tostring(math.round(atr/atr_ma*100, 0)) + "%", text_color=good_vol ? color.green : color.red, text_size=size.small)
     table.cell(d, 0, 5, "RSI",       text_color=color.white,   text_size=size.small)
-    table.cell(d, 1, 5, str.tostring(math.round(rsi, 1)), text_color=rsi > 65 ? color.red : rsi < 35 ? color.lime : color.white, text_size=size.small)
-    table.cell(d, 0, 6, "VWAP",      text_color=color.white,   text_size=size.small)
-    table.cell(d, 1, 6, str.tostring(math.round(vwap, 0)), text_color=close > vwap ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 7, "Win Rate",  text_color=color.white,   text_size=size.small)
-    table.cell(d, 1, 7, str.tostring(math.round(wr, 1)) + "%", text_color=wr >= 55 ? color.green : wr >= 45 ? color.yellow : color.red, text_size=size.small)
-    table.cell(d, 0, 8, "Trades",    text_color=color.white,   text_size=size.small)
-    table.cell(d, 1, 8, str.tostring(strategy.closedtrades),   text_color=color.white, text_size=size.small)
-    table.cell(d, 0, 9, "Net P&L",   text_color=color.white,   text_size=size.small)
-    table.cell(d, 1, 9, str.tostring(math.round(strategy.netprofit, 0)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
+    table.cell(d, 1, 5, str.tostring(math.round(rsi, 1)), text_color=rsi > 70 ? color.red : rsi < 30 ? color.lime : color.white, text_size=size.small)
+    table.cell(d, 0, 6, "Win Rate",  text_color=color.white,   text_size=size.small)
+    table.cell(d, 1, 6, str.tostring(math.round(wr, 1)) + "%", text_color=wr >= 55 ? color.green : wr >= 45 ? color.yellow : color.red, text_size=size.small)
+    table.cell(d, 0, 7, "Trades",    text_color=color.white,   text_size=size.small)
+    table.cell(d, 1, 7, str.tostring(strategy.closedtrades),   text_color=color.white, text_size=size.small)
+    table.cell(d, 0, 8, "Net P&L",   text_color=color.white,   text_size=size.small)
+    table.cell(d, 1, 8, str.tostring(math.round(strategy.netprofit, 0)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
