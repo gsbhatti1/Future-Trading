@@ -57,7 +57,8 @@ if long_pullback and strategy.position_size == 0
         strategy.exit("Exit", "Long", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
 
 if short_pullback and strategy.position_size == 0
-v6: Fix strategy.winrate error - manual winrate calculation added    sl := ta.highest(high, 5) + (atr_val * 0.5)
+    ep := close
+    sl := ta.highest(high, 5) + (atr_val * 0.5)
     risk = sl - ep
     tp := ep - (risk * rr_ratio)
     if tp < ep and sl > ep
