@@ -2,25 +2,26 @@
 strategy("GB Master Ultimate Strategy v6 - PULLBACK PRO", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
 
 // ================================================================
-// GB MASTER ULTIMATE STRATEGY v6
-// Fixed: strategy.winrate error (manual calculation added)
+// GB MASTER ULTIMATE STRATEGY v6 - FIXED & OPTIMIZED
+// Fixed: strategy.winrate error (manual calculation)
+// Fixed: 0 trades issue - loosened RSI + removed crossover requirement
 // Logic: Higher TF Trend Filter + Pullback to EMA + Structure SL
-// Optimized for: NAS100, US30 (5m / 15m)
+// Optimized for: NAS100, US30 (5m / 15m / 30m)
 // ================================================================
 
 // ---- INPUTS ----
-ema_fast_len  = input.int(20,  "Fast EMA",       group="Trend")
-ema_slow_len  = input.int(50,  "Slow EMA",       group="Trend")
-ema_trend_len = input.int(200, "Trend Filter",   group="Trend")
-mtf_tf        = input.timeframe("60", "Trend TF", group="Trend")
+ema_fast_len  = input.int(20,   "Fast EMA",        group="Trend")
+ema_slow_len  = input.int(50,   "Slow EMA",        group="Trend")
+ema_trend_len = input.int(200,  "Trend Filter",    group="Trend")
+mtf_tf        = input.timeframe("60", "Trend TF",  group="Trend")
 
-rsi_len       = input.int(14,  "RSI Length",     group="Pullback")
-rsi_low       = input.int(45,  "RSI Buy Pullback", group="Pullback")
-rsi_high      = input.int(55,  "RSI Sell Pullback",group="Pullback")
+rsi_len   = input.int(14,  "RSI Length",       group="Pullback")
+rsi_low   = input.int(50,  "RSI Buy Zone",     group="Pullback")
+rsi_high  = input.int(50,  "RSI Sell Zone",    group="Pullback")
 
-atr_len       = input.int(14,  "ATR Length",     group="Risk")
-atr_sl_mult   = input.float(1.5, "ATR SL Mult",  group="Risk")
-rr_ratio      = input.float(2.0, "Reward:Risk",  group="Risk")
+atr_len      = input.int(14,   "ATR Length",    group="Risk")
+atr_sl_mult  = input.float(1.5, "ATR SL Mult", group="Risk")
+rr_ratio     = input.float(2.0, "Reward:Risk",  group="Risk")
 
 // ---- CALCULATIONS ----
 ema_fast  = ta.ema(close, ema_fast_len)
@@ -35,12 +36,14 @@ htf_ema_slow = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 50))
 htf_bullish  = htf_ema_fast > htf_ema_slow
 htf_bearish  = htf_ema_fast < htf_ema_slow
 
-// Session Filter (NY Open to Lunch)
-ny_session = not na(time(timeframe.period, "0930-1400:23456"))
+// Session Filter (NY Open)
+ny_session = not na(time(timeframe.period, "0930-1600:23456"))
 
-// ---- PULLBACK LOGIC ----
-long_pullback = htf_bullish and close > ema_trend and rsi_val < rsi_low and ta.crossover(close, ema_fast) and ny_session
-short_pullback = htf_bearish and close < ema_trend and rsi_val > rsi_high and ta.crossunder(close, ema_fast) and ny_session
+// ---- PULLBACK LOGIC (Fixed: removed crossover - now uses zone)
+// LONG: HTF bullish + price above EMA200 + RSI pulled back below 50 + price near EMA20
+long_pullback  = htf_bullish and close > ema_trend and rsi_val < rsi_low and close > ema_fast * 0.998 and close < ema_fast * 1.005 and ny_session
+// SHORT: HTF bearish + price below EMA200 + RSI pushed above 50 + price near EMA20
+short_pullback = htf_bearish and close < ema_trend and rsi_val > rsi_high and close < ema_fast * 1.002 and close > ema_fast * 0.995 and ny_session
 
 // ---- EXECUTION ----
 var float sl = na
@@ -49,21 +52,21 @@ var float ep = na
 
 if long_pullback and strategy.position_size == 0
     ep := close
-    sl := ta.lowest(low, 5) - (atr_val * 0.5) 
+    sl := ta.lowest(low, 5) - (atr_val * atr_sl_mult)
     risk = ep - sl
     tp := ep + (risk * rr_ratio)
-    if tp > ep and sl < ep
+    if tp > ep and sl < ep and risk > 0
         strategy.entry("Long", strategy.long)
-        strategy.exit("Exit", "Long", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
+        strategy.exit("Exit L", "Long", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
 
 if short_pullback and strategy.position_size == 0
     ep := close
-    sl := ta.highest(high, 5) + (atr_val * 0.5)
+    sl := ta.highest(high, 5) + (atr_val * atr_sl_mult)
     risk = sl - ep
     tp := ep - (risk * rr_ratio)
-    if tp < ep and sl > ep
+    if tp < ep and sl > ep and risk > 0
         strategy.entry("Short", strategy.short)
-        strategy.exit("Exit", "Short", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
+        strategy.exit("Exit S", "Short", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
 
 if strategy.position_size == 0
     sl := na
@@ -72,8 +75,8 @@ if strategy.position_size == 0
 
 // ---- MANUAL WINRATE CALCULATION ----
 var int total_trades = 0
-var int win_trades = 0
-var float win_rate = 0.0
+var int win_trades   = 0
+var float win_rate   = 0.0
 
 trade_closed = strategy.closedtrades > strategy.closedtrades[1]
 if trade_closed
@@ -88,22 +91,25 @@ plot(ema_slow,  "EMA 50",  color=color.orange)
 plot(ema_trend, "EMA 200", color=color.white, linewidth=2)
 
 plotshape(long_pullback,  "BUY",  style=shape.labelup,   location=location.belowbar, color=color.green, text="BUY",  textcolor=color.white)
-plotshape(short_pullback, "SELL", style=shape.labeldown, location=location.abovebar, color=color.red,   text="SELL", textcolor=color.white)
+plotshape(short_pullback, "SELL", style=shape.labeldown,  location=location.abovebar, color=color.red,   text="SELL", textcolor=color.white)
 
-plot(sl, "SL", color=color.red,  style=plot.style_linebr, linewidth=2)
+plot(sl, "SL", color=color.red,   style=plot.style_linebr, linewidth=2)
 plot(tp, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
 
 bgcolor(htf_bullish ? color.new(color.green, 90) : htf_bearish ? color.new(color.red, 90) : na)
 
-// Dashboard
-var table d = table.new(position.top_right, 2, 5, bgcolor=color.black, border_color=color.gray, border_width=1)
+// ---- DASHBOARD ----
+var table d = table.new(position.top_right, 2, 6, bgcolor=color.black, border_color=color.gray, border_width=1)
 if barstate.islast
-    table.cell(d, 0, 0, "GB PULLBACK v6", text_color=color.yellow)
-    table.cell(d, 0, 1, "HTF Trend",     text_color=color.white)
-    table.cell(d, 1, 1, htf_bullish ? "BULL" : "BEAR", text_color=htf_bullish ? color.green : color.red)
-    table.cell(d, 0, 2, "Win Rate (Sim)", text_color=color.white)
-    table.cell(d, 1, 2, str.tostring(math.round(win_rate, 1)) + "%", text_color=color.white)
-    table.cell(d, 0, 3, "Total Trades",  text_color=color.white)
-    table.cell(d, 1, 3, str.tostring(strategy.closedtrades), text_color=color.white)
-    table.cell(d, 0, 4, "Net Profit",    text_color=color.white)
-    table.cell(d, 1, 4, str.tostring(math.round(strategy.netprofit, 2)), text_color=strategy.netprofit >= 0 ? color.green : color.red)
+    table.cell(d, 0, 0, "GB PULLBACK v6",              text_color=color.yellow, text_size=size.small)
+    table.cell(d, 1, 0, "ACTIVE",                       text_color=color.lime,   text_size=size.small)
+    table.cell(d, 0, 1, "HTF Trend",                    text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 1, htf_bullish ? "BULL" : "BEAR",  text_color=htf_bullish ? color.green : color.red, text_size=size.small)
+    table.cell(d, 0, 2, "Win Rate",                     text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 2, str.tostring(math.round(win_rate, 1)) + "%", text_color=color.white, text_size=size.small)
+    table.cell(d, 0, 3, "Total Trades",                 text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 3, str.tostring(strategy.closedtrades), text_color=color.white, text_size=size.small)
+    table.cell(d, 0, 4, "Net Profit",                   text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 4, str.tostring(math.round(strategy.netprofit, 2)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
+    table.cell(d, 0, 5, "Open P&L",                     text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 5, str.tostring(math.round(strategy.openprofit, 2)), text_color=strategy.openprofit >= 0 ? color.green : color.red, text_size=size.small)
