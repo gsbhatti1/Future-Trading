@@ -1,60 +1,221 @@
 // @version=6
-strategy("GB Master Ultimate Strategy v2", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD)
+strategy("GB Master Ultimate Strategy v3", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500)
 
-// This strategy is a consolidated "best-of-breed" system based on 1000+ Chinese strategies.
-// It combines Multi-Timeframe Breakout logic, EMA Trend following, MACD Momentum, and SuperTrend Risk Management.
+// ============================================================
+// GB MASTER ULTIMATE STRATEGY v3
+// Consolidated from 1000+ Chinese trading strategies
+// Best-of-breed: MTF Breakout + EMA Trend + MACD Momentum
+//                + SuperTrend Risk + RSI Filter + Volume Confirm
+//                + ATR-based Dynamic SL/TP (1:3 R:R)
+// Optimized for: NAS100, US30, SPX, Crypto Futures (5m/15m)
+// ============================================================
 
-// --- INPUTS ---
-ema_fast_len = input.int(21, "EMA Fast Length")
-ema_slow_len = input.int(50, "EMA Slow Length")
-macd_fast = input.int(12, "MACD Fast")
-macd_slow = input.int(26, "MACD Slow")
-macd_signal = input.int(9, "MACD Signal")
-st_atr_len = input.int(10, "SuperTrend ATR Length")
-st_mult = input.float(3.0, "SuperTrend Multiplier")
-risk_reward_ratio = input.float(3.0, "Risk:Reward Ratio")
+// --- GROUP: EMA Trend Settings ---
+ema_fast_len   = input.int(21,  "EMA Fast",      group="EMA Trend")
+ema_slow_len   = input.int(50,  "EMA Slow",      group="EMA Trend")
+ema_trend_len  = input.int(200, "EMA Trend Filter", group="EMA Trend")
 
-// --- CALCULATIONS ---
-ema_fast = ta.ema(close, ema_fast_len)
-ema_slow = ta.ema(close, ema_slow_len)
-[macd_line, signal_line, _] = ta.macd(close, macd_fast, macd_slow, macd_signal)
+// --- GROUP: MACD Settings ---
+macd_fast      = input.int(12, "MACD Fast",   group="MACD")
+macd_slow      = input.int(26, "MACD Slow",   group="MACD")
+macd_signal    = input.int(9,  "MACD Signal", group="MACD")
+
+// --- GROUP: SuperTrend Settings ---
+st_atr_len     = input.int(10,   "ATR Length",    group="SuperTrend")
+st_mult        = input.float(3.0, "Multiplier",   group="SuperTrend", step=0.1)
+
+// --- GROUP: RSI Filter ---
+rsi_len        = input.int(14,  "RSI Length",  group="RSI Filter")
+rsi_ob         = input.int(70,  "RSI Overbought", group="RSI Filter")
+rsi_os         = input.int(30,  "RSI Oversold",   group="RSI Filter")
+
+// --- GROUP: Volume Filter ---
+vol_ma_len     = input.int(20, "Volume MA", group="Volume")
+vol_mult       = input.float(1.2, "Volume Multiplier", group="Volume", step=0.1)
+
+// --- GROUP: Risk Management ---
+risk_reward    = input.float(3.0, "Risk:Reward Ratio", group="Risk Mgmt", step=0.5)
+atr_sl_mult    = input.float(1.5, "ATR SL Multiplier", group="Risk Mgmt", step=0.1)
+atr_len        = input.int(14, "ATR Length", group="Risk Mgmt")
+
+// --- GROUP: Multi-Timeframe ---
+mtf_tf         = input.timeframe("15", "Higher TF", group="MTF")
+
+// --- GROUP: Session Filter ---
+use_session    = input.bool(true, "Use NY Session Filter", group="Session")
+
+// ============================================================
+// CALCULATIONS
+// ============================================================
+
+// EMA Calculations
+ema_fast  = ta.ema(close, ema_fast_len)
+ema_slow  = ta.ema(close, ema_slow_len)
+ema_trend = ta.ema(close, ema_trend_len)
+
+// MACD
+[macd_line, signal_line, hist] = ta.macd(close, macd_fast, macd_slow, macd_signal)
+
+// SuperTrend
 [supertrend, direction] = ta.supertrend(st_mult, st_atr_len)
 
-// Multi-Timeframe synergy (from strategy 5 logic)
-fifteenHigh = request.security(syminfo.tickerid, "15", high)
-fifteenLow = request.security(syminfo.tickerid, "15", low)
-var float last15High = na
-var float last15Low = na
-new15bar = ta.change(time("15"))
-if new15bar
-    last15High := fifteenHigh[1]
-    last15Low := fifteenLow[1]
+// RSI
+rsi_val = ta.rsi(close, rsi_len)
 
-// --- SIGNALS ---
-// Long: Price > 15m high AND EMA cross AND MACD bullish AND SuperTrend green
-long_condition = close > last15High and ta.crossover(ema_fast, ema_slow) and macd_line > signal_line and direction < 0
+// ATR for dynamic stops
+atr_val = ta.atr(atr_len)
 
-// Short: Price < 15m low AND EMA cross AND MACD bearish AND SuperTrend red
-short_condition = close < last15Low and ta.crossunder(ema_fast, ema_slow) and macd_line < signal_line and direction > 0
+// Volume filter
+vol_ma  = ta.sma(volume, vol_ma_len)
+vol_ok  = volume > (vol_ma * vol_mult)
 
-// --- EXECUTION ---
-if (long_condition)
-    float stopLoss = last15Low
-    float risk = close - stopLoss
-    float takeProfit = close + (risk * risk_reward_ratio)
+// ============================================================
+// MULTI-TIMEFRAME SYNERGY (15m Higher Timeframe)
+// ============================================================
+mtf_close  = request.security(syminfo.tickerid, mtf_tf, close)
+mtf_high   = request.security(syminfo.tickerid, mtf_tf, high)
+mtf_low    = request.security(syminfo.tickerid, mtf_tf, low)
+mtf_ema_fast = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, ema_fast_len))
+mtf_ema_slow = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, ema_slow_len))
+
+// Track 15m candle high/low (breakout logic from strategy set)
+var float last_mtf_high = na
+var float last_mtf_low  = na
+
+new_mtf_bar = ta.change(time(mtf_tf)) != 0
+if new_mtf_bar
+    last_mtf_high := mtf_high[1]
+    last_mtf_low  := mtf_low[1]
+
+// MTF trend alignment
+mtf_bullish = mtf_ema_fast > mtf_ema_slow
+mtf_bearish = mtf_ema_fast < mtf_ema_slow
+
+// ============================================================
+// SESSION FILTER (NY Session: 9:30 AM - 4:00 PM EST)
+// ============================================================
+ny_session = not na(time(timeframe.period, "0930-1600:23456"))
+session_ok = use_session ? ny_session : true
+
+// ============================================================
+// SIGNAL CONDITIONS
+// ============================================================
+
+// --- LONG Conditions ---
+// 1. Price above 15m breakout high (breakout confirmation)
+breakout_long = not na(last_mtf_high) and close > last_mtf_high
+
+// 2. EMA stack: fast > slow > trend (full bull alignment)
+ema_bull = ema_fast > ema_slow and ema_slow > ema_trend
+
+// 3. EMA cross (entry trigger)
+ema_cross_up = ta.crossover(ema_fast, ema_slow)
+
+// 4. MACD bullish
+macd_bull = macd_line > signal_line and hist > 0
+
+// 5. SuperTrend green
+st_bull = direction < 0
+
+// 6. RSI not overbought
+rsi_long_ok = rsi_val < rsi_ob and rsi_val > 40
+
+// 7. MTF alignment
+mtf_long_ok = mtf_bullish
+
+// LONG signal: require confluence of multiple conditions
+long_condition = (breakout_long or ema_cross_up) and ema_bull and macd_bull and st_bull and rsi_long_ok and vol_ok and mtf_long_ok and session_ok
+
+// --- SHORT Conditions ---
+// 1. Price below 15m breakout low
+breakout_short = not na(last_mtf_low) and close < last_mtf_low
+
+// 2. EMA stack: fast < slow < trend (full bear alignment)
+ema_bear = ema_fast < ema_slow and ema_slow < ema_trend
+
+// 3. EMA cross down
+ema_cross_dn = ta.crossunder(ema_fast, ema_slow)
+
+// 4. MACD bearish
+macd_bear = macd_line < signal_line and hist < 0
+
+// 5. SuperTrend red
+st_bear = direction > 0
+
+// 6. RSI not oversold
+rsi_short_ok = rsi_val > rsi_os and rsi_val < 60
+
+// 7. MTF alignment
+mtf_short_ok = mtf_bearish
+
+// SHORT signal
+short_condition = (breakout_short or ema_cross_dn) and ema_bear and macd_bear and st_bear and rsi_short_ok and vol_ok and mtf_short_ok and session_ok
+
+// ============================================================
+// EXECUTION WITH ATR-BASED DYNAMIC SL/TP
+// ============================================================
+
+if long_condition and strategy.position_size == 0
+    sl_long  = close - (atr_val * atr_sl_mult)
+    tp_long  = close + (atr_val * atr_sl_mult * risk_reward)
     strategy.entry("Long", strategy.long)
-    strategy.exit("Long Exit", "Long", stop=stopLoss, limit=takeProfit)
+    strategy.exit("Long Exit", "Long", stop=sl_long, limit=tp_long)
 
-if (short_condition)
-    float stopLoss = last15High
-    float risk = stopLoss - close
-    float takeProfit = close - (risk * risk_reward_ratio)
+if short_condition and strategy.position_size == 0
+    sl_short = close + (atr_val * atr_sl_mult)
+    tp_short = close - (atr_val * atr_sl_mult * risk_reward)
     strategy.entry("Short", strategy.short)
-    strategy.exit("Short Exit", "Short", stop=stopLoss, limit=takeProfit)
+    strategy.exit("Short Exit", "Short", stop=sl_short, limit=tp_short)
 
-// --- PLOTS ---
-plot(ema_fast, color=color.blue, title="EMA Fast")
-plot(ema_slow, color=color.red, title="EMA Slow")
-plot(supertrend, color=direction < 0 ? color.green : color.red, title="SuperTrend")
-plot(last15High, "15m High", color=color.gray, style=plot.style_stepline)
-plot(last15Low, "15m Low", color=color.gray, style=plot.style_stepline)
+// ============================================================
+// VISUAL OVERLAYS
+// ============================================================
+
+// EMA Lines
+plot(ema_fast,  "EMA Fast",  color=color.new(color.yellow, 0),  linewidth=1)
+plot(ema_slow,  "EMA Slow",  color=color.new(color.orange, 0),  linewidth=2)
+plot(ema_trend, "EMA 200",   color=color.new(color.white,  30), linewidth=2)
+
+// SuperTrend
+plot(supertrend, "SuperTrend", color=direction < 0 ? color.green : color.red, linewidth=2, style=plot.style_stepline)
+
+// MTF High/Low reference lines
+plot(last_mtf_high, "15m High", color=color.new(color.aqua,  30), linewidth=1, style=plot.style_circles)
+plot(last_mtf_low,  "15m Low",  color=color.new(color.fuchsia, 30), linewidth=1, style=plot.style_circles)
+
+// Entry Signals
+plotshape(long_condition,  title="Long Signal",  style=shape.triangleup,   location=location.belowbar, color=color.green, size=size.small)
+plotshape(short_condition, title="Short Signal", style=shape.triangledown, location=location.abovebar, color=color.red,   size=size.small)
+
+// Background color for trend
+bgcol = ema_bull ? color.new(color.green, 92) : ema_bear ? color.new(color.red, 92) : na
+bgcolor(bgcol, title="Trend Background")
+
+// ============================================================
+// DASHBOARD TABLE
+// ============================================================
+var table dash = table.new(position.top_right, 2, 8, bgcolor=color.new(color.black, 70), border_color=color.gray, border_width=1)
+
+if barstate.islast
+    table.cell(dash, 0, 0, "GB MASTER v3",   text_color=color.yellow, text_size=size.small)
+    table.cell(dash, 1, 0, "",               text_color=color.white,  text_size=size.small)
+    table.cell(dash, 0, 1, "EMA Trend",      text_color=color.gray,   text_size=size.tiny)
+    table.cell(dash, 1, 1, ema_bull ? "BULL" : ema_bear ? "BEAR" : "FLAT", text_color=ema_bull ? color.green : ema_bear ? color.red : color.gray, text_size=size.tiny)
+    table.cell(dash, 0, 2, "MACD",           text_color=color.gray,   text_size=size.tiny)
+    table.cell(dash, 1, 2, macd_bull ? "BULL" : macd_bear ? "BEAR" : "FLAT", text_color=macd_bull ? color.green : macd_bear ? color.red : color.gray, text_size=size.tiny)
+    table.cell(dash, 0, 3, "SuperTrend",     text_color=color.gray,   text_size=size.tiny)
+    table.cell(dash, 1, 3, st_bull ? "BULL" : "BEAR",               text_color=st_bull ? color.green : color.red, text_size=size.tiny)
+    table.cell(dash, 0, 4, "RSI",            text_color=color.gray,   text_size=size.tiny)
+    table.cell(dash, 1, 4, str.tostring(math.round(rsi_val, 1)),     text_color=rsi_val > rsi_ob ? color.red : rsi_val < rsi_os ? color.green : color.white, text_size=size.tiny)
+    table.cell(dash, 0, 5, "Volume",         text_color=color.gray,   text_size=size.tiny)
+    table.cell(dash, 1, 5, vol_ok ? "HIGH" : "low",                  text_color=vol_ok ? color.green : color.gray, text_size=size.tiny)
+    table.cell(dash, 0, 6, "MTF 15m",        text_color=color.gray,   text_size=size.tiny)
+    table.cell(dash, 1, 6, mtf_bullish ? "BULL" : mtf_bearish ? "BEAR" : "FLAT", text_color=mtf_bullish ? color.green : mtf_bearish ? color.red : color.gray, text_size=size.tiny)
+    table.cell(dash, 0, 7, "ATR",            text_color=color.gray,   text_size=size.tiny)
+    table.cell(dash, 1, 7, str.tostring(math.round(atr_val, 2)),     text_color=color.white, text_size=size.tiny)
+
+// ============================================================
+// ALERTS
+// ============================================================
+alertcondition(long_condition,  title="GB Long Signal",  message="GB Master v3: LONG signal on {{ticker}} {{interval}}")
+alertcondition(short_condition, title="GB Short Signal", message="GB Master v3: SHORT signal on {{ticker}} {{interval}}")
