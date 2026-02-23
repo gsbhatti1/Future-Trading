@@ -1,37 +1,35 @@
 // @version=6
-strategy("GB Master Ultimate Strategy v22 - Trail Optimized", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, commission_type=strategy.commission.percent, commission_value=0.01)
-
+strategy("GB Master Ultimate Strategy v24 - Wide Trail", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, commission_type=strategy.commission.percent, commission_value=0.01)
 // ================================================================
-// GB MASTER ULTIMATE STRATEGY v22 - TRAIL OPTIMIZED
+// GB MASTER ULTIMATE STRATEGY v24 - WIDER TRAIL OFFSET
 // Results log:
 // v16: +$232,    43.48% WR (20/46),  PF 1.221
 // v17: +$390.96, 48.94% WR (23/47),  PF 1.404
 // v18: -$433,    36.84% WR (7/19),   PF 0.3
 // v19: -$149,    45.71% WR (16/35),  PF 0.817
 // v20: +$176,    45.00% WR (27/60),  PF 1.131
-// v21: +$393.96, 59.57% WR (28/47),  PF 1.486  <-- BEST (trail works!)
-// v22 changes from v21:
-//   - Trail activates at 0.8R (sooner, catch more moves)
-//   - Trail offset tightened: 0.4x ATR (was 0.5x)
-//   - Break-even logic: once 1R profit, SL moves to entry price
-//   - These changes aim to increase captured profit per winner
+// v21: +$393.96, 59.57% WR (28/47),  PF 1.486 <-- BEST
+// v22: +$272.92, 61.70% WR (29/47),  PF 1.338  (trail too tight)
+// v23: +$393.96, 59.57% WR (28/47),  PF 1.486  (3R TP = same as v21, trail exits first)
+// v24 changes from v21:
+//   - Trail offset widened: 0.5x -> 0.7x ATR (let winners breathe more)
+//   - Trail activates at same 1.0R (unchanged)
+//   - Wider trail = bigger avg win, potentially higher P&L + PF
+//   - All other v21 settings unchanged
 // ================================================================
-
 // === INPUTS ===
-atr_len  = input.int(14,    "ATR Length",          group="Risk")
-atr_sl   = input.float(1.2, "SL ATR Mult",         group="Risk")
-rr       = input.float(2.5, "R:R",                 group="Risk")
-trail_r  = input.float(0.8, "Trail Activate (R)",  group="Risk")
-trail_atr= input.float(0.4, "Trail ATR Mult",       group="Risk")
+atr_len  = input.int(14,    "ATR Length",           group="Risk")
+atr_sl   = input.float(1.2, "SL ATR Mult",          group="Risk")
+rr       = input.float(2.5, "R:R",                  group="Risk")
+trail_r  = input.float(1.0, "Trail Activate (R)",   group="Risk")
+trail_atr= input.float(0.7, "Trail ATR Mult",        group="Risk")  // wider than v21 (was 0.5)
 rsi_len  = input.int(14,    "RSI Length",           group="Filter")
 mtf_tf   = input.timeframe("60", "HTF TF",          group="Trend")
-
 // === HTF TREND (1H) ===
 htf_ema21 = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 21))
 htf_ema50 = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 50))
 htf_bull  = htf_ema21 > htf_ema50
 htf_bear  = htf_ema21 < htf_ema50
-
 // === INDICATORS ===
 ema21  = ta.ema(close, 21)
 ema50  = ta.ema(close, 50)
@@ -39,151 +37,115 @@ ema200 = ta.ema(close, 200)
 rsi    = ta.rsi(close, rsi_len)
 atr    = ta.atr(atr_len)
 vwap   = ta.vwap(hlc3)
-
 // === SESSION FILTERS ===
 entry_window = not na(time(timeframe.period, "0945-1400", "America/New_York"))
 eod_exit     = not na(time(timeframe.period, "1555-1600", "America/New_York"))
-
 // === DAILY TRADE COUNTER ===
 var int daily_trades = 0
 new_day = ta.change(time("D")) != 0
 if new_day
     daily_trades := 0
-
 // === VWAP CROSS + 2-BAR HOLD ===
 vwap_cross_up   = close > vwap and close[1] <= vwap and close > open
 vwap_cross_down = close < vwap and close[1] >= vwap and close < open
 vwap_hold_up    = vwap_cross_up   or (close > vwap and close[1] > vwap and close[2] <= vwap[2] and close > open)
 vwap_hold_down  = vwap_cross_down or (close < vwap and close[1] < vwap and close[2] >= vwap[2] and close < open)
-
 // === EMA TREND ===
 bull_ema = ema21 > ema50
 bear_ema = ema21 < ema50
-
 // === STRONG CANDLE FILTER (body >= 40% of range) ===
 candle_range  = high - low
 candle_body   = math.abs(close - open)
 strong_candle = candle_range > 0 and (candle_body / candle_range) >= 0.40
-
 // === EMA200 MACRO FILTER ===
 above_ema200 = close > ema200
 below_ema200 = close < ema200
-
 // === SWING LEVELS ===
 swing_lo = ta.lowest(low, 8)
 swing_hi = ta.highest(high, 8)
-
-// === ENTRY CONDITIONS (identical to v17/v21) ===
+// === ENTRY CONDITIONS ===
 long_conditions  = vwap_hold_up   and bull_ema and htf_bull and rsi > 52 and rsi < 72 and above_ema200 and strong_candle
 short_conditions = vwap_hold_down and bear_ema and htf_bear and rsi < 48 and rsi > 28 and below_ema200 and strong_candle
-
 // === ENTRY GATE ===
 gate_ok      = entry_window and daily_trades < 2 and strategy.position_size == 0
 long_signal  = long_conditions  and gate_ok
 short_signal = short_conditions and gate_ok
-
-// === BREAK-EVEN MANAGEMENT ===
-var float entry_price = na
-var float entry_risk  = na
-var bool  be_set      = false
-
-// === TRADE EXECUTION ===
-var float sl = na
-var float tp = na
-
+// === SL/TP LEVELS ===
+var float sl      = na
+var float tp      = na
+var float entry_p = na
+var float risk_r  = na
+// === ENTRIES WITH TRAILING STOP ===
 if long_signal
-    sl        := math.min(low - atr_sl * atr, swing_lo - atr * 0.5)
-    risk       = close - sl
-    tp        := close + risk * rr
+    sl := math.min(low - atr_sl * atr, swing_lo - atr * 0.5)
+    risk = close - sl
+    tp := close + risk * rr
     if risk > 0 and sl < close and tp > close and risk < atr * 5
         strategy.entry("Long", strategy.long)
         strategy.exit("XL", "Long", stop=sl, limit=tp,
-             trail_price  = close + risk * trail_r,
-             trail_offset = trail_atr * atr / syminfo.mintick,
-             comment_loss="SL", comment_profit="TP")
-        entry_price := close
-        entry_risk  := risk
-        be_set      := false
+         trail_price  = close + risk * trail_r,
+         trail_offset = trail_atr * atr / syminfo.mintick,
+         comment_loss="SL", comment_profit="TP")
+        entry_p := close
+        risk_r  := risk
         daily_trades += 1
-
 if short_signal
-    sl        := math.max(high + atr_sl * atr, swing_hi + atr * 0.5)
-    risk       = sl - close
-    tp        := close - risk * rr
+    sl := math.max(high + atr_sl * atr, swing_hi + atr * 0.5)
+    risk = sl - close
+    tp := close - risk * rr
     if risk > 0 and sl > close and tp < close and risk < atr * 5
         strategy.entry("Short", strategy.short)
         strategy.exit("XS", "Short", stop=sl, limit=tp,
-             trail_price  = close - risk * trail_r,
-             trail_offset = trail_atr * atr / syminfo.mintick,
-             comment_loss="SL", comment_profit="TP")
-        entry_price := close
-        entry_risk  := risk
-        be_set      := false
+         trail_price  = close - risk * trail_r,
+         trail_offset = trail_atr * atr / syminfo.mintick,
+         comment_loss="SL", comment_profit="TP")
+        entry_p := close
+        risk_r  := risk
         daily_trades += 1
-
-// === BREAK-EVEN: move SL to entry when 1R profit reached ===
-if strategy.position_size > 0 and not na(entry_price) and not be_set
-    if close >= entry_price + entry_risk  // Long: 1R profit
-        strategy.exit("XL_BE", "Long", stop=entry_price, limit=tp, comment_loss="BE", comment_profit="TP")
-        be_set := true
-
-if strategy.position_size < 0 and not na(entry_price) and not be_set
-    if close <= entry_price - entry_risk  // Short: 1R profit
-        strategy.exit("XS_BE", "Short", stop=entry_price, limit=tp, comment_loss="BE", comment_profit="TP")
-        be_set := true
-
 // === EOD EXIT ===
 if eod_exit and strategy.position_size != 0
     strategy.close_all(comment="EOD")
-
 if strategy.position_size == 0
-    sl          := na
-    tp          := na
-    entry_price := na
-    entry_risk  := na
-    be_set      := false
-
+    sl      := na
+    tp      := na
+    entry_p := na
+    risk_r  := na
 // === WIN RATE TRACKER ===
-var int   w  = 0
+var int w = 0
 var float wr = 0.0
 if strategy.closedtrades > strategy.closedtrades[1]
     if strategy.closedtrades.profit(strategy.closedtrades - 1) > 0
         w += 1
     wr := (w / strategy.closedtrades) * 100
-
 // === PLOTS ===
-plot(vwap,  "VWAP",    color=color.fuchsia, linewidth=2)
-plot(ema21, "EMA 21",  color=color.yellow,  linewidth=1)
-plot(ema50, "EMA 50",  color=color.orange,  linewidth=1)
-plot(ema200,"EMA 200", color=color.white,   linewidth=2)
-
+plot(vwap, "VWAP", color=color.fuchsia, linewidth=2)
+plot(ema21, "EMA 21", color=color.yellow,  linewidth=1)
+plot(ema50, "EMA 50", color=color.orange,  linewidth=1)
+plot(ema200,"EMA 200", color=color.white,  linewidth=2)
 plotshape(long_signal,  "BUY",  style=shape.labelup,   location=location.belowbar, color=color.green, text="BUY",  textcolor=color.white, size=size.small)
 plotshape(short_signal, "SELL", style=shape.labeldown, location=location.abovebar, color=color.red,   text="SELL", textcolor=color.white, size=size.small)
-
 plot(sl, "SL", color=color.red,   style=plot.style_linebr, linewidth=2)
 plot(tp, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
-
 bgcolor(htf_bull ? color.new(color.green, 94) : htf_bear ? color.new(color.red, 94) : na)
 bgcolor(close > vwap ? color.new(color.green, 97) : color.new(color.red, 97))
-
 // === DASHBOARD ===
 var table d = table.new(position.top_right, 2, 9, bgcolor=color.black, border_color=color.gray, border_width=1)
 if barstate.islast
-    table.cell(d, 0, 0, "GB v22",     text_color=color.yellow,  text_size=size.small)
-    table.cell(d, 1, 0, "TrailOpt",   text_color=color.fuchsia, text_size=size.small)
-    table.cell(d, 0, 1, "HTF",        text_color=color.white,   text_size=size.small)
+    table.cell(d, 0, 0, "GB v24",      text_color=color.yellow,  text_size=size.small)
+    table.cell(d, 1, 0, "WideTrail",   text_color=color.fuchsia, text_size=size.small)
+    table.cell(d, 0, 1, "HTF",         text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 1, htf_bull ? "BULL" : "BEAR", text_color=htf_bull ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 2, "EMA",        text_color=color.white,   text_size=size.small)
+    table.cell(d, 0, 2, "EMA",         text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 2, bull_ema ? "BULL" : "BEAR", text_color=bull_ema ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 3, "EMA200",     text_color=color.white,   text_size=size.small)
+    table.cell(d, 0, 3, "EMA200",      text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 3, above_ema200 ? "ABOVE" : "BELOW", text_color=above_ema200 ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 4, "VWAP",       text_color=color.white,   text_size=size.small)
+    table.cell(d, 0, 4, "VWAP",        text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 4, str.tostring(math.round(vwap, 0)), text_color=close > vwap ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 5, "RSI",        text_color=color.white,   text_size=size.small)
+    table.cell(d, 0, 5, "RSI",         text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 5, str.tostring(math.round(rsi, 1)), text_color=rsi > 65 ? color.red : rsi < 35 ? color.lime : color.white, text_size=size.small)
-    table.cell(d, 0, 6, "Win Rate",   text_color=color.white,   text_size=size.small)
-    table.cell(d, 1, 6, str.tostring(math.round(wr, 1)) + "%", text_color=wr >= 60 ? color.green : wr >= 50 ? color.yellow : color.red, text_size=size.small)
-    table.cell(d, 0, 7, "Trades",     text_color=color.white,   text_size=size.small)
-    table.cell(d, 1, 7, str.tostring(strategy.closedtrades),    text_color=color.white, text_size=size.small)
-    table.cell(d, 0, 8, "Net P&L",    text_color=color.white,   text_size=size.small)
+    table.cell(d, 0, 6, "Win Rate",    text_color=color.white,   text_size=size.small)
+    table.cell(d, 1, 6, str.tostring(math.round(wr, 1)) + "%", text_color=wr >= 55 ? color.green : wr >= 45 ? color.yellow : color.red, text_size=size.small)
+    table.cell(d, 0, 7, "Trades",      text_color=color.white,   text_size=size.small)
+    table.cell(d, 1, 7, str.tostring(strategy.closedtrades),  text_color=color.white, text_size=size.small)
+    table.cell(d, 0, 8, "Net P&L",     text_color=color.white,   text_size=size.small)
     table.cell(d, 1, 8, str.tostring(math.round(strategy.netprofit, 0)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
