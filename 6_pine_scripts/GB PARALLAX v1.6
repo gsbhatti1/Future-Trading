@@ -1,0 +1,1230 @@
+//@version=6
+indicator("GB PARALLAX v1.6", overlay = true,
+    max_lines_count = 500, max_labels_count = 500, max_boxes_count = 500)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+//  ██████╗ ██████╗     ██████╗  █████╗ ██████╗  █████╗ ██╗     ██╗      █████╗ ██╗  ██╗
+// ██╔════╝ ██╔══██╗    ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██║     ██║     ██╔══██╗╚██╗██╔╝
+// ██║  ███╗██████╔╝    ██████╔╝███████║██████╔╝███████║██║     ██║     ███████║ ╚███╔╝
+// ██║   ██║██╔══██╗    ██╔═══╝ ██╔══██║██╔══██╗██╔══██║██║     ██║     ██╔══██║ ██╔██╗
+// ╚██████╔╝██████╔╝    ██║     ██║  ██║██║  ██║██║  ██║███████╗███████╗██║  ██║██╔╝ ██╗
+//  ╚═════╝ ╚═════╝     ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝
+//
+//
+// Same trap detection engine now runs on ALL three sessions:
+//    • Asia ORB    → overnight trap detection
+//    • London ORB  → pre-market trap detection
+//    • NY ORB      → main session trap detection
+//  Same methodology. Three chances per day. One indicator.
+//
+//  GB PARALLAX v1.0 — Decision HUD
+//  "See the real move. Not the fake one."
+//  Real losses. Real lessons. Real edge.
+//  Built on the battlefield, not in a classroom.
+//
+//  Designed by GB — Years of live market R&D.
+//
+//  PARALLAX is NOT an auto-entry system. It is a fighter pilot heads-up display.
+//  It detects TRAPS at ORH/ORL breaks by reading candle body direction.
+//  It shows you what happened, warns you of traps, and tells you when it's safe.
+//  YOU make the final call. PARALLAX removes the stress, not the control.
+//
+//  CORE METHOD (GB's live-tested edge):
+//    1. Price breaks ORH or ORL → BREAK DETECTED (do NOT enter)
+//    2. Read next candle body → bearish confirms short, bullish = TRAP
+//    3. Count 2-3 confirming candles with matching bodies
+//    4. If trap → watch for price to flip to other side → TRAP REVERSAL
+//    5. RSI must be in 20-80 safe zone
+//    6. SL = swing low/high of last 5-6 candles (NOT ORH/ORL)
+//    7. Minimum 50 point target, manage on 1m
+// ═════════════════════════════════════════════════
+//─────────────────────────────────────────────────────────────────────────
+// §1  INPUTS — SESSIONS
+//─────────────────────────────────────────────────────────────────────────
+
+// NY Session (Primary)
+nyORB        = input.string("0925-0930", title = "NY OR Window", group = "① NY Session")
+nyActive     = input.bool(true, title = "Enable NY", group = "① NY Session")
+nyOpen       = input.string("0930", title = "Market Open", group = "① NY Session")
+nyClose      = input.string("1600", title = "Market Close", group = "① NY Session")
+nyColor      = input.color(#00CCFF, title = "NY Color", group = "① NY Session")
+
+// ORB Line Style (applies to ALL sessions)
+orbHighColor = input.color(#00FF00, title = "ORH Color (all sessions)", group = "⑩ ORB Style")
+orbLowColor  = input.color(#FF0000, title = "ORL Color (all sessions)", group = "⑩ ORB Style")
+orbLineWidth = input.int(2, title = "ORB Line Width", minval = 1, maxval = 5, group = "⑩ ORB Style")
+refLineWidth = input.int(2, title = "Ref Level Width (PDH/PDL etc)", minval = 1, maxval = 5, group = "⑩ ORB Style")
+refRangeMode = input.string("Extend Right", title="Ref Level Range", options=["Extend Right","Forward Bars"], group="⑨ Levels")
+refForwardBars = input.int(500, title="Ref Forward Bars", minval=50, maxval=5000, group="⑨ Levels")
+
+// London Session
+lonORB       = input.string("0300-0315", title = "London OR Window", group = "② London Session")
+lonActive    = input.bool(false, title = "Enable London", group = "② London Session")
+lonOpen      = input.string("0315", title = "Trade Open", group = "② London Session")
+lonClose     = input.string("0925", title = "Trade Close", group = "② London Session")
+lonColor     = input.color(#FFD700, title = "London Color", group = "② London Session")
+
+// Asia Session
+asiaORB      = input.string("2000-2015", title = "Asia OR Window", group = "③ Asia Session")
+asiaActive   = input.bool(false, title = "Enable Asia", group = "③ Asia Session")
+asiaOpen     = input.string("2015", title = "Trade Open", group = "③ Asia Session")
+asiaClose    = input.string("0300", title = "Trade Close", group = "③ Asia Session")
+asiaColor    = input.color(#FF69B4, title = "Asia Color", group = "③ Asia Session")
+
+tz           = input.string("America/New_York", title = "Timezone", group = "④ General",
+    tooltip = "America/New_York, America/Denver, America/Chicago, UTC")
+showHist     = input.bool(true, title = "Show History", group = "④ General")
+
+//─────────────────────────────────────────────────────────────────────────
+// §2  INPUTS — PARALLAX ENGINE
+//─────────────────────────────────────────────────────────────────────────
+
+pxConfirmBars  = input.int(2, title = "Confirm Candles", minval = 1, maxval = 5, group = "⑤ PARALLAX")
+pxSwingSLBars  = input.int(6, title = "Swing SL Lookback", minval = 3, maxval = 12, group = "⑤ PARALLAX")
+pxMinTarget    = input.float(50, title = "Min Target (pts)", minval = 10, maxval = 500, group = "⑤ PARALLAX")
+pxTrapFlipMode = input.bool(true, title = "Trap Reversal", group = "⑤ PARALLAX")
+pxBodyLabels   = input.bool(false, title = "Candle Body Labels", group = "⑤ PARALLAX")
+pxMaxOR        = input.float(120, title = "Max OR Range", minval = 0, group = "⑤ PARALLAX")
+pxMinOR        = input.float(5, title = "Min OR Range", minval = 0, group = "⑤ PARALLAX")
+
+//─────────────────────────────────────────────────────────────────────────
+// §3  INPUTS — RSI / TRADE MGMT / RISK
+//─────────────────────────────────────────────────────────────────────────
+
+rsiLen       = input.int(14, title = "RSI Length", group = "⑥ RSI")
+rsiSafeHi    = input.int(80, title = "Safe High", group = "⑥ RSI")
+rsiSafeLo    = input.int(20, title = "Safe Low", group = "⑥ RSI")
+
+useBreakeven = input.bool(true, title = "Break-Even at 1R", group = "⑦ Trade Mgmt")
+trailTog     = input.bool(true, title = "Trail at 1.5R", group = "⑦ Trade Mgmt")
+trailPct     = input.float(40, title = "Trail %", minval = 10, maxval = 80, group = "⑦ Trade Mgmt") * 0.01
+singleTrade  = input.bool(false, title = "Single Trade/Session", group = "⑦ Trade Mgmt")
+tradeQty     = input.float(1.0, title="Position Size (qty)", minval=0.0, group="⑦ Trade Mgmt")
+usePointValueOverride = input.bool(false, title="Override $/Point", group="⑦ Trade Mgmt")
+pointValueOverride    = input.float(1.0, title="$/Point Override", minval=0.0, group="⑦ Trade Mgmt")
+dollarsPerPoint       = usePointValueOverride ? pointValueOverride : syminfo.pointvalue
+showRRBoxes  = input.bool(true, title = "R/R Zone Boxes", group = "⑦ Trade Mgmt")
+
+riskAmount   = input.float(750, title = "Risk $", group = "⑧ Risk")
+tickValue    = input.float(0.10, title = "Tick Value", group = "⑧ Risk")
+tickSize     = input.float(0.1, title = "Tick Size", group = "⑧ Risk")
+showRiskLab  = input.bool(false, title = "Risk Labels", group = "⑧ Risk")
+
+//─────────────────────────────────────────────────────────────────────────
+// §4  INPUTS — REFERENCE LEVELS + HUD
+//─────────────────────────────────────────────────────────────────────────
+
+showPDHL     = input.bool(true, title = "PDH/PDL", group = "⑨ Levels")
+showPWHL     = input.bool(false, title = "PWH/PWL", group = "⑨ Levels")
+showPMHL     = input.bool(false, title = "PMH/PML (Prev Month)", group = "⑨ Levels")
+showHHLL     = input.bool(true, title = "HH/LL", group = "⑨ Levels")
+pivotLen     = input.int(5, title = "Pivot Lookback", group = "⑨ Levels")
+showPreMkt   = input.bool(false, title = "PM H/L", group = "⑨ Levels")
+preMktSess   = input.string("0400-0925", title = "PM Session", group = "⑨ Levels")
+
+hudPos       = input.string("Top Right", title = "HUD Position",
+    options = ["Top Right","Top Left","Bottom Right","Bottom Left"], group = "⑩ HUD")
+
+pdhColor = input.color(#00BFFF, title = "PDH", group = "⑪ Colors", inline = "c1")
+pdlColor = input.color(#FF6347, title = "PDL", group = "⑪ Colors", inline = "c1")
+pwhColor = input.color(#9370DB, title = "PWH", group = "⑪ Colors", inline = "c2")
+pwlColor = input.color(#DA70D6, title = "PWL", group = "⑪ Colors", inline = "c2")
+pmhColor = input.color(#FFA500, title = "PMH", group = "⑪ Colors", inline = "c3")
+pmlColor = input.color(#FF8C00, title = "PML", group = "⑪ Colors", inline = "c3")
+hhColor  = input.color(#FFD700, title = "HH", group = "⑪ Colors", inline = "c4")
+llColor  = input.color(#FF1493, title = "LL", group = "⑪ Colors", inline = "c4")
+
+//─────────────────────────────────────────────────────────────────────────
+// ERROR CHECK
+//─────────────────────────────────────────────────────────────────────────
+
+if timeframe.in_seconds(timeframe.period) >= timeframe.in_seconds("D")
+    runtime.error("PARALLAX: Use intraday timeframes (1m-30m)")
+
+hide  = timeframe.isintraday
+invis = color.rgb(0, 0, 0, 100)
+
+//═════════════════════════════════════════════════════════════════════════
+// SESSION STATE — UDT
+//═════════════════════════════════════════════════════════════════════════
+
+type PXState
+    // Identity
+    string name          = ""
+    color  clr           = color.white
+
+    // ORB
+    float  orh           = na
+    float  orl           = na
+    float  orm           = na
+    float  prevOrm       = na
+    int    dayDir        = 0
+    bool   orComplete    = false
+
+    // Break tracking
+    bool   breakDetected = false
+    int    breakDir      = 0
+    int    breakBar      = 0
+    int    candlesSince  = 0
+    float  breakPrice    = na
+
+    // Body tracking
+    int    bullCount     = 0
+    int    bearCount     = 0
+    int    consecConf    = 0
+    int    consecContra  = 0
+
+    // Trap
+    bool   trapDetected  = false
+    int    trapBar       = 0
+
+    // Flip
+    bool   flipDetected  = false
+    int    flipDir       = 0
+    int    flipConfirm   = 0
+    int    flipBar       = 0
+
+    // Entry
+    bool   entryReady    = false
+    int    entryDir      = 0
+    bool   entryFired    = false
+    int    status        = 0
+    float  swingSL       = na
+
+    // ORB lines
+    line   hLine         = na
+    line   lLine         = na
+    line   mLine         = na
+    label  hLabel        = na
+    label  lLabel        = na
+
+//─────────────────────────────────────────────────────────────────────────
+// SESSION METHODS
+//─────────────────────────────────────────────────────────────────────────
+
+method resetEngine(PXState this) =>
+    this.breakDetected := false
+    this.breakDir      := 0
+    this.breakBar      := 0
+    this.candlesSince  := 0
+    this.breakPrice    := na
+    this.bullCount     := 0
+    this.bearCount     := 0
+    this.consecConf    := 0
+    this.consecContra  := 0
+    this.trapDetected  := false
+    this.trapBar       := 0
+    this.flipDetected  := false
+    this.flipDir       := 0
+    this.flipConfirm   := 0
+    this.flipBar       := 0
+    this.entryReady    := false
+    this.entryDir      := 0
+    this.entryFired    := false
+    this.status        := 0
+    this.swingSL       := na
+
+method resetORB(PXState this) =>
+    this.orh        := high
+    this.orl        := low
+    this.prevOrm    := nz(this.orm)
+    this.orComplete := false
+    this.resetEngine()
+    // Clean old lines
+    if not showHist
+        if not na(this.hLine)
+            line.delete(this.hLine)
+        if not na(this.lLine)
+            line.delete(this.lLine)
+        if not na(this.mLine)
+            line.delete(this.mLine)
+    if not na(this.hLabel)
+        label.delete(this.hLabel)
+    if not na(this.lLabel)
+        label.delete(this.lLabel)
+    this.hLine  := na
+    this.lLine  := na
+    this.mLine  := na
+    this.hLabel := na
+    this.lLabel := na
+
+method buildOR(PXState this) =>
+    if high > this.orh
+        this.orh := high
+    if low < this.orl
+        this.orl := low
+
+method finalizeOR(PXState this) =>
+    this.orm        := math.avg(this.orh, this.orl)
+    this.orComplete := true
+    this.dayDir     := this.orm > this.prevOrm ? 1 : this.orm < this.prevOrm ? -1 : 0
+
+method drawORB(PXState this) =>
+    orw = math.abs(this.orh - this.orl)
+    rangeOK = (pxMaxOR == 0 or orw <= pxMaxOR) and (pxMinOR == 0 or orw >= pxMinOR)
+    hCol = rangeOK ? orbHighColor : #666666
+    lCol = rangeOK ? orbLowColor : #666666
+    // NY = solid, London = dashed, Asia = dotted
+    lnStyle = this.name == "NY" ? line.style_solid : this.name == "LON" ? line.style_dashed : line.style_dotted
+    this.hLine  := line.new(bar_index, this.orh, bar_index, this.orh, color = hCol, width = orbLineWidth, style = lnStyle)
+    this.lLine  := line.new(bar_index, this.orl, bar_index, this.orl, color = lCol, width = orbLineWidth, style = lnStyle)
+    this.mLine  := line.new(bar_index, this.orm, bar_index, this.orm, color = color.new(#FFFFFF, 60), style = line.style_dotted)
+    this.hLabel := label.new(bar_index, this.orh, this.name + "-H", style = label.style_label_left,
+        color = invis, textcolor = hCol, size = size.tiny)
+    this.lLabel := label.new(bar_index, this.orl, this.name + "-L", style = label.style_label_left,
+        color = invis, textcolor = lCol, size = size.tiny)
+    fillCol = this.dayDir == 1 ? color.new(#089981, 95) : this.dayDir == -1 ? color.new(#f23645, 95) : color.new(color.gray, 96)
+    linefill.new(this.hLine, this.lLine, fillCol)
+
+method extendORB(PXState this) =>
+    if not na(this.hLine)
+        line.set_x2(this.hLine, bar_index)
+        line.set_x2(this.lLine, bar_index)
+        line.set_x2(this.mLine, bar_index)
+        label.set_x(this.hLabel, bar_index)
+        label.set_x(this.lLabel, bar_index)
+
+method runEngine(PXState this, bool _rsiSafe) =>
+    if this.orComplete and not this.entryFired
+        orw     = math.abs(this.orh - this.orl)
+        rangeOK = (pxMaxOR == 0 or orw <= pxMaxOR) and (pxMinOR == 0 or orw >= pxMinOR)
+        _bull   = close > open
+        _bear   = close < open
+        // ─── BREAK DETECTION ─────────────────────────────────────
+        if not this.breakDetected
+            if close > this.orh and rangeOK
+                this.breakDetected := true
+                this.breakDir      := 1
+                this.breakBar      := bar_index
+                this.breakPrice    := close
+                this.status        := 1
+                // v1.6: break candle counts as confirm #1 if body is bullish
+                if _bull
+                    this.consecConf := 1
+            else if close < this.orl and rangeOK
+                this.breakDetected := true
+                this.breakDir      := -1
+                this.breakBar      := bar_index
+                this.breakPrice    := close
+                this.status        := 1
+                // v1.6: break candle counts as confirm #1 if body is bearish
+                if _bear
+                    this.consecConf := 1
+            // v1.6: check if already confirmed on break bar itself
+            if this.breakDetected and not this.entryReady and this.consecConf >= pxConfirmBars and _rsiSafe
+                this.entryReady := true
+                this.entryDir   := this.breakDir
+                this.status     := 5
+        // ─── POST-BREAK: CONFIRM or TRAP ─────────────────────────
+        else if bar_index > this.breakBar
+            this.candlesSince += 1
+            if _bull
+                this.bullCount += 1
+            if _bear
+                this.bearCount += 1
+            // v1.6: Cumulative body tracking (no reset on opposing body)
+            if not this.trapDetected
+                if this.breakDir == 1 and _bull
+                    this.consecConf += 1
+                if this.breakDir == -1 and _bear
+                    this.consecConf += 1
+            // ─── TRAP: price closes on OPPOSITE side of range ────
+            // Bearish break below ORL → trap when close ABOVE ORH
+            // Bullish break above ORH → trap when close BELOW ORL
+            if not this.trapDetected and pxTrapFlipMode
+                if this.breakDir == -1 and close > this.orh
+                    this.trapDetected := true
+                    this.trapBar      := bar_index
+                    this.flipDetected := true
+                    this.flipDir      := 1
+                    this.flipConfirm  := 0
+                    this.flipBar      := bar_index
+                    this.consecConf   := 0
+                    this.consecContra := 0
+                    this.status       := 3
+                if this.breakDir == 1 and close < this.orl
+                    this.trapDetected := true
+                    this.trapBar      := bar_index
+                    this.flipDetected := true
+                    this.flipDir      := -1
+                    this.flipConfirm  := 0
+                    this.flipBar      := bar_index
+                    this.consecConf   := 0
+                    this.consecContra := 0
+                    this.status       := 3
+            // ─── CONFIRM: standard break (no trap) ───────────────
+            if not this.trapDetected and not this.entryReady
+                if this.consecConf >= pxConfirmBars
+                    this.status := 4
+                    if _rsiSafe
+                        this.entryReady := true
+                        this.entryDir   := this.breakDir
+                        this.status     := 5
+            // ─── FLIP CONFIRM: after trap, count flip bodies ─────
+            if this.trapDetected and this.flipDetected and not this.entryReady
+                if bar_index > this.flipBar
+                    // v1.6: cumulative — no reset on opposing body
+                    if this.flipDir == 1 and _bull
+                        this.flipConfirm += 1
+                    if this.flipDir == -1 and _bear
+                        this.flipConfirm += 1
+                    if this.flipConfirm >= pxConfirmBars and _rsiSafe
+                        this.entryReady := true
+                        this.entryDir   := this.flipDir
+                        this.status     := 5
+            // ─── WATCHING state ──────────────────────────────────
+            if this.breakDetected and not this.trapDetected and not this.entryReady and this.candlesSince >= 1 and this.status < 4
+                this.status := 2
+        // ─── SWING SL ───────────────────────────────────────────
+        if this.breakDetected
+            dir = this.entryReady ? this.entryDir : (this.flipDetected ? this.flipDir : this.breakDir)
+            if dir == 1
+                sl = low
+                for i = 1 to pxSwingSLBars - 1
+                    if low[i] < sl
+                        sl := low[i]
+                this.swingSL := sl
+            else
+                sl = high
+                for i = 1 to pxSwingSLBars - 1
+                    if high[i] > sl
+                        sl := high[i]
+                this.swingSL := sl
+
+method statusText(PXState this) =>
+    switch this.status
+        0 => "SCAN"
+        1 => "BREAK"
+        2 => "WATCH"
+        3 => "TRAP"
+        4 => "CONF"
+        5 => "READY"
+        6 => "TRAP"
+        7 => "ACTIVE"
+        => "—"
+
+method statusColor(PXState this) =>
+    switch this.status
+        0 => #555555
+        1 => #00AAFF
+        2 => #FFAA00
+        3 => #FF00FF
+        4 => #FFD700
+        5 => #00FF00
+        6 => #FF00FF
+        7 => #00FF00
+        => #555555
+
+//═════════════════════════════════════════════════════════════════════════
+// INSTANTIATE THREE SESSIONS
+//═════════════════════════════════════════════════════════════════════════
+
+var PXState ny   = PXState.new(name = "NY",   clr = nyColor)
+var PXState lon  = PXState.new(name = "LON",  clr = lonColor)
+var PXState asia = PXState.new(name = "ASIA", clr = asiaColor)
+
+//═════════════════════════════════════════════════════════════════════════
+// GLOBAL CALCULATIONS
+//═════════════════════════════════════════════════════════════════════════
+
+rsiVal  = ta.rsi(close, rsiLen)
+rsiSafe = rsiVal >= rsiSafeLo and rsiVal <= rsiSafeHi
+
+//═════════════════════════════════════════════════════════════════════════
+// STRUCTURE LEVELS (24h PDH/PDL, Weekly, Monthly) + optional HTF pivots
+//═════════════════════════════════════════════════════════════════════════
+
+// 24h Previous Day High/Low (from D candle, not session-based)
+[pdhVal, pdlVal] = request.security(syminfo.tickerid, "D", [high[1], low[1]], lookahead = barmerge.lookahead_off)
+
+// Previous Week High/Low
+
+[pwhVal, pwlVal] = request.security(syminfo.tickerid, "W", [high[1], low[1]], lookahead = barmerge.lookahead_off)
+[pmhVal, pmlVal] = request.security(syminfo.tickerid, "M", [high[1], low[1]], lookahead = barmerge.lookahead_off)
+
+// Pre-market
+var float pmHigh = na
+var float pmLow = na
+var bool pmSesh = false
+var bool pmLocked = false
+pmSesh := not na(time(timeframe.period, preMktSess, tz))
+if pmSesh and not pmSesh[1]
+    pmHigh := high, pmLow := low, pmLocked := false
+if pmSesh and not pmLocked
+    if high > pmHigh
+        pmHigh := high
+    if low < pmLow
+        pmLow := low
+if pmSesh[1] and not pmSesh
+    pmLocked := true
+
+// HH/LL
+var float prevPivotHigh = na
+var float currPivotHigh = na
+var float prevPivotLow = na
+var float currPivotLow = na
+var float latestHH = na
+var float latestLL = na
+var int lastPivotHighBar = na
+var float lastPivotHighVal = na
+var int lastPivotLowBar = na
+var float lastPivotLowVal = na
+var string lastPivotType = ""
+
+pivHigh = ta.pivothigh(high, pivotLen, pivotLen)
+pivLow  = ta.pivotlow(low, pivotLen, pivotLen)
+
+if not na(pivHigh)
+    prevPivotHigh := currPivotHigh
+    currPivotHigh := pivHigh
+    if not na(prevPivotHigh) and currPivotHigh > prevPivotHigh
+        latestHH := currPivotHigh
+    lastPivotHighBar := bar_index - pivotLen
+    lastPivotHighVal := pivHigh
+    lastPivotType := "high"
+
+if not na(pivLow)
+    prevPivotLow := currPivotLow
+    currPivotLow := pivLow
+    if not na(prevPivotLow) and currPivotLow < prevPivotLow
+        latestLL := currPivotLow
+    lastPivotLowBar := bar_index - pivotLen
+    lastPivotLowVal := pivLow
+    lastPivotType := "low"
+
+//═════════════════════════════════════════════════════════════════════════
+// SESSION DETECTION + ENGINE LOOP
+//═════════════════════════════════════════════════════════════════════════
+
+// ──── NY ──────────────────────────────────────────────────────────
+nyInOR   = not na(time(timeframe.period, nyORB, tz))
+nyStart  = nyInOR and not nyInOR[1]
+nyEnd    = nyInOR[1] and not nyInOR
+nyMktStr = nyOpen + "-" + nyClose
+nyMktOpen = not na(time(timeframe.period, nyMktStr, tz)) and not nyInOR
+
+if nyActive and nyStart
+    ny.resetORB()
+if nyActive and nyInOR
+    ny.buildOR()
+if nyActive and nyEnd
+    ny.finalizeOR()
+    if hide
+        ny.drawORB()
+if nyActive and not nyInOR and ny.orComplete and nyMktOpen and hide
+    ny.extendORB()
+if nyActive and not nyInOR and ny.orComplete and nyMktOpen and hide
+    ny.runEngine(rsiSafe)
+
+// ──── LONDON ─────────────────────────────────────────────────────
+lonInOR  = not na(time(timeframe.period, lonORB, tz))
+lonStart = lonInOR and not lonInOR[1]
+lonEnd   = lonInOR[1] and not lonInOR
+lonMktStr = lonOpen + "-" + lonClose
+lonMktOpen = not na(time(timeframe.period, lonMktStr, tz)) and not lonInOR
+
+if lonActive and lonStart
+    lon.resetORB()
+if lonActive and lonInOR
+    lon.buildOR()
+if lonActive and lonEnd
+    lon.finalizeOR()
+    if hide
+        lon.drawORB()
+if lonActive and not lonInOR and lon.orComplete and lonMktOpen and hide
+    lon.extendORB()
+if lonActive and not lonInOR and lon.orComplete and lonMktOpen and hide
+    lon.runEngine(rsiSafe)
+
+// ──── ASIA ───────────────────────────────────────────────────────
+asiaInOR  = not na(time(timeframe.period, asiaORB, tz))
+asiaStart = asiaInOR and not asiaInOR[1]
+asiaEnd   = asiaInOR[1] and not asiaInOR
+asiaMktStr = asiaOpen + "-" + asiaClose
+asiaMktOpen = not na(time(timeframe.period, asiaMktStr, tz)) and not asiaInOR
+
+if asiaActive and asiaStart
+    asia.resetORB()
+if asiaActive and asiaInOR
+    asia.buildOR()
+if asiaActive and asiaEnd
+    asia.finalizeOR()
+    if hide
+        asia.drawORB()
+if asiaActive and not asiaInOR and asia.orComplete and asiaMktOpen and hide
+    asia.extendORB()
+if asiaActive and not asiaInOR and asia.orComplete and asiaMktOpen and hide
+    asia.runEngine(rsiSafe)
+
+//═════════════════════════════════════════════════════════════════════════
+// CHART LABELS — Inline (drawLabels as method to avoid global issues)
+//═════════════════════════════════════════════════════════════════════════
+
+// Track "just ready" outside methods since [1] on UDT fields in methods is unreliable
+var bool nyWasReady   = false
+var bool lonWasReady  = false
+var bool asiaWasReady = false
+
+nyJustReady   = nyActive and ny.entryReady and not nyWasReady
+lonJustReady  = lonActive and lon.entryReady and not lonWasReady
+asiaJustReady = asiaActive and asia.entryReady and not asiaWasReady
+
+nyWasReady   := nyActive ? ny.entryReady : false
+lonWasReady  := lonActive ? lon.entryReady : false
+asiaWasReady := asiaActive ? asia.entryReady : false
+
+method drawLabels(PXState this, bool _justReady) =>
+    if this.orComplete and hide
+        if this.breakDetected and bar_index == this.breakBar
+            bTxt = this.breakDir == 1 ? "▲ " + this.name + " BREAK" : "▼ " + this.name + " BREAK"
+            bCol = this.breakDir == 1 ? #00AAFF : #FF6600
+            if this.breakDir == 1
+                label.new(bar_index, low, bTxt, color = color.new(bCol, 70), textcolor = bCol, style = label.style_label_up, size = size.small)
+            else
+                label.new(bar_index, high, bTxt, color = color.new(bCol, 70), textcolor = bCol, style = label.style_label_down, size = size.small)
+        // Trap = price crossed to opposite side (trap + flip are same bar now)
+        if this.trapDetected and bar_index == this.trapBar
+            tTxt = this.flipDir == 1 ? "⚠ TRAP → LONG" : "⚠ TRAP → SHORT"
+            tCol = this.flipDir == 1 ? #00FF88 : #FF4488
+            if this.flipDir == 1
+                label.new(bar_index, low, tTxt, color = color.new(#FF00FF, 50), textcolor = tCol, style = label.style_label_up, size = size.small)
+            else
+                label.new(bar_index, high, tTxt, color = color.new(#FF00FF, 50), textcolor = tCol, style = label.style_label_down, size = size.small)
+        if _justReady
+            eTxt = this.entryDir == 1 ? "✓ " + this.name + " LONG" : "✓ " + this.name + " SHORT"
+            eCol = this.entryDir == 1 ? #00FF00 : #FF0000
+            label.new(bar_index, this.entryDir == 1 ? low : high, eTxt,
+                color = color.new(eCol, 50), textcolor = #FFFFFF,
+                style = this.entryDir == 1 ? label.style_label_up : label.style_label_down, size = size.small)
+        if pxBodyLabels and this.breakDetected and bar_index > this.breakBar and this.candlesSince <= 8
+            _bull = close > open
+            _bear = close < open
+            _doji = close == open
+            bodyTxt = _bull ? "B" : _bear ? "S" : "D"
+            // After trap, confirms are relative to flip direction
+            activeDir = this.flipDetected ? this.flipDir : this.breakDir
+            confirms = (activeDir == 1 and _bull) or (activeDir == -1 and _bear)
+            bodyCol = confirms ? #00FF00 : _doji ? #888888 : #FF4444
+            if activeDir == 1
+                label.new(bar_index, low, bodyTxt, color = invis, textcolor = bodyCol, style = label.style_label_up, size = size.tiny)
+            else
+                label.new(bar_index, high, bodyTxt, color = invis, textcolor = bodyCol, style = label.style_label_down, size = size.tiny)
+
+if nyActive
+    ny.drawLabels(nyJustReady)
+if lonActive
+    lon.drawLabels(lonJustReady)
+if asiaActive
+    asia.drawLabels(asiaJustReady)
+
+//═════════════════════════════════════════════════════════════════════════
+// TRADE MANAGEMENT — Inline (no functions modifying globals)
+//═════════════════════════════════════════════════════════════════════════
+
+var line  slLine = na, var line entryLine = na
+var line  tp1Line = na, var line tp2Line = na, var line tp3Line = na
+var label slLabel = na, var label entryLabel = na
+var label tp1Label = na, var label tp2Label = na, var label tp3Label = na
+var line  oneRLine = na, var label oneRLabel = na
+var label riskInfoLabel = na, var label plInfoLabel = na
+var box   riskZoneBox = na, var box rewardZoneBox = na
+
+var bool  tradeActive    = false
+var bool  tradeWasActive = false
+var int   winCount = 0
+var int   lossCount = 0
+var float totalPoints = 0.0
+var float totalPnLDollars = 0.0
+var float lastTradePnL = na
+var bool  isLongTrade    = false
+var float tradeEntry     = na
+var bool  tp1Hit = false
+var bool tp2Hit = false
+var bool tp3Hit = false
+var bool  trailing15R    = false
+var float peakSince15R   = na
+var float troughSince15R = na
+var bool  oneRHit        = false
+var float oneRLevel      = na
+var string activeSession = ""
+
+slHitBool = false
+trailExitBool = false
+beHitBool = false
+
+var int monthlyTrades = 0
+var int monthlyWins = 0
+var int monthlyLoss = 0
+var int lastMonth = month(time)
+if month(time) != lastMonth
+    monthlyTrades := 0
+    monthlyWins   := 0
+    monthlyLoss   := 0
+    lastMonth     := month(time)
+
+// ──── Inline entry detection for each session ────────────────────
+
+triggerSession = 0
+if nyJustReady and not tradeActive and hide and (not singleTrade or not ny.entryFired)
+    triggerSession := 1
+else if lonJustReady and not tradeActive and hide and (not singleTrade or not lon.entryFired)
+    triggerSession := 2
+else if asiaJustReady and not tradeActive and hide and (not singleTrade or not asia.entryFired)
+    triggerSession := 3
+
+
+triggerDir = triggerSession == 1 ? ny.entryDir : triggerSession == 2 ? lon.entryDir : triggerSession == 3 ? asia.entryDir : 0
+triggerSL  = triggerSession == 1 ? ny.swingSL : triggerSession == 2 ? lon.swingSL : triggerSession == 3 ? asia.swingSL : na
+triggerName = triggerSession == 1 ? "NY" : triggerSession == 2 ? "LON" : triggerSession == 3 ? "ASIA" : ""
+
+if triggerSession > 0
+    // Delete old trade visuals
+    if not na(slLine)
+        line.delete(slLine)
+    if not na(entryLine)
+        line.delete(entryLine)
+    if not na(tp1Line)
+        line.delete(tp1Line)
+    if not na(tp2Line)
+        line.delete(tp2Line)
+    if not na(tp3Line)
+        line.delete(tp3Line)
+    if not na(oneRLine)
+        line.delete(oneRLine)
+    if not na(slLabel)
+        label.delete(slLabel)
+    if not na(entryLabel)
+        label.delete(entryLabel)
+    if not na(tp1Label)
+        label.delete(tp1Label)
+    if not na(tp2Label)
+        label.delete(tp2Label)
+    if not na(tp3Label)
+        label.delete(tp3Label)
+    if not na(oneRLabel)
+        label.delete(oneRLabel)
+    if not na(riskInfoLabel)
+        label.delete(riskInfoLabel)
+    if not na(plInfoLabel)
+        label.delete(plInfoLabel)
+    if not na(riskZoneBox)
+        box.delete(riskZoneBox)
+    if not na(rewardZoneBox)
+        box.delete(rewardZoneBox)
+
+    // Mark session fired
+    if triggerSession == 1
+        ny.entryFired := true
+        ny.status := 7
+    else if triggerSession == 2
+        lon.entryFired := true
+        lon.status := 7
+    else if triggerSession == 3
+        asia.entryFired := true
+        asia.status := 7
+
+    tradeActive  := true
+    isLongTrade  := triggerDir == 1
+    tradeEntry   := close
+    tp1Hit := false
+    tp2Hit := false
+    tp3Hit := false
+    oneRHit := false
+    trailing15R := false
+    activeSession := triggerName
+    monthlyTrades += 1
+
+    entryPrice = close
+    stopLoss   = triggerSL
+    rRange     = math.abs(entryPrice - nz(stopLoss))
+    isLong     = triggerDir == 1
+    tp1Price   = isLong ? entryPrice + pxMinTarget : entryPrice - pxMinTarget
+    tp2Price   = isLong ? entryPrice + pxMinTarget * 2 : entryPrice - pxMinTarget * 2
+    tp3Price   = isLong ? entryPrice + pxMinTarget * 3 : entryPrice - pxMinTarget * 3
+    oneRLevel := isLong ? entryPrice + rRange : entryPrice - rRange
+
+    slLine    := line.new(bar_index, stopLoss, bar_index + 1, stopLoss, color = #FF0000, width = 3)
+    entryLine := line.new(bar_index, entryPrice, bar_index + 1, entryPrice, color = #FFFF00, width = 3)
+    tp1Line   := line.new(bar_index, tp1Price, bar_index + 1, tp1Price, color = #00FF00, width = 2, style = line.style_dashed)
+    tp2Line   := line.new(bar_index, tp2Price, bar_index + 1, tp2Price, color = #00FF00, width = 2, style = line.style_dashed)
+    tp3Line   := line.new(bar_index, tp3Price, bar_index + 1, tp3Price, color = #00FF00, width = 3)
+
+    slLabel    := label.new(bar_index, stopLoss, "SL (Swing)", color = color.new(#FF0000, 40), textcolor = #FFFFFF, style = label.style_label_left, size = size.tiny)
+    entryLabel := label.new(bar_index, entryPrice, "ENTRY", color = color.new(#FFFF00, 40), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+    tp1Label   := label.new(bar_index, tp1Price, "TP1 +" + str.tostring(pxMinTarget, "#"), color = color.new(#00FF00, 40), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+    tp2Label   := label.new(bar_index, tp2Price, "TP2 +" + str.tostring(pxMinTarget * 2, "#"), color = color.new(#00FF00, 40), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+    tp3Label   := label.new(bar_index, tp3Price, "TP3 +" + str.tostring(pxMinTarget * 3, "#"), color = color.new(#00FF00, 40), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+
+    if useBreakeven and rRange > 0
+        oneRLine  := line.new(bar_index, oneRLevel, bar_index + 1, oneRLevel, color = #FFFF00, width = 1, style = line.style_dotted)
+        oneRLabel := label.new(bar_index, oneRLevel, "1R/BE", color = color.new(#FFFF00, 70), textcolor = #FFFF00, style = label.style_label_left, size = size.tiny)
+
+    if showRRBoxes and rRange > 0
+        riskZoneBox   := box.new(bar_index, math.max(entryPrice, nz(stopLoss)), bar_index + 20, math.min(entryPrice, nz(stopLoss)), border_color = na, bgcolor = color.new(#FF0000, 88))
+        rewardZoneBox := box.new(bar_index, math.max(entryPrice, tp2Price), bar_index + 20, math.min(entryPrice, tp2Price), border_color = na, bgcolor = color.new(#00FF00, 88))
+
+    if showRiskLab and rRange > 0
+        riskTicks = rRange / tickSize
+        riskDollars = riskTicks * tickValue
+        qty = riskDollars > 0 ? math.floor(riskAmount / riskDollars) : 0
+        rrRatio = rRange > 0 ? pxMinTarget / rRange : 0
+        projPL = qty * pxMinTarget / tickSize * tickValue
+        riskInfoLabel := label.new(bar_index, nz(stopLoss),
+            "Risk: " + str.tostring(rRange, "#.#") + " pts | $" + str.tostring(riskAmount, "#") + " | Qty: " + str.tostring(qty),
+            color = color.new(#FF0000, 20), textcolor = #FFFFFF, style = label.style_label_left, size = size.tiny)
+        plInfoLabel := label.new(bar_index, tp1Price,
+            "TP1: $" + str.tostring(projPL, "#") + " | R:R " + str.tostring(rrRatio, "#.#"),
+            color = color.new(#00FF00, 20), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+
+// ──── Trade management ───────────────────────────────────────────
+if tradeActive and not na(slLine) and hide
+    slLevel  = line.get_y1(slLine)
+    tp1Level = line.get_y1(tp1Line)
+    tp3Level = line.get_y1(tp3Line)
+
+    if isLongTrade
+        if not oneRHit and useBreakeven and not na(oneRLevel) and close >= oneRLevel
+            oneRHit := true
+            beHitBool := true
+            line.set_y1(slLine, tradeEntry)
+            line.set_y2(slLine, tradeEntry)
+            label.set_y(slLabel, tradeEntry)
+            label.set_text(slLabel, "BE")
+            if not na(oneRLine)
+                line.delete(oneRLine)
+                oneRLine := na
+            if not na(oneRLabel)
+                label.delete(oneRLabel)
+                oneRLabel := na
+            if not na(riskZoneBox)
+                box.delete(riskZoneBox)
+                riskZoneBox := na
+
+        if trailing15R and trailTog
+            peakSince15R := math.max(peakSince15R, high)
+            trailStop = peakSince15R - ((peakSince15R - tradeEntry) * trailPct)
+            if close < trailStop
+                tradeActive := false
+                trailing15R := false
+                trailExitBool := true
+
+        if not tp3Hit and close >= tp3Level
+            tp3Hit := true
+            tradeActive := false
+            trailing15R := false
+            monthlyWins += 1
+        else if not tp1Hit and close >= tp1Level
+            tp1Hit := true
+            if trailTog
+                trailing15R := true
+                peakSince15R := high
+            else
+                tradeActive := false
+                monthlyWins += 1
+
+        if close <= slLevel
+            tradeActive := false
+            trailing15R := false
+            slHitBool := true
+            monthlyLoss += 1
+
+    else
+        if not oneRHit and useBreakeven and not na(oneRLevel) and close <= oneRLevel
+            oneRHit := true
+            beHitBool := true
+            line.set_y1(slLine, tradeEntry)
+            line.set_y2(slLine, tradeEntry)
+            label.set_y(slLabel, tradeEntry)
+            label.set_text(slLabel, "BE")
+            if not na(oneRLine)
+                line.delete(oneRLine)
+                oneRLine := na
+            if not na(oneRLabel)
+                label.delete(oneRLabel)
+                oneRLabel := na
+            if not na(riskZoneBox)
+                box.delete(riskZoneBox)
+                riskZoneBox := na
+
+        if trailing15R and trailTog
+            troughSince15R := math.min(troughSince15R, low)
+            trailStop = troughSince15R + ((tradeEntry - troughSince15R) * trailPct)
+            if close > trailStop
+                tradeActive := false
+                trailing15R := false
+                trailExitBool := true
+
+        if not tp3Hit and close <= tp3Level
+            tp3Hit := true
+            tradeActive := false
+            trailing15R := false
+            monthlyWins += 1
+        else if not tp1Hit and close <= tp1Level
+            tp1Hit := true
+            if trailTog
+                trailing15R := true
+                troughSince15R := low
+            else
+                tradeActive := false
+                monthlyWins += 1
+
+        if close >= slLevel
+            tradeActive := false
+            trailing15R := false
+            slHitBool := true
+            monthlyLoss += 1
+
+// Clean on trade close
+if tradeActive[1] and not tradeActive
+    if not na(riskInfoLabel)
+        label.delete(riskInfoLabel)
+        riskInfoLabel := na
+    if not na(plInfoLabel)
+        label.delete(plInfoLabel)
+        plInfoLabel := na
+    if not na(riskZoneBox)
+        box.delete(riskZoneBox)
+        riskZoneBox := na
+    if not na(rewardZoneBox)
+        box.delete(rewardZoneBox)
+        rewardZoneBox := na
+
+// Extend trade lines
+if tradeActive and hide
+    if not na(slLine)
+        line.set_x2(slLine, bar_index +4)
+    if not na(entryLine)
+        line.set_x2(entryLine, bar_index +4)
+    if not na(tp1Line)
+        line.set_x2(tp1Line, bar_index +4)
+    if not na(tp2Line)
+        line.set_x2(tp2Line, bar_index +4)
+    if not na(tp3Line)
+        line.set_x2(tp3Line, bar_index +4)
+    if not na(oneRLine)
+        line.set_x2(oneRLine, bar_index +4)
+    if not na(slLabel)
+        label.set_x(slLabel, bar_index +4)
+    if not na(entryLabel)
+        label.set_x(entryLabel, bar_index +4)
+    if not na(tp1Label)
+        label.set_x(tp1Label, bar_index +4)
+    if not na(tp2Label)
+        label.set_x(tp2Label, bar_index +4)
+    if not na(tp3Label)
+        label.set_x(tp3Label, bar_index +4)
+    if not na(oneRLabel)
+        label.set_x(oneRLabel, bar_index +4)
+    if not na(riskInfoLabel)
+        label.set_x(riskInfoLabel, bar_index +4)
+    if not na(plInfoLabel)
+        label.set_x(plInfoLabel, bar_index +4)
+    if not na(riskZoneBox)
+        box.set_right(riskZoneBox, bar_index +4)
+    if not na(rewardZoneBox)
+        box.set_right(rewardZoneBox, bar_index +4)
+
+//═════════════════════════════════════════════════════════════════════════
+// REFERENCE LEVELS — Inline (no tuple := reassignment)
+//═════════════════════════════════════════════════════════════════════════
+
+var line pdhLine = na
+var line pdlLine = na
+var label pdhLabel = na
+var label pdlLabel = na
+var line pwhLine = na
+var line pwlLine = na
+var label pwhLabel = na
+var label pwlLabel = na
+var line pmhPrevLine = na
+var line pmlPrevLine = na
+var label pmhPrevLabel = na
+var label pmlPrevLabel = na
+var line pmhLine = na  // Premarket PMH
+var line pmlLine = na  // Premarket PML
+var label pmhLabel = na
+var label pmlLabel = na
+var line hhLine = na
+var line llLine = na
+var label hhLabel = na
+var label llLabel = na
+
+// Helper: reference line x2 based on mode
+f_refX2(_x1) =>
+    refRangeMode == "Extend Right" ? bar_index : _x1 + refForwardBars
+
+// ---- STRUCTURE LEVELS: 24h PDH/PDL, Weekly, Monthly ----
+// PDH
+if showPDHL and hide and not na(pdhVal)
+    if na(pdhLine)
+        _x1 = bar_index
+        _x2 = refRangeMode == "Extend Right" ? bar_index : _x1 + refForwardBars
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pdhLine := line.new(_x1, pdhVal, _x2, pdhVal, color = pdhColor, width = refLineWidth, style = line.style_dashed, extend = _ext)
+        pdhLabel := label.new(bar_index, pdhVal, "PDH", color = color.new(pdhColor, 70), textcolor = pdhColor, style = label.style_label_left, size = size.tiny)
+    else if line.get_y1(pdhLine) != pdhVal
+        line.set_y1(pdhLine, pdhVal)
+        line.set_y2(pdhLine, pdhVal)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pdhLine, f_refX2(line.get_x1(pdhLine)))
+    if not na(pdhLabel)
+        label.set_y(pdhLabel, pdhVal)
+        label.set_x(pdhLabel, bar_index)
+
+// PDL
+if showPDHL and hide and not na(pdlVal)
+    if na(pdlLine)
+        _x1 = bar_index
+        _x2 = refRangeMode == "Extend Right" ? bar_index : _x1 + refForwardBars
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pdlLine := line.new(_x1, pdlVal, _x2, pdlVal, color = pdlColor, width = refLineWidth, style = line.style_dashed, extend = _ext)
+        pdlLabel := label.new(bar_index, pdlVal, "PDL", color = color.new(pdlColor, 70), textcolor = pdlColor, style = label.style_label_left, size = size.tiny)
+    else if line.get_y1(pdlLine) != pdlVal
+        line.set_y1(pdlLine, pdlVal)
+        line.set_y2(pdlLine, pdlVal)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pdlLine, f_refX2(line.get_x1(pdlLine)))
+    if not na(pdlLabel)
+        label.set_y(pdlLabel, pdlVal)
+        label.set_x(pdlLabel, bar_index)
+
+// PWH/PWL (previous weekly candle)
+if showPWHL and hide and not na(pwhVal)
+    if na(pwhLine)
+        _x1 = bar_index
+        _x2 = refRangeMode == "Extend Right" ? bar_index : _x1 + refForwardBars
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pwhLine := line.new(_x1, pwhVal, _x2, pwhVal, color = pwhColor, width = 1, style = line.style_dashed, extend = _ext)
+        pwhLabel := label.new(bar_index, pwhVal, "PWH", color = color.new(pwhColor, 70), textcolor = pwhColor, style = label.style_label_left, size = size.tiny)
+    else if line.get_y1(pwhLine) != pwhVal
+        line.set_y1(pwhLine, pwhVal), line.set_y2(pwhLine, pwhVal)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pwhLine, f_refX2(line.get_x1(pwhLine)))
+    if not na(pwhLabel)
+        label.set_y(pwhLabel, pwhVal), label.set_x(pwhLabel, bar_index)
+
+if showPWHL and hide and not na(pwlVal)
+    if na(pwlLine)
+        _x1 = bar_index
+        _x2 = refRangeMode == "Extend Right" ? bar_index : _x1 + refForwardBars
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pwlLine := line.new(_x1, pwlVal, _x2, pwlVal, color = pwlColor, width = 1, style = line.style_dashed, extend = _ext)
+        pwlLabel := label.new(bar_index, pwlVal, "PWL", color = color.new(pwlColor, 70), textcolor = pwlColor, style = label.style_label_left, size = size.tiny)
+    else if line.get_y1(pwlLine) != pwlVal
+        line.set_y1(pwlLine, pwlVal), line.set_y2(pwlLine, pwlVal)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pwlLine, f_refX2(line.get_x1(pwlLine)))
+    if not na(pwlLabel)
+        label.set_y(pwlLabel, pwlVal), label.set_x(pwlLabel, bar_index)
+
+// PMH/PML (previous monthly candle)
+if showPMHL and hide and not na(pmhVal)
+    if na(pmhPrevLine)
+        _x1 = bar_index
+        _x2 = refRangeMode == "Extend Right" ? bar_index : _x1 + refForwardBars
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pmhPrevLine := line.new(_x1, pmhVal, _x2, pmhVal, color = pmhColor, width = refLineWidth, style = line.style_dotted, extend = _ext)
+        pmhPrevLabel := label.new(bar_index, pmhVal, "PMH", color = color.new(pmhColor, 70), textcolor = pmhColor, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_y1(pmhPrevLine, pmhVal), line.set_y2(pmhPrevLine, pmhVal)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pmhPrevLine, f_refX2(line.get_x1(pmhPrevLine)))
+    if not na(pmhPrevLabel)
+        label.set_y(pmhPrevLabel, pmhVal), label.set_x(pmhPrevLabel, bar_index)
+
+if showPMHL and hide and not na(pmlVal)
+    if na(pmlPrevLine)
+        _x1 = bar_index
+        _x2 = refRangeMode == "Extend Right" ? bar_index : _x1 + refForwardBars
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pmlPrevLine := line.new(_x1, pmlVal, _x2, pmlVal, color = pmhColor, width = refLineWidth, style = line.style_dotted, extend = _ext)
+        pmlPrevLabel := label.new(bar_index, pmlVal, "PML", color = color.new(pmhColor, 70), textcolor = pmhColor, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_y1(pmlPrevLine, pmlVal), line.set_y2(pmlPrevLine, pmlVal)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pmlPrevLine, f_refX2(line.get_x1(pmlPrevLine)))
+    if not na(pmlPrevLabel)
+        label.set_y(pmlPrevLabel, pmlVal), label.set_x(pmlPrevLabel, bar_index)
+
+// PMH
+if showPreMkt and pmLocked and hide and not na(pmHigh)
+    if na(pmhLine)
+        pmhLine := line.new(bar_index, pmHigh, bar_index, pmHigh, color = pmhColor, width = 1, style = line.style_dotted)
+        pmhLabel := label.new(bar_index, pmHigh, "PMH", color = color.new(pmhColor, 70), textcolor = pmhColor, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_x2(pmhLine, bar_index)
+        label.set_x(pmhLabel, bar_index)
+// PML
+if showPreMkt and pmLocked and hide and not na(pmLow)
+    if na(pmlLine)
+        pmlLine := line.new(bar_index, pmLow, bar_index, pmLow, color = pmlColor, width = 1, style = line.style_dotted)
+        pmlLabel := label.new(bar_index, pmLow, "PML", color = color.new(pmlColor, 70), textcolor = pmlColor, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_x2(pmlLine, bar_index)
+        label.set_x(pmlLabel, bar_index)
+
+// HH/LL
+if showHHLL and hide and not na(latestHH)
+    if na(hhLine)
+        hhLine := line.new(bar_index, latestHH, bar_index, latestHH, color = hhColor, width = 2, style = line.style_dashed)
+        hhLabel := label.new(bar_index, latestHH, "HH", color = color.new(hhColor, 70), textcolor = hhColor, style = label.style_label_left, size = size.tiny)
+    else if line.get_y1(hhLine) != latestHH
+        line.delete(hhLine), label.delete(hhLabel)
+        hhLine := line.new(bar_index - pivotLen, latestHH, bar_index, latestHH, color = hhColor, width = 2, style = line.style_dashed)
+        hhLabel := label.new(bar_index, latestHH, "HH", color = color.new(hhColor, 70), textcolor = hhColor, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_x2(hhLine, bar_index), label.set_x(hhLabel, bar_index)
+
+if showHHLL and hide and not na(latestLL)
+    if na(llLine)
+        llLine := line.new(bar_index, latestLL, bar_index, latestLL, color = llColor, width = 2, style = line.style_dashed)
+        llLabel := label.new(bar_index, latestLL, "LL", color = color.new(llColor, 70), textcolor = llColor, style = label.style_label_left, size = size.tiny)
+    else if line.get_y1(llLine) != latestLL
+        line.delete(llLine), label.delete(llLabel)
+        llLine := line.new(bar_index - pivotLen, latestLL, bar_index, latestLL, color = llColor, width = 2, style = line.style_dashed)
+        llLabel := label.new(bar_index, latestLL, "LL", color = color.new(llColor, 70), textcolor = llColor, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_x2(llLine, bar_index), label.set_x(llLabel, bar_index)
+
+//═════════════════════════════════════════════════════════════════════════
+// VISUAL — Background + Flash
+//═════════════════════════════════════════════════════════════════════════
+
+// Entry flash
+// Entry flash (reuse justReady computed above)
+anyEntry = nyJustReady or lonJustReady or asiaJustReady
+entryFlashDir = nyJustReady ? ny.entryDir : lonJustReady ? lon.entryDir : asiaJustReady ? asia.entryDir : 0
+
+barcolor(anyEntry and entryFlashDir == 1 ? #00FF00 :
+    anyEntry and entryFlashDir == -1 ? #FF0000 :
+    na, title = "Entry Flash")
+
+//═════════════════════════════════════════════════════════════════════════
+// TRADE STATS (points + $) — computed on trade close
+//═════════════════════════════════════════════════════════════════════════
+if tradeWasActive and not tradeActive
+    dir = isLongTrade ? 1.0 : -1.0
+    pts = (close - tradeEntry) * dir
+    lastTradePnL := pts
+    totalPoints += pts
+    totalPnLDollars += pts * dollarsPerPoint * tradeQty
+    if pts > 0
+        winCount += 1
+    else if pts < 0
+        lossCount += 1
+tradeWasActive := tradeActive
+
+// Session backgrounds
+bgcolor(nyInOR ? color.new(nyColor, 92) :
+    lonInOR ? color.new(lonColor, 92) :
+    asiaInOR ? color.new(asiaColor, 92) : na, title = "OR Session BG")
+
+//═════════════════════════════════════════════════════════════════════════
+// DECISION HUD — MULTI-SESSION COCKPIT
+//═════════════════════════════════════════════════════════════════════════
+
+winRate = monthlyTrades > 0 ? (monthlyWins * 1.0 / monthlyTrades) * 100 : 0.0
+
+hPos = hudPos == "Top Right" ? position.top_right :
+     hudPos == "Top Left" ? position.top_left :
+     hudPos == "Bottom Right" ? position.bottom_right : position.bottom_left
+
+var table hud = table.new(position.top_right, 5, 11)
+
+if barstate.islast and hide
+    table.delete(hud)
+    hud := table.new(hPos, 5, 11, bgcolor = color.new(#0a0a1e, 5), border_width = 1, border_color = color.new(#333355, 0))
+
+    // Row 0: Header
+    table.cell(hud, 0, 0, "PARALLAX", text_color = #00CCFF, text_size = size.small)
+    table.cell(hud, 1, 0, "STATUS", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 2, 0, "CONF", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 3, 0, "RANGE", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 4, 0, "SL", text_color = #888888, text_size = size.tiny)
+
+    // Row 1: NY
+    nyOrw = ny.orComplete ? math.abs(ny.orh - ny.orl) : 0
+    table.cell(hud, 0, 1, "NY", text_color = nyActive ? nyColor : #444444, text_size = size.small)
+    table.cell(hud, 1, 1, nyActive ? ny.statusText() : "OFF", text_color = nyActive ? ny.statusColor() : #444444, text_size = size.small)
+    conf1 = ny.flipDetected ? ny.flipConfirm : ny.consecConf
+    table.cell(hud, 2, 1, ny.breakDetected ? str.tostring(conf1) + "/" + str.tostring(pxConfirmBars) : "—", text_color = conf1 >= pxConfirmBars ? #00FF00 : #FFAA00, text_size = size.tiny)
+    table.cell(hud, 3, 1, ny.orComplete ? str.tostring(nyOrw, "#.#") : "—", text_color = #AAAAAA, text_size = size.tiny)
+    table.cell(hud, 4, 1, not na(ny.swingSL) ? str.tostring(ny.swingSL, "#.#") : "—", text_color = #FF8800, text_size = size.tiny)
+
+    // Row 2: London
+    lonOrw = lon.orComplete ? math.abs(lon.orh - lon.orl) : 0
+    table.cell(hud, 0, 2, "LON", text_color = lonActive ? lonColor : #444444, text_size = size.small)
+    table.cell(hud, 1, 2, lonActive ? lon.statusText() : "OFF", text_color = lonActive ? lon.statusColor() : #444444, text_size = size.small)
+    conf2 = lon.flipDetected ? lon.flipConfirm : lon.consecConf
+    table.cell(hud, 2, 2, lon.breakDetected ? str.tostring(conf2) + "/" + str.tostring(pxConfirmBars) : "—", text_color = conf2 >= pxConfirmBars ? #00FF00 : #FFAA00, text_size = size.tiny)
+    table.cell(hud, 3, 2, lon.orComplete ? str.tostring(lonOrw, "#.#") : "—", text_color = #AAAAAA, text_size = size.tiny)
+    table.cell(hud, 4, 2, not na(lon.swingSL) ? str.tostring(lon.swingSL, "#.#") : "—", text_color = #FF8800, text_size = size.tiny)
+
+    // Row 3: Asia
+    asiaOrw = asia.orComplete ? math.abs(asia.orh - asia.orl) : 0
+    table.cell(hud, 0, 3, "ASIA", text_color = asiaActive ? asiaColor : #444444, text_size = size.small)
+    table.cell(hud, 1, 3, asiaActive ? asia.statusText() : "OFF", text_color = asiaActive ? asia.statusColor() : #444444, text_size = size.small)
+    conf3 = asia.flipDetected ? asia.flipConfirm : asia.consecConf
+    table.cell(hud, 2, 3, asia.breakDetected ? str.tostring(conf3) + "/" + str.tostring(pxConfirmBars) : "—", text_color = conf3 >= pxConfirmBars ? #00FF00 : #FFAA00, text_size = size.tiny)
+    table.cell(hud, 3, 3, asia.orComplete ? str.tostring(asiaOrw, "#.#") : "—", text_color = #AAAAAA, text_size = size.tiny)
+    table.cell(hud, 4, 3, not na(asia.swingSL) ? str.tostring(asia.swingSL, "#.#") : "—", text_color = #FF8800, text_size = size.tiny)
+
+    // Row 4: Divider
+    table.cell(hud, 0, 4, "────", text_color = #333355, text_size = size.tiny)
+    table.cell(hud, 1, 4, "────", text_color = #333355, text_size = size.tiny)
+    table.cell(hud, 2, 4, "", text_size = size.tiny)
+    table.cell(hud, 3, 4, "", text_size = size.tiny)
+    table.cell(hud, 4, 4, "", text_size = size.tiny)
+
+    // Row 5: RSI
+    table.cell(hud, 0, 5, "RSI", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 5, str.tostring(rsiVal, "#.#") + (rsiSafe ? " ✓" : " ✗"), text_color = rsiSafe ? #00FF00 : #FF4444, text_size = size.small)
+    table.cell(hud, 2, 5, "", text_size = size.tiny)
+    table.cell(hud, 3, 5, "", text_size = size.tiny)
+    table.cell(hud, 4, 5, "", text_size = size.tiny)
+
+    // Row 6: Trade status
+    trdTxt = tradeActive ? (isLongTrade ? "LONG" : "SHORT") + " [" + activeSession + "]" : "NO TRADE"
+    trdCol = tradeActive ? #00FF00 : #666666
+    table.cell(hud, 0, 6, "TRADE", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 6, trdTxt, text_color = trdCol, text_size = size.small)
+    table.cell(hud, 0, 7, "W/L", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 7, str.tostring(winCount) + "/" + str.tostring(lossCount), text_color = #AAAAAA, text_size = size.small)
+    table.cell(hud, 0, 8, "PTS", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 8, str.tostring(totalPoints, "#.##"), text_color = totalPoints >= 0 ? #00FF00 : #FF4444, text_size = size.small)
+    table.cell(hud, 0, 9, "PNL$", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 9, str.tostring(totalPnLDollars, "#.##"), text_color = totalPnLDollars >= 0 ? #00FF00 : #FF4444, text_size = size.small)
+    table.cell(hud, 2, 6, "", text_size = size.tiny)
+    table.cell(hud, 3, 6, "", text_size = size.tiny)
+    table.cell(hud, 4, 6, "", text_size = size.tiny)
+
+    // Row 7: Monthly + Credit
+    wrCol = winRate >= 60 ? #00FF00 : winRate >= 40 ? #FFAA00 : #FF4444
+    table.cell(hud, 0, 7, str.tostring(monthlyWins) + "W/" + str.tostring(monthlyLoss) + "L", text_color = monthlyTrades > 0 ? wrCol : #666666, text_size = size.tiny)
+    table.cell(hud, 1, 7, str.tostring(winRate, "#.#") + "%", text_color = monthlyTrades > 0 ? wrCol : #666666, text_size = size.tiny)
+    table.cell(hud, 2, 7, "TF:" + timeframe.period, text_color = #555555, text_size = size.tiny)
+    table.cell(hud, 3, 7, "", text_size = size.tiny)
+    table.cell(hud, 4, 7, "© GB", text_color = #333355, text_size = size.tiny)
+
+//═════════════════════════════════════════════════════════════════════════
+// ALERTS
+//═════════════════════════════════════════════════════════════════════════
+
+alertcondition(nyJustReady and ny.entryDir == 1, "NY PARALLAX Long", '{"signal":"PARALLAX","session":"NY","action":"buy","symbol":"{{ticker}}","price":{{close}}}')
+alertcondition(nyJustReady and ny.entryDir == -1, "NY PARALLAX Short", '{"signal":"PARALLAX","session":"NY","action":"sell","symbol":"{{ticker}}","price":{{close}}}')
+alertcondition(lonJustReady and lon.entryDir == 1, "LON PARALLAX Long", '{"signal":"PARALLAX","session":"LON","action":"buy","symbol":"{{ticker}}","price":{{close}}}')
+alertcondition(lonJustReady and lon.entryDir == -1, "LON PARALLAX Short", '{"signal":"PARALLAX","session":"LON","action":"sell","symbol":"{{ticker}}","price":{{close}}}')
+alertcondition(asiaJustReady and asia.entryDir == 1, "ASIA PARALLAX Long", '{"signal":"PARALLAX","session":"ASIA","action":"buy","symbol":"{{ticker}}","price":{{close}}}')
+alertcondition(asiaJustReady and asia.entryDir == -1, "ASIA PARALLAX Short", '{"signal":"PARALLAX","session":"ASIA","action":"sell","symbol":"{{ticker}}","price":{{close}}}')
+alertcondition(ny.trapDetected and bar_index == ny.trapBar, "NY Trap", "PARALLAX: NY TRAP detected")
+alertcondition(lon.trapDetected and bar_index == lon.trapBar, "LON Trap", "PARALLAX: LON TRAP detected")
+alertcondition(slHitBool, "SL Hit", "PARALLAX: Stop Loss hit")
+alertcondition(beHitBool, "Break-Even", "PARALLAX: Stop moved to BE")
+alertcondition(trailExitBool, "Trail Exit", "PARALLAX: Trail stop closed")
+
+// ═══════════════════════════════════════════════════════════════════════════
+// END — GB PARALLAX v1.6
+// "See the real move. Not the fake one."
+// © 2024-2026 GB LLC. All Rights Reserved.
+// ═══════════════════════════════════════════════════════════════════════════
