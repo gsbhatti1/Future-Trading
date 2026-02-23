@@ -1,0 +1,1165 @@
+//@version=6
+indicator("GB-CIPHER v1.1", overlay = true,
+    max_lines_count = 500, max_labels_count = 500, max_boxes_count = 500)
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  GB CIPHER v1.0 — Structure Decoder
+//  "Crack the code others can't read."
+//
+//  Designed by GB LLC.
+//  © 2024-2026 All Rights Reserved.
+//
+//  POST-ORB structure engine:
+//    • BOS / ChoCh — trend continuation vs reversal
+//    • FVG / IFVG — imbalance zones
+//    • Order Blocks — institutional candles before impulse
+//    • Breaker Blocks — failed OBs that flip polarity
+//    • OTE Zone — optimal trade entry (customizable fib)
+//    • Premium / Discount — buy cheap, sell expensive
+//    //    • 5m HH/LL Staircase — broken levels flip S/R
+//    • Entry Signals — multi-confluence triggers
+// ═══════════════════════════════════════════════════════════════════════════
+
+//─────────────────────────────────────────────────────────────────
+// §1  INPUTS — STRUCTURE
+//─────────────────────────────────────────────────────────────────
+
+swingLen       = input.int(5, "Swing Lookback", minval = 2, maxval = 20, group = "① Structure")
+showBOS        = input.bool(true, "Show BOS", group = "① Structure")
+showChoCh      = input.bool(true, "Show ChoCh", group = "① Structure")
+showStaircase  = input.bool(false, "Show Staircase S/R Lines", group = "① Structure",
+    tooltip = "Broken HH/LL levels flip to S/R lines")
+showSwLabels   = input.bool(false, "Show HH/HL/LH/LL Labels", group = "① Structure")
+maxStructDraw  = input.int(30, "Max Structure Drawings", minval = 10, maxval = 100, group = "① Structure")
+
+//─────────────────────────────────────────────────────────────────
+// §2  INPUTS — FVG
+//─────────────────────────────────────────────────────────────────
+
+showFVG       = input.bool(false, "Show FVG", group = "② FVG")
+showIFVG      = input.bool(false, "Show IFVG (Inverse)", group = "② FVG")
+fvgMinPts     = input.float(0, "Min FVG Size (pts)", minval = 0, group = "② FVG")
+fvgExtend     = input.int(20, "FVG Extend (bars)", minval = 5, maxval = 100, group = "② FVG")
+fvgMitigation = input.bool(true, "Mark Mitigated", group = "② FVG")
+maxFVG        = input.int(20, "Max FVG Boxes", minval = 5, maxval = 50, group = "② FVG")
+
+//─────────────────────────────────────────────────────────────────
+// §3  INPUTS — ORDER BLOCKS
+//─────────────────────────────────────────────────────────────────
+
+showOB        = input.bool(false, "Show Order Blocks", group = "③ Order Blocks")
+showBreaker   = input.bool(false, "Show Breaker Blocks", group = "③ Order Blocks")
+obMaxAge      = input.int(50, "OB Max Age (bars)", minval = 10, maxval = 200, group = "③ Order Blocks")
+maxOB         = input.int(10, "Max OB Boxes", minval = 3, maxval = 30, group = "③ Order Blocks")
+
+//─────────────────────────────────────────────────────────────────
+// §4  INPUTS — OTE ZONE
+//─────────────────────────────────────────────────────────────────
+
+showOTE       = input.bool(false, "Show OTE Zone", group = "④ OTE Zone")
+oteLow        = input.float(0.62, "OTE Low (fib)", minval = 0.3, maxval = 0.9, step = 0.01, group = "④ OTE Zone")
+oteHigh       = input.float(0.79, "OTE High (fib)", minval = 0.3, maxval = 0.95, step = 0.01, group = "④ OTE Zone")
+oteSweet      = input.float(0.705, "OTE Sweet Spot", minval = 0.3, maxval = 0.95, step = 0.005, group = "④ OTE Zone",
+    tooltip = "The ideal entry level within OTE")
+showPremDisc  = input.bool(false, "Show Premium/Discount BG", group = "④ OTE Zone")
+
+//─────────────────────────────────────────────────────────────────
+// §5  INPUTS — HTF REFERENCE LEVELS
+//─────────────────────────────────────────────────────────────────
+
+showPDHL24   = input.bool(true, "Show 24h PDH/PDL", group = "⑤ HTF Levels", tooltip = "Previous daily high/low from the 24h D candle (high[1]/low[1])")
+showPWHL      = input.bool(false, "Show Weekly PWH/PWL", group = "⑤ HTF Levels")
+showPMHL      = input.bool(false, "Show Monthly PMH/PML", group = "⑤ HTF Levels")
+refRangeMode  = input.string("Extend Right", "Ref Level Range", options=["Extend Right","Forward Bars"], group="⑤ HTF Levels")
+refForwardBars = input.int(500, "Ref Forward Bars", minval=50, maxval=5000, group="⑤ HTF Levels")
+
+//─────────────────────────────────────────────────────────────────
+// §6  INPUTS — ENTRY SIGNALS
+//─────────────────────────────────────────────────────────────────
+
+showEntry     = input.bool(true, "Show Entry Signals", group = "⑥ Entry Signals")
+signalCooldownBars = input.int(10, "Signal Cooldown (bars)", minval = 0, maxval = 200, group = "⑥ Entry Signals", tooltip = "Prevents repeated LONG/SHORT labels when conditions stay true")
+reqChoCh      = input.bool(true, "Require ChoCh", group = "⑥ Entry Signals")
+reqFVG        = input.bool(false, "Require FVG/OB", group = "⑥ Entry Signals")
+reqOTE        = input.bool(false, "Require OTE Zone", group = "⑥ Entry Signals")
+reqDiscount   = input.bool(false, "Require Discount(buy)/Premium(sell)", group = "⑥ Entry Signals")
+reqTrendAgree = input.bool(true, "Entry Must Agree With Trend", group = "⑥ Entry Signals",
+    tooltip = "No LONG in bear trend, no SHORT in bull trend")
+reqSwingValid = input.bool(true, "Validate Swing Structure", group = "⑥ Entry Signals",
+    tooltip = "LONG only if last high was HH, SHORT only if last low was LL")
+entryCooldown = input.int(2, "Cooldown Bars After BOS/ChoCh", minval = 1, maxval = 10, group = "⑥ Entry Signals",
+    tooltip = "Wait N bars after structure event before allowing entry")
+
+//─────────────────────────────────────────────────────────────────
+// §6B  INPUTS — TRADE MANAGEMENT (like PARALLAX)
+//─────────────────────────────────────────────────────────────────
+
+cipherTarget   = input.float(50, "Min Target (pts)", minval = 10, maxval = 500, group = "⑥B Trade Mgmt")
+cipherSLBars   = input.int(6, "Swing SL Lookback", minval = 3, maxval = 12, group = "⑥B Trade Mgmt")
+cipherBE       = input.bool(true, "Break-Even at 1R", group = "⑥B Trade Mgmt")
+cipherTrail    = input.bool(true, "Trail at TP1", group = "⑥B Trade Mgmt")
+cipherTrailPct = input.float(40, "Trail %", minval = 10, maxval = 80, group = "⑥B Trade Mgmt") * 0.01
+
+//─────────────────────────────────────────────────────────────────
+// §7  INPUTS — COLORS
+//─────────────────────────────────────────────────────────────────
+
+bosClrBull    = input.color(#00CCFF, "BOS Bull", inline = "bos", group = "⑦ Colors")
+bosClrBear    = input.color(#FF6347, "Bear", inline = "bos", group = "⑦ Colors")
+chochClrBull  = input.color(#00FF88, "ChoCh Bull", inline = "ch", group = "⑦ Colors")
+chochClrBear  = input.color(#FF00FF, "Bear", inline = "ch", group = "⑦ Colors")
+fvgClrBull    = input.color(#00FF00, "FVG Bull", inline = "fvg", group = "⑦ Colors")
+fvgClrBear    = input.color(#FF0000, "Bear", inline = "fvg", group = "⑦ Colors")
+obClrBull     = input.color(#00BBFF, "OB Bull", inline = "ob", group = "⑦ Colors")
+obClrBear     = input.color(#FF4488, "Bear", inline = "ob", group = "⑦ Colors")
+brkClrBull    = input.color(#FFAA00, "Breaker Bull", inline = "brk", group = "⑦ Colors")
+brkClrBear    = input.color(#AA00FF, "Bear", inline = "brk", group = "⑦ Colors")
+oteClr        = input.color(#FFD700, "OTE Zone", group = "⑦ Colors")
+pdhClr        = input.color(#00BFFF, "PDH", inline = "pdh", group = "⑦ Colors")
+pdlClr        = input.color(#FF6347, "PDL", inline = "pdh", group = "⑦ Colors")
+pwhClr        = input.color(#FFD700, "PWH/PWL", group = "⑦ Colors")
+pmhClr        = input.color(#DA70D6, "PMH/PML", group = "⑦ Colors")
+srFlipBull    = input.color(#00FF88, "S/R Flip Bull", inline = "sr", group = "⑦ Colors")
+srFlipBear    = input.color(#FF4444, "Bear", inline = "sr", group = "⑦ Colors")
+
+//─────────────────────────────────────────────────────────────────
+// §8  INPUTS — HUD
+//─────────────────────────────────────────────────────────────────
+
+showHUD       = input.bool(true, "Show HUD", group = "⑧ HUD")
+hudPos        = input.string("Bottom Right", "Position",
+    options = ["Top Right","Top Left","Bottom Right","Bottom Left"], group = "⑧ HUD")
+
+//─────────────────────────────────────────────────────────────────
+// SAFETY CHECK
+//─────────────────────────────────────────────────────────────────
+
+if timeframe.in_seconds(timeframe.period) >= timeframe.in_seconds("D")
+    runtime.error("CIPHER: Use intraday timeframes (1m-30m)")
+
+hide  = timeframe.isintraday
+invis = color.rgb(0, 0, 0, 100)
+
+//═════════════════════════════════════════════════════════════════
+// TYPES
+//═════════════════════════════════════════════════════════════════
+
+type FVGZone
+    float  top
+    float  bot
+    int    startBar
+    int    dir       // 1 bull, -1 bear
+    bool   mitigated
+    bool   inverted
+    box    bx
+    label  lb
+
+type OBZone
+    float  top
+    float  bot
+    int    startBar
+    int    dir       // 1 bull, -1 bear
+    bool   mitigated
+    bool   breaker   // flipped to breaker
+    box    bx
+    label  lb
+
+//═════════════════════════════════════════════════════════════════
+// SWING DETECTION — 5M Staircase
+//═════════════════════════════════════════════════════════════════
+
+var int   trend       = 0
+var float lastSwH     = na
+var float lastSwL     = na
+var int   lastSwHBar  = na
+var int   lastSwLBar  = na
+var float prevSwH     = na
+var float prevSwL     = na
+
+// v1.1: Swing classification tracking
+var string lastHighType = ""    // "HH" or "LH"
+var string lastLowType  = ""   // "LL" or "HL"
+var int    lastStructBar = 0    // for cooldown
+
+pivH = ta.pivothigh(high, swingLen, swingLen)
+pivL = ta.pivotlow(low, swingLen, swingLen)
+
+var array<label> sLabels = array.new<label>()
+var array<line>  sLines  = array.new<line>()
+
+// Staircase S/R flip lines
+var array<line>  srLines  = array.new<line>()
+var array<label> srLabels = array.new<label>()
+
+// ───────────────────────────────────────────────────────────────
+// Reference level drawing handles (24h / Weekly / Monthly)
+// ───────────────────────────────────────────────────────────────
+var line  pdh24_ln = na
+var label pdh24_lb = na
+var line  pdl24_ln = na
+var label pdl24_lb = na
+
+var line  pwh_ln = na
+var label pwh_lb = na
+var line  pwl_ln = na
+var label pwl_lb = na
+
+var line  pmh_ln = na
+var label pmh_lb = na
+var line  pml_ln = na
+var label pml_lb = na
+
+
+bosNow    = false
+bosDir    = 0
+chochNow  = false
+chochDir  = 0
+
+// Variables for order block detection
+var int   lastBullImpBar = na
+var int   lastBearImpBar = na
+
+// ──── SWING HIGH ─────────────────────────────────────────
+swHType = ""
+if not na(pivH) and hide
+    prevSwH   := lastSwH
+    lastSwHBar := bar_index - swingLen
+    lastSwH   := pivH
+    if not na(prevSwH)
+        if pivH > prevSwH
+            swHType := "HH"
+            lastHighType := "HH"   // v1.1
+            if trend == 1
+                bosNow := true
+                bosDir := 1
+                lastStructBar := bar_index  // v1.1
+            else if trend == -1
+                chochNow := true
+                chochDir := 1
+                trend    := 1
+                lastStructBar := bar_index  // v1.1
+            else
+                trend  := 1
+                bosNow := true
+                bosDir := 1
+                lastStructBar := bar_index  // v1.1
+            // HH breaks old HH → old HH flips to SUPPORT
+            if showStaircase and not na(prevSwH)
+                srl = line.new(bar_index - swingLen, prevSwH, bar_index, prevSwH,
+                    color = srFlipBull, width = 1, style = line.style_solid)
+                srLines.push(srl)
+                srLbl = label.new(bar_index - swingLen, prevSwH, "S",
+                    color = invis, textcolor = srFlipBull,
+                    style = label.style_label_up, size = size.tiny)
+                srLabels.push(srLbl)
+        else
+            swHType := "LH"
+            lastHighType := "LH"   // v1.1
+    if showSwLabels and swHType != ""
+        sl = label.new(bar_index - swingLen, pivH, swHType,
+            color = invis, textcolor = swHType == "HH" ? #00FF00 : #FF8800,
+            style = label.style_label_down, size = size.tiny)
+        sLabels.push(sl)
+
+// ──── SWING LOW ──────────────────────────────────────────
+swLType = ""
+if not na(pivL) and hide
+    prevSwL   := lastSwL
+    lastSwLBar := bar_index - swingLen
+    lastSwL   := pivL
+    if not na(prevSwL)
+        if pivL < prevSwL
+            swLType := "LL"
+            lastLowType := "LL"   // v1.1
+            if trend == -1
+                bosNow := true
+                bosDir := -1
+                lastStructBar := bar_index  // v1.1
+            else if trend == 1
+                chochNow := true
+                chochDir := -1
+                trend    := -1
+                lastStructBar := bar_index  // v1.1
+            else
+                trend  := -1
+                bosNow := true
+                bosDir := -1
+                lastStructBar := bar_index  // v1.1
+            // LL breaks old LL → old LL flips to RESISTANCE
+            if showStaircase and not na(prevSwL)
+                srl = line.new(bar_index - swingLen, prevSwL, bar_index, prevSwL,
+                    color = srFlipBear, width = 1, style = line.style_solid)
+                srLines.push(srl)
+                srLbl = label.new(bar_index - swingLen, prevSwL, "R",
+                    color = invis, textcolor = srFlipBear,
+                    style = label.style_label_down, size = size.tiny)
+                srLabels.push(srLbl)
+        else
+            swLType := "HL"
+            lastLowType := "HL"   // v1.1
+    if showSwLabels and swLType != ""
+        sl = label.new(bar_index - swingLen, pivL, swLType,
+            color = invis, textcolor = swLType == "LL" ? #FF0000 : #00AAFF,
+            style = label.style_label_up, size = size.tiny)
+        sLabels.push(sl)
+
+// Extend staircase S/R lines
+if srLines.size() > 0
+    for i = srLines.size() - 1 to 0
+        if i < srLines.size()
+            ln = srLines.get(i)
+            if not na(ln)
+                line.set_x2(ln, bar_index)
+// Cleanup
+if sLabels.size() > maxStructDraw * 2
+    label.delete(sLabels.shift())
+if sLines.size() > maxStructDraw
+    line.delete(sLines.shift())
+if srLines.size() > maxStructDraw
+    line.delete(srLines.shift())
+if srLabels.size() > maxStructDraw
+    label.delete(srLabels.shift())
+
+//═════════════════════════════════════════════════════════════════
+// BOS / ChoCh VISUALS
+//═════════════════════════════════════════════════════════════════
+
+if bosNow and showBOS and hide
+    bPrice = bosDir == 1 ? lastSwH : lastSwL
+    bBar   = bosDir == 1 ? lastSwHBar : lastSwLBar
+    clr    = bosDir == 1 ? bosClrBull : bosClrBear
+    prevB  = bosDir == 1 ? nz(lastSwHBar[1], bBar - 15) : nz(lastSwLBar[1], bBar - 15)
+    bLine  = line.new(prevB, bPrice, bBar, bPrice, color = clr, width = 1, style = line.style_dashed)
+    sLines.push(bLine)
+    bLbl = label.new(math.round(math.avg(prevB, bBar)), bPrice, "BOS",
+        color = color.new(clr, 70), textcolor = clr,
+        style = bosDir == 1 ? label.style_label_up : label.style_label_down, size = size.tiny)
+    sLabels.push(bLbl)
+
+if chochNow and showChoCh and hide
+    cPrice = chochDir == 1 ? lastSwH : lastSwL
+    cBar   = chochDir == 1 ? lastSwHBar : lastSwLBar
+    clr    = chochDir == 1 ? chochClrBull : chochClrBear
+    prevB  = chochDir == 1 ? nz(lastSwHBar[1], cBar - 15) : nz(lastSwLBar[1], cBar - 15)
+    cLine  = line.new(prevB, cPrice, cBar, cPrice, color = clr, width = 2, style = line.style_solid)
+    sLines.push(cLine)
+    cLbl = label.new(math.round(math.avg(prevB, cBar)), cPrice, "ChoCh",
+        color = color.new(clr, 50), textcolor = #FFFFFF,
+        style = chochDir == 1 ? label.style_label_up : label.style_label_down, size = size.small)
+    sLabels.push(cLbl)
+
+//═════════════════════════════════════════════════════════════════
+// FVG DETECTION
+//═════════════════════════════════════════════════════════════════
+
+var array<FVGZone> fvgZones = array.new<FVGZone>()
+
+bullGapTop = low
+bullGapBot = high[2]
+bullGap    = bullGapTop > bullGapBot and close[1] > open[1]
+bullGapSz  = bullGap ? (bullGapTop - bullGapBot) : 0.0
+
+bearGapTop = low[2]
+bearGapBot = high
+bearGap    = bearGapTop > bearGapBot and close[1] < open[1]
+bearGapSz  = bearGap ? (bearGapTop - bearGapBot) : 0.0
+
+if showFVG and hide
+    if bullGap and bullGapSz >= fvgMinPts
+        bx = box.new(bar_index - 2, bullGapTop, bar_index + fvgExtend, bullGapBot,
+            border_color = color.new(fvgClrBull, 60), bgcolor = color.new(fvgClrBull, 88))
+        lb = label.new(bar_index - 1, math.avg(bullGapTop, bullGapBot), "FVG",
+            color = invis, textcolor = color.new(fvgClrBull, 40),
+            style = label.style_label_center, size = size.tiny)
+        fvgZones.push(FVGZone.new(bullGapTop, bullGapBot, bar_index - 2, 1, false, false, bx, lb))
+
+    if bearGap and bearGapSz >= fvgMinPts
+        bx = box.new(bar_index - 2, bearGapTop, bar_index + fvgExtend, bearGapBot,
+            border_color = color.new(fvgClrBear, 60), bgcolor = color.new(fvgClrBear, 88))
+        lb = label.new(bar_index - 1, math.avg(bearGapTop, bearGapBot), "FVG",
+            color = invis, textcolor = color.new(fvgClrBear, 40),
+            style = label.style_label_center, size = size.tiny)
+        fvgZones.push(FVGZone.new(bearGapTop, bearGapBot, bar_index - 2, -1, false, false, bx, lb))
+
+// FVG mitigation + IFVG
+if fvgZones.size() > 0 and hide
+    for i = fvgZones.size() - 1 to 0
+        if i >= fvgZones.size()
+            continue
+        z = fvgZones.get(i)
+        if z.mitigated and z.inverted
+            continue
+        if not z.mitigated
+            mid = math.avg(z.top, z.bot)
+            if z.dir == 1 and low <= mid
+                z.mitigated := true
+                if fvgMitigation and not na(z.bx)
+                    box.set_bgcolor(z.bx, color.new(fvgClrBull, 96))
+                if close < z.bot and showIFVG
+                    z.inverted := true
+                    if not na(z.bx)
+                        box.set_bgcolor(z.bx, color.new(#FF00AA, 82))
+                    if not na(z.lb)
+                        label.set_text(z.lb, "iFVG ▼")
+                        label.set_textcolor(z.lb, #FF00AA)
+            if z.dir == -1 and high >= mid
+                z.mitigated := true
+                if fvgMitigation and not na(z.bx)
+                    box.set_bgcolor(z.bx, color.new(fvgClrBear, 96))
+                if close > z.top and showIFVG
+                    z.inverted := true
+                    if not na(z.bx)
+                        box.set_bgcolor(z.bx, color.new(#00FFAA, 82))
+                    if not na(z.lb)
+                        label.set_text(z.lb, "iFVG ▲")
+                        label.set_textcolor(z.lb, #00FFAA)
+        if not z.mitigated and not na(z.bx) and bar_index - z.startBar <= fvgExtend * 3
+            box.set_right(z.bx, bar_index + 3)
+    if fvgZones.size() > maxFVG
+        old = fvgZones.shift()
+        if not na(old.bx)
+            box.delete(old.bx)
+        if not na(old.lb)
+            label.delete(old.lb)
+
+//═════════════════════════════════════════════════════════════════
+// ORDER BLOCK DETECTION
+//═════════════════════════════════════════════════════════════════
+
+// OB = last opposing candle before BOS/ChoCh impulse
+var array<OBZone> obZones = array.new<OBZone>()
+
+if (bosNow or chochNow) and hide and showOB
+    impDir = bosNow ? bosDir : chochDir
+    impBar = impDir == 1 ? nz(lastSwHBar, bar_index) : nz(lastSwLBar, bar_index)
+
+    if impDir == 1
+        // Bullish impulse → find last BEARISH candle before it
+        obHi  = float(na)
+        obLo  = float(na)
+        obBar = int(na)
+        for j = 1 to 10
+            idx = impBar - j
+            if idx >= 0 and close[bar_index - idx] < open[bar_index - idx]
+                obHi  := high[bar_index - idx]
+                obLo  := low[bar_index - idx]
+                obBar := idx
+                break
+        if not na(obBar)
+            bx = box.new(obBar, obHi, bar_index, obLo,
+                border_color = obClrBull, bgcolor = color.new(obClrBull, 85))
+            lb = label.new(obBar, obLo, "OB+",
+                color = invis, textcolor = obClrBull,
+                style = label.style_label_up, size = size.tiny)
+            obZones.push(OBZone.new(obHi, obLo, obBar, 1, false, false, bx, lb))
+
+    else
+        // Bearish impulse → find last BULLISH candle before it
+        obHi  = float(na)
+        obLo  = float(na)
+        obBar = int(na)
+        for j = 1 to 10
+            idx = impBar - j
+            if idx >= 0 and close[bar_index - idx] > open[bar_index - idx]
+                obHi  := high[bar_index - idx]
+                obLo  := low[bar_index - idx]
+                obBar := idx
+                break
+        if not na(obBar)
+            bx = box.new(obBar, obHi, bar_index, obLo,
+                border_color = obClrBear, bgcolor = color.new(obClrBear, 85))
+            lb = label.new(obBar, obHi, "OB-",
+                color = invis, textcolor = obClrBear,
+                style = label.style_label_down, size = size.tiny)
+            obZones.push(OBZone.new(obHi, obLo, obBar, -1, false, false, bx, lb))
+
+// OB mitigation + breaker flip
+if obZones.size() > 0 and hide
+    for i = obZones.size() - 1 to 0
+        if i >= obZones.size()
+            continue
+        ob = obZones.get(i)
+        if ob.mitigated and ob.breaker
+            continue
+        if bar_index - ob.startBar > obMaxAge and not ob.mitigated
+            ob.mitigated := true
+            if not na(ob.bx)
+                box.delete(ob.bx)
+            if not na(ob.lb)
+                label.delete(ob.lb)
+            continue
+        if not ob.mitigated
+            if ob.dir == 1 and close < ob.bot
+                ob.mitigated := true
+                if showBreaker
+                    ob.breaker := true
+                    if not na(ob.bx)
+                        box.set_bgcolor(ob.bx, color.new(brkClrBear, 80))
+                        box.set_border_color(ob.bx, brkClrBear)
+                    if not na(ob.lb)
+                        label.set_text(ob.lb, "BRK ▼")
+                        label.set_textcolor(ob.lb, brkClrBear)
+                else
+                    if not na(ob.bx)
+                        box.delete(ob.bx)
+                    if not na(ob.lb)
+                        label.delete(ob.lb)
+            if ob.dir == -1 and close > ob.top
+                ob.mitigated := true
+                if showBreaker
+                    ob.breaker := true
+                    if not na(ob.bx)
+                        box.set_bgcolor(ob.bx, color.new(brkClrBull, 80))
+                        box.set_border_color(ob.bx, brkClrBull)
+                    if not na(ob.lb)
+                        label.set_text(ob.lb, "BRK ▲")
+                        label.set_textcolor(ob.lb, brkClrBull)
+                else
+                    if not na(ob.bx)
+                        box.delete(ob.bx)
+                    if not na(ob.lb)
+                        label.delete(ob.lb)
+        if not ob.mitigated and not na(ob.bx)
+            box.set_right(ob.bx, bar_index + 3)
+    if obZones.size() > maxOB
+        old = obZones.shift()
+        if not na(old.bx)
+            box.delete(old.bx)
+        if not na(old.lb)
+            label.delete(old.lb)
+
+//═════════════════════════════════════════════════════════════════
+// OTE ZONE + PREMIUM / DISCOUNT
+//═════════════════════════════════════════════════════════════════
+
+// OTE drawn from the most recent completed swing leg (FIXED)
+var box   oteBox    = na
+var line  oteLine   = na
+var bool legBull = false
+
+// Use last pivot sequence to define the active leg
+float legHi = na
+float legLo = na
+
+if hide and not na(lastSwH) and not na(lastSwL) and not na(lastSwHBar) and not na(lastSwLBar)
+    if lastSwHBar > lastSwLBar
+        // last pivot was a HIGH -> leg was UP (low -> high)
+        legHi := lastSwH
+        legLo := lastSwL
+        legBull := true
+    else
+        // last pivot was a LOW -> leg was DOWN (high -> low)
+        legHi := lastSwH
+        legLo := lastSwL
+        legBull := false
+
+equilibrium = (not na(legHi) and not na(legLo)) ? math.avg(legHi, legLo) : na
+inPremium   = not na(equilibrium) and close > equilibrium
+inDiscount  = not na(equilibrium) and close < equilibrium
+
+// Premium/Discount background
+bgcolor(showPremDisc and not na(equilibrium) and hide ?
+    (inPremium ? color.new(#FF0000, 97) : color.new(#00FF00, 97)) : na,
+    title = "P/D Zone")
+
+// OTE Box — drawn from current dealing range
+if showOTE and not na(lastSwH) and not na(lastSwL) and barstate.islast and hide
+    rng = lastSwH - lastSwL
+    if rng > 0
+        // Bullish OTE: buy zone on pullback (discount side)
+        oteBullHi = lastSwH - rng * oteLow
+        oteBullLo = lastSwH - rng * oteHigh
+        oteSweet_lvl = lastSwH - rng * oteSweet
+
+        // Bearish OTE: sell zone on pullback (premium side)
+        oteBearHi = lastSwL + rng * oteHigh
+        oteBearLo = lastSwL + rng * oteLow
+
+        if trend >= 0
+            if not na(oteBox)
+                box.delete(oteBox)
+            oteBox := box.new(bar_index - 20, oteBullHi, bar_index + 5, oteBullLo,
+                border_color = color.new(oteClr, 40), bgcolor = color.new(oteClr, 90))
+            if not na(oteLine)
+                line.delete(oteLine)
+            oteLine := line.new(bar_index - 20, oteSweet_lvl, bar_index + 5, oteSweet_lvl,
+                color = oteClr, width = 1, style = line.style_dotted)
+        else
+            if not na(oteBox)
+                box.delete(oteBox)
+            oteBox := box.new(bar_index - 20, oteBearHi, bar_index + 5, oteBearLo,
+                border_color = color.new(oteClr, 40), bgcolor = color.new(oteClr, 90))
+            if not na(oteLine)
+                line.delete(oteLine)
+            oteLine := line.new(bar_index - 20, lastSwL + rng * oteSweet, bar_index + 5, lastSwL + rng * oteSweet,
+                color = oteClr, width = 1, style = line.style_dotted)
+
+// 24H / WEEKLY / MONTHLY LEVELS (24h candles)
+pdh24 = request.security(syminfo.tickerid, "D", high[1], barmerge.gaps_off, barmerge.lookahead_off)
+pdl24 = request.security(syminfo.tickerid, "D", low[1],  barmerge.gaps_off, barmerge.lookahead_off)
+wkHigh = request.security(syminfo.tickerid, "W", high[1], barmerge.gaps_off, barmerge.lookahead_off)
+wkLow  = request.security(syminfo.tickerid, "W", low[1],  barmerge.gaps_off, barmerge.lookahead_off)
+
+pmh = request.security(syminfo.tickerid, "M", high[1], barmerge.gaps_off, barmerge.lookahead_off)
+pml = request.security(syminfo.tickerid, "M", low[1],  barmerge.gaps_off, barmerge.lookahead_off)
+
+// Helper: choose x2 + extend mode for reference levels
+f_refX2(_x1) => refRangeMode == "Extend Right" ? bar_index : _x1 + refForwardBars
+
+// PDH/PDL (24h prev day candle)
+if showPDHL24 and hide and not na(pdh24)
+    if na(pdh24_ln)
+        _x1 = bar_index
+        _x2 = f_refX2(_x1)
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pdh24_ln := line.new(_x1, pdh24, _x2, pdh24, color = pdhClr, width = 2, extend = _ext)
+        pdh24_lb := label.new(bar_index, pdh24, "PDH", color = color.new(pdhClr, 70), textcolor = pdhClr, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_y1(pdh24_ln, pdh24), line.set_y2(pdh24_ln, pdh24)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pdh24_ln, f_refX2(line.get_x1(pdh24_ln)))
+    label.set_y(pdh24_lb, pdh24), label.set_x(pdh24_lb, bar_index)
+else if not showPDHL24 and not na(pdh24_ln)
+    line.delete(pdh24_ln), pdh24_ln := na
+    if not na(pdh24_lb)
+        label.delete(pdh24_lb), pdh24_lb := na
+
+if showPDHL24 and hide and not na(pdl24)
+    if na(pdl24_ln)
+        _x1 = bar_index
+        _x2 = f_refX2(_x1)
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pdl24_ln := line.new(_x1, pdl24, _x2, pdl24, color = pdlClr, width = 2, extend = _ext)
+        pdl24_lb := label.new(bar_index, pdl24, "PDL", color = color.new(pdlClr, 70), textcolor = pdlClr, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_y1(pdl24_ln, pdl24), line.set_y2(pdl24_ln, pdl24)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pdl24_ln, f_refX2(line.get_x1(pdl24_ln)))
+    label.set_y(pdl24_lb, pdl24), label.set_x(pdl24_lb, bar_index)
+else if not showPDHL24 and not na(pdl24_ln)
+    line.delete(pdl24_ln), pdl24_ln := na
+    if not na(pdl24_lb)
+        label.delete(pdl24_lb), pdl24_lb := na
+
+// PWH/PWL (previous weekly candle)
+if showPWHL and hide and not na(wkHigh)
+    if na(pwh_ln)
+        _x1 = bar_index
+        _x2 = f_refX2(_x1)
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pwh_ln := line.new(_x1, wkHigh, _x2, wkHigh, color = pwhClr, width = 1, style = line.style_dashed, extend = _ext)
+        pwh_lb := label.new(bar_index, wkHigh, "PWH", color = color.new(pwhClr, 70), textcolor = pwhClr, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_y1(pwh_ln, wkHigh), line.set_y2(pwh_ln, wkHigh)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pwh_ln, f_refX2(line.get_x1(pwh_ln)))
+    label.set_y(pwh_lb, wkHigh), label.set_x(pwh_lb, bar_index)
+
+if showPWHL and hide and not na(wkLow)
+    if na(pwl_ln)
+        _x1 = bar_index
+        _x2 = f_refX2(_x1)
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pwl_ln := line.new(_x1, wkLow, _x2, wkLow, color = pwhClr, width = 1, style = line.style_dashed, extend = _ext)
+        pwl_lb := label.new(bar_index, wkLow, "PWL", color = color.new(pwhClr, 70), textcolor = pwhClr, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_y1(pwl_ln, wkLow), line.set_y2(pwl_ln, wkLow)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pwl_ln, f_refX2(line.get_x1(pwl_ln)))
+    label.set_y(pwl_lb, wkLow), label.set_x(pwl_lb, bar_index)
+
+// PMH/PML (previous monthly candle)
+if showPMHL and hide and not na(pmh)
+    if na(pmh_ln)
+        _x1 = bar_index
+        _x2 = f_refX2(_x1)
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pmh_ln := line.new(_x1, pmh, _x2, pmh, color = pmhClr, width = 1, style = line.style_dotted, extend = _ext)
+        pmh_lb := label.new(bar_index, pmh, "PMH", color = color.new(pmhClr, 70), textcolor = pmhClr, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_y1(pmh_ln, pmh), line.set_y2(pmh_ln, pmh)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pmh_ln, f_refX2(line.get_x1(pmh_ln)))
+    label.set_y(pmh_lb, pmh), label.set_x(pmh_lb, bar_index)
+
+if showPMHL and hide and not na(pml)
+    if na(pml_ln)
+        _x1 = bar_index
+        _x2 = f_refX2(_x1)
+        _ext = refRangeMode == "Extend Right" ? extend.right : extend.none
+        pml_ln := line.new(_x1, pml, _x2, pml, color = pmhClr, width = 1, style = line.style_dotted, extend = _ext)
+        pml_lb := label.new(bar_index, pml, "PML", color = color.new(pmhClr, 70), textcolor = pmhClr, style = label.style_label_left, size = size.tiny)
+    else
+        line.set_y1(pml_ln, pml), line.set_y2(pml_ln, pml)
+        if refRangeMode != "Extend Right"
+            line.set_x2(pml_ln, f_refX2(line.get_x1(pml_ln)))
+    label.set_y(pml_lb, pml), label.set_x(pml_lb, bar_index)
+
+// v1.1: Swing structure validation
+swingValidBull = lastHighType == "HH"
+swingValidBear = lastLowType  == "LL"
+
+// v1.1: Entry filters (computed)
+
+cooledOff = (bar_index - lastStructBar) >= entryCooldown
+var int lastChochUpBar = na
+var int lastChochDnBar = na
+if chochNow and chochDir == 1
+    lastChochUpBar := bar_index
+if chochNow and chochDir == -1
+    lastChochDnBar := bar_index
+
+chochBullRecent = not na(lastChochUpBar) and (bar_index - lastChochUpBar) <= 10
+chochBearRecent = not na(lastChochDnBar) and (bar_index - lastChochDnBar) <= 10
+
+// NEW: Require real-time break of last swing before entry
+reqBreakSwing = input.bool(true, "Require Break of Last Swing", group="⑥ Entry Signals")
+breakMode = input.string("Close", "Break Uses", options=["Close","Wick"], group="⑥ Entry Signals")
+
+bullBroke = breakMode == "Close" ? (not na(lastSwH) and close > lastSwH) : (not na(lastSwH) and high > lastSwH)
+bearBroke = breakMode == "Close" ? (not na(lastSwL) and close < lastSwL) : (not na(lastSwL) and low  < lastSwL)
+trendLive = bullBroke ? 1 : bearBroke ? -1 : trend
+
+// FVG / OB proximity (within current bar range)
+nearBullFVG = false
+nearBearFVG = false
+if fvgZones.size() > 0
+    for k = fvgZones.size() - 1 to 0
+        if k >= fvgZones.size()
+            continue
+        z = fvgZones.get(k)
+        if not z.mitigated
+            inZ = close <= z.top and close >= z.bot
+            if inZ and z.dir == 1
+                nearBullFVG := true
+            if inZ and z.dir == -1
+                nearBearFVG := true
+
+nearBullOB = false
+nearBearOB = false
+if obZones.size() > 0
+    for k = obZones.size() - 1 to 0
+        if k >= obZones.size()
+            continue
+        obz = obZones.get(k)
+        if not obz.mitigated
+            inOB = close <= obz.top and close >= obz.bot
+            if inOB and obz.dir == 1
+                nearBullOB := true
+            if inOB and obz.dir == -1
+                nearBearOB := true
+
+// OTE membership (based on current dealing range)
+inBullOTE = false
+inBearOTE = false
+if not na(lastSwH) and not na(lastSwL)
+    rng2 = lastSwH - lastSwL
+    if rng2 > 0
+        bullOTEHi = lastSwH - rng2 * oteLow
+        bullOTELo = lastSwH - rng2 * oteHigh
+        bearOTEHi = lastSwL + rng2 * oteHigh
+        bearOTELo = lastSwL + rng2 * oteLow
+        inBullOTE := close <= bullOTEHi and close >= bullOTELo
+        inBearOTE := close <= bearOTEHi and close >= bearOTELo
+
+bullEntry = showEntry and hide and cooledOff
+bullEntry := bullEntry and (not reqChoCh or chochBullRecent or (trend == 1 and bosNow))
+bullEntry := bullEntry and (not reqFVG or nearBullFVG or nearBullOB)
+bullEntry := bullEntry and (not reqOTE or inBullOTE)
+bullEntry := bullEntry and (not reqDiscount or inDiscount)
+bullEntry := bullEntry and (not reqTrendAgree or trendLive == 1)
+bullEntry := bullEntry and (not reqSwingValid or swingValidBull)
+bullEntry := bullEntry and (not reqBreakSwing or bullBroke)
+
+bearEntry = showEntry and hide and cooledOff
+bearEntry := bearEntry and (not reqChoCh or chochBearRecent or (trend == -1 and bosNow))
+bearEntry := bearEntry and (not reqFVG or nearBearFVG or nearBearOB)
+bearEntry := bearEntry and (not reqOTE or inBearOTE)
+bearEntry := bearEntry and (not reqDiscount or inPremium)
+bearEntry := bearEntry and (not reqTrendAgree or trendLive == -1)
+bearEntry := bearEntry and (not reqSwingValid or swingValidBear)
+bearEntry := bearEntry and (not reqBreakSwing or bearBroke)
+
+var int lastSigBar = na
+var int lastSigDir = 0
+var bool ciActive = false
+
+ciNewLong = bullEntry and not bullEntry[1] and not ciActive and barstate.isconfirmed
+ciNewShort = bearEntry and not bearEntry[1] and not ciActive and barstate.isconfirmed
+
+bullSig = ciNewLong and (na(lastSigBar) or signalCooldownBars == 0 or bar_index - lastSigBar > signalCooldownBars or lastSigDir != 1)
+bearSig = ciNewShort and (na(lastSigBar) or signalCooldownBars == 0 or bar_index - lastSigBar > signalCooldownBars or lastSigDir != -1)
+
+if bullSig
+    lastSigBar := bar_index
+    lastSigDir := 1
+    label.new(bar_index, low, "LONG",
+        color = color.new(#00FF00, 30), textcolor = #FFFFFF,
+        style = label.style_label_up, size = size.small)
+
+if bearSig
+    lastSigBar := bar_index
+    lastSigDir := -1
+    label.new(bar_index, high, "SHORT",
+        color = color.new(#FF0000, 30), textcolor = #FFFFFF,
+        style = label.style_label_down, size = size.small)
+
+//═════════════════════════════════════════════════════════════════
+// v1.1 TRADE MANAGEMENT — Entry, SL, TP Lines (like PARALLAX)
+//═════════════════════════════════════════════════════════════════
+
+var line  ciSlLine = na
+var line ciEntLine = na
+var line  ciTp1Line = na
+var line ciTp2Line = na
+var line ciTp3Line = na
+var line  ciOneRLine = na
+var label ciSlLab = na
+var label ciEntLab = na
+var label ciTp1Lab = na
+var label ciTp2Lab = na
+var label ciTp3Lab = na
+var label ciOneRLab = na
+
+var bool  ciWasActive = false
+var int   ciWinCount = 0
+var int   ciLossCount = 0
+var float ciTotalPoints = 0.0
+var float ciTotalPnLDollars = 0.0
+cipherQty = input.float(1.0, "Position Size (qty)", minval=0.0, group="⑥B Trade Mgmt")
+overrideCipherDPP = input.bool(false, "Override $/Point", group="⑥B Trade Mgmt")
+cipherDollarsPerPointOv = input.float(1.0, "$/Point Override", minval=0.0, group="⑥B Trade Mgmt")
+cipherDollarsPerPoint = overrideCipherDPP ? cipherDollarsPerPointOv : syminfo.pointvalue
+var bool  ciIsLong   = false
+var float ciEntry    = na
+var float ciOneR     = na
+var bool  ciTp1Hit   = false
+var bool ciTp3Hit = false
+var bool  ciOneRHit  = false
+var bool ciTrailing = false
+var float ciPeak     = na
+var float ciTrough = na
+var float ciWinPointsSum   = 0.0
+var float ciLossPointsSum  = 0.0  // absolute points lost
+var float ciWinDollarsSum  = 0.0
+var float ciLossDollarsSum = 0.0  // absolute dollars lost
+
+
+// Calculate swing SL on entry
+ciSwingSL_bull = low
+for i = 1 to cipherSLBars - 1
+    if low[i] < ciSwingSL_bull
+        ciSwingSL_bull := low[i]
+ciSwingSL_bear = high
+for i = 1 to cipherSLBars - 1
+    if high[i] > ciSwingSL_bear
+        ciSwingSL_bear := high[i]
+
+// New trade
+
+if ciNewLong or ciNewShort
+    // Clean old lines
+    if not na(ciSlLine)
+        line.delete(ciSlLine)
+    if not na(ciEntLine)
+        line.delete(ciEntLine)
+    if not na(ciTp1Line)
+        line.delete(ciTp1Line)
+    if not na(ciTp2Line)
+        line.delete(ciTp2Line)
+    if not na(ciTp3Line)
+        line.delete(ciTp3Line)
+    if not na(ciOneRLine)
+        line.delete(ciOneRLine)
+    if not na(ciSlLab)
+        label.delete(ciSlLab)
+    if not na(ciEntLab)
+        label.delete(ciEntLab)
+    if not na(ciTp1Lab)
+        label.delete(ciTp1Lab)
+    if not na(ciTp2Lab)
+        label.delete(ciTp2Lab)
+    if not na(ciTp3Lab)
+        label.delete(ciTp3Lab)
+    if not na(ciOneRLab)
+        label.delete(ciOneRLab)
+
+    ciActive  := true
+    ciIsLong  := ciNewLong
+    ciEntry   := close
+    ciTp1Hit  := false
+    ciTp3Hit  := false
+    ciOneRHit := false
+    ciTrailing := false
+
+    ep = close
+    sl = ciNewLong ? ciSwingSL_bull : ciSwingSL_bear
+    rr = math.abs(ep - sl)
+    tp1 = ciIsLong ? ep + cipherTarget : ep - cipherTarget
+    tp2 = ciIsLong ? ep + cipherTarget * 2 : ep - cipherTarget * 2
+    tp3 = ciIsLong ? ep + cipherTarget * 3 : ep - cipherTarget * 3
+    ciOneR := ciIsLong ? ep + rr : ep - rr
+
+    ciSlLine   := line.new(bar_index, sl, bar_index + 1, sl, color = #FF0000, width = 3)
+    ciEntLine  := line.new(bar_index, ep, bar_index + 1, ep, color = #FFFF00, width = 3)
+    ciTp1Line  := line.new(bar_index, tp1, bar_index + 1, tp1, color = #00FF00, width = 2, style = line.style_dashed)
+    ciTp2Line  := line.new(bar_index, tp2, bar_index + 1, tp2, color = #00FF00, width = 2, style = line.style_dashed)
+    ciTp3Line  := line.new(bar_index, tp3, bar_index + 1, tp3, color = #00FF00, width = 3)
+
+    ciSlLab    := label.new(bar_index, sl, "SL", color = color.new(#FF0000, 40), textcolor = #FFFFFF, style = label.style_label_left, size = size.tiny)
+    ciEntLab   := label.new(bar_index, ep, "ENTRY", color = color.new(#FFFF00, 40), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+    ciTp1Lab   := label.new(bar_index, tp1, "TP1", color = color.new(#00FF00, 40), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+    ciTp2Lab   := label.new(bar_index, tp2, "TP2", color = color.new(#00FF00, 40), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+    ciTp3Lab   := label.new(bar_index, tp3, "TP3", color = color.new(#00FF00, 40), textcolor = #000000, style = label.style_label_left, size = size.tiny)
+
+    if cipherBE and rr > 0
+        ciOneRLine := line.new(bar_index, ciOneR, bar_index + 1, ciOneR, color = #FFFF00, width = 1, style = line.style_dotted)
+        ciOneRLab  := label.new(bar_index, ciOneR, "1R/BE", color = color.new(#FFFF00, 70), textcolor = #FFFF00, style = label.style_label_left, size = size.tiny)
+
+// Trade management
+if ciActive and not na(ciSlLine) and hide
+    slLvl  = line.get_y1(ciSlLine)
+    tp1Lvl = line.get_y1(ciTp1Line)
+    tp3Lvl = line.get_y1(ciTp3Line)
+
+    if ciIsLong
+        if not ciOneRHit and cipherBE and not na(ciOneR) and close >= ciOneR
+            ciOneRHit := true
+            line.set_y1(ciSlLine, ciEntry)
+            line.set_y2(ciSlLine, ciEntry)
+            label.set_y(ciSlLab, ciEntry)
+            label.set_text(ciSlLab, "BE")
+            if not na(ciOneRLine)
+                line.delete(ciOneRLine)
+                ciOneRLine := na
+            if not na(ciOneRLab)
+                label.delete(ciOneRLab)
+                ciOneRLab := na
+        if ciTrailing and cipherTrail
+            ciPeak := math.max(ciPeak, high)
+            if close < ciPeak - ((ciPeak - ciEntry) * cipherTrailPct)
+                ciActive := false
+                ciTrailing := false
+        if not ciTp3Hit and close >= tp3Lvl
+            ciTp3Hit := true
+            ciActive := false
+            ciTrailing := false
+        else if not ciTp1Hit and close >= tp1Lvl
+            ciTp1Hit := true
+            if cipherTrail
+                ciTrailing := true
+                ciPeak := high
+            else
+                ciActive := false
+        if close <= slLvl
+            ciActive := false
+            ciTrailing := false
+    else
+        if not ciOneRHit and cipherBE and not na(ciOneR) and close <= ciOneR
+            ciOneRHit := true
+            line.set_y1(ciSlLine, ciEntry)
+            line.set_y2(ciSlLine, ciEntry)
+            label.set_y(ciSlLab, ciEntry)
+            label.set_text(ciSlLab, "BE")
+            if not na(ciOneRLine)
+                line.delete(ciOneRLine)
+                ciOneRLine := na
+            if not na(ciOneRLab)
+                label.delete(ciOneRLab)
+                ciOneRLab := na
+        if ciTrailing and cipherTrail
+            ciTrough := math.min(ciTrough, low)
+            if close > ciTrough + ((ciEntry - ciTrough) * cipherTrailPct)
+                ciActive := false
+                ciTrailing := false
+        if not ciTp3Hit and close <= tp3Lvl
+            ciTp3Hit := true
+            ciActive := false
+            ciTrailing := false
+        else if not ciTp1Hit and close <= tp1Lvl
+            ciTp1Hit := true
+            if cipherTrail
+                ciTrailing := true
+                ciTrough := low
+            else
+                ciActive := false
+        if close >= slLvl
+            ciActive := false
+            ciTrailing := false
+
+// Extend trade lines
+if ciActive and hide
+    if not na(ciSlLine)
+        line.set_x2(ciSlLine, bar_index +4)
+    if not na(ciEntLine)
+        line.set_x2(ciEntLine, bar_index +4)
+    if not na(ciTp1Line)
+        line.set_x2(ciTp1Line, bar_index +4)
+    if not na(ciTp2Line)
+        line.set_x2(ciTp2Line, bar_index +4)
+    if not na(ciTp3Line)
+        line.set_x2(ciTp3Line, bar_index +4)
+    if not na(ciOneRLine)
+        line.set_x2(ciOneRLine, bar_index +4)
+    if not na(ciSlLab)
+        label.set_x(ciSlLab, bar_index +4)
+    if not na(ciEntLab)
+        label.set_x(ciEntLab, bar_index +4)
+    if not na(ciTp1Lab)
+        label.set_x(ciTp1Lab, bar_index +4)
+    if not na(ciTp2Lab)
+        label.set_x(ciTp2Lab, bar_index +4)
+    if not na(ciTp3Lab)
+        label.set_x(ciTp3Lab, bar_index +4)
+    if not na(ciOneRLab)
+        label.set_x(ciOneRLab, bar_index +4)
+
+// Entry flash
+barcolor(bullSig ? #00FF00 : bearSig ? #FF0000 : na, title = "Entry Flash")
+
+//═════════════════════════════════════════════════════════════════
+// ChoCh TREND BAR COLOR
+//═════════════════════════════════════════════════════════════════
+
+var color trendBarClr = na
+if chochNow
+    trendBarClr := chochDir == 1 ? color.new(chochClrBull, 70) : color.new(chochClrBear, 70)
+if bosNow and not chochNow
+    trendBarClr := na
+barcolor(not bullEntry and not bearEntry and not na(trendBarClr) ? trendBarClr : na, title = "ChoCh Trend")
+
+//═════════════════════════════════════════════════════════════════
+// HUD TABLE
+//═════════════════════════════════════════════════════════════════
+
+// Counters
+var int dBOS = 0
+var int dChoCh = 0
+var int dEntry = 0
+var int lastDay = dayofmonth(time)
+if dayofmonth(time) != lastDay
+    dBOS   := 0
+    dChoCh := 0
+    dEntry := 0
+    lastDay := dayofmonth(time)
+if bosNow
+    dBOS += 1
+if chochNow
+    dChoCh += 1
+if bullEntry or bearEntry
+    dEntry += 1
+
+activeFVG = 0
+activeOB  = 0
+if fvgZones.size() > 0
+    for i = 0 to fvgZones.size() - 1
+        if not fvgZones.get(i).mitigated
+            activeFVG += 1
+if obZones.size() > 0
+    for i = 0 to obZones.size() - 1
+        if not obZones.get(i).mitigated
+            activeOB += 1
+
+// Trade stats (points + $) computed on close of trade
+if ciWasActive and not ciActive
+    dir = ciIsLong ? 1.0 : -1.0
+    pts = (close - ciEntry) * dir
+    dol = pts * cipherDollarsPerPoint * cipherQty
+    ciTotalPoints += pts
+    ciTotalPnLDollars += dol
+    if pts > 0
+        ciWinCount += 1
+        ciWinPointsSum += pts
+        ciWinDollarsSum += dol
+    else if pts < 0
+        ciLossCount += 1
+        ciLossPointsSum += math.abs(pts)
+        ciLossDollarsSum += math.abs(dol)
+ciWasActive := ciActive
+
+if showHUD and barstate.islast and hide
+    hP = hudPos == "Top Right" ? position.top_right :
+         hudPos == "Top Left" ? position.top_left :
+         hudPos == "Bottom Right" ? position.bottom_right : position.bottom_left
+
+    var table hud = table.new(position.bottom_right, 2, 16)
+    table.delete(hud)
+    hud := table.new(hP, 2, 16, bgcolor = color.new(#0a0a1e, 5),
+        border_width = 1, border_color = color.new(#333355, 0))
+
+    table.cell(hud, 0, 0, "CIPHER", text_color = #FFD700, text_size = size.small)
+    table.cell(hud, 1, 0, "v1.1", text_color = #555555, text_size = size.tiny)
+
+    tTxt = trend == 1 ? "▲ BULL" : trend == -1 ? "▼ BEAR" : "— FLAT"
+    tClr = trend == 1 ? #00FF00 : trend == -1 ? #FF0000 : #888888
+    table.cell(hud, 0, 1, "TREND", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 1, tTxt, text_color = tClr, text_size = size.small)
+
+    zTxt = inPremium ? "PREMIUM" : inDiscount ? "DISCOUNT" : "—"
+    zClr = inPremium ? #FF6666 : inDiscount ? #66FF66 : #888888
+    table.cell(hud, 0, 2, "ZONE", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 2, zTxt, text_color = zClr, text_size = size.small)
+
+    // v1.1: Swing classification
+// Real-time break status (matches what you’re eyeballing on chart)
+    table.cell(hud, 0, 3, "BROKE H", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 3, bullBroke ? "YES" : "NO",
+        text_color = bullBroke ? #00FF00 : #FF4444, text_size = size.small)
+
+    table.cell(hud, 0, 4, "BROKE L", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 4, bearBroke ? "YES" : "NO",
+        text_color = bearBroke ? #00FF00 : #FF4444, text_size = size.small)
+
+    table.cell(hud, 0, 5, "BOS", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 5, str.tostring(dBOS), text_color = #00CCFF, text_size = size.small)
+
+    table.cell(hud, 0, 6, "ChoCh", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 6, str.tostring(dChoCh), text_color = dChoCh > 0 ? #FF00FF : #555555, text_size = size.small)
+
+    oteTxt = str.tostring(oteLow * 100, "#") + "-" + str.tostring(oteHigh * 100, "#") + "%"
+    table.cell(hud, 0, 7, "OTE", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 7, oteTxt, text_color = oteClr, text_size = size.tiny)
+
+    // v1.1: Trade status
+    ciTrdTxt = ciActive ? (ciIsLong ? "LONG" : "SHORT") : "NO TRADE"
+    ciTrdClr = ciActive ? (ciIsLong ? #00FF00 : #FF0000) : #555555
+    table.cell(hud, 0, 8, "TRADE", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 8, ciTrdTxt, text_color = ciTrdClr, text_size = size.small)
+
+    table.cell(hud, 0, 9, "W/L", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 9, str.tostring(ciWinCount) + "/" + str.tostring(ciLossCount), text_color = #AAAAAA, text_size = size.small)
+
+    table.cell(hud, 0, 10, "WIN PTS", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 10, str.tostring(ciWinPointsSum, "#.##"), text_color = #00FF00, text_size = size.small)
+
+    table.cell(hud, 0, 11, "LOSS PTS", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 11, str.tostring(ciLossPointsSum, "#.##"), text_color = #FF4444, text_size = size.small)
+
+    table.cell(hud, 0, 12, "WIN $", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 12, str.tostring(ciWinDollarsSum, "#.##"), text_color = #00FF00, text_size = size.small)
+
+    table.cell(hud, 0, 13, "LOSS $", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 13, str.tostring(ciLossDollarsSum, "#.##"), text_color = #FF4444, text_size = size.small)
+
+    table.cell(hud, 0, 14, "NET PTS", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 14, str.tostring(ciTotalPoints, "#.##"), text_color = ciTotalPoints >= 0 ? #00FF00 : #FF4444, text_size = size.small)
+
+    table.cell(hud, 0, 15, "NET $", text_color = #888888, text_size = size.tiny)
+    table.cell(hud, 1, 15, str.tostring(ciTotalPnLDollars, "#.##"), text_color = ciTotalPnLDollars >= 0 ? #00FF00 : #FF4444, text_size = size.small)
+
+//═════════════════════════════════════════════════════════════════
+// ALERTS
+//═════════════════════════════════════════════════════════════════
+
+alertcondition(bosNow and bosDir == 1, "Bullish BOS", "CIPHER: BOS ▲")
+alertcondition(bosNow and bosDir == -1, "Bearish BOS", "CIPHER: BOS ▼")
+alertcondition(chochNow and chochDir == 1, "Bullish ChoCh", "CIPHER: ChoCh ▲")
+alertcondition(chochNow and chochDir == -1, "Bearish ChoCh", "CIPHER: ChoCh ▼")
+alertcondition(bullEntry, "CIPHER Long Entry", "CIPHER: ✓ LONG entry signal")
+alertcondition(bearEntry, "CIPHER Short Entry", "CIPHER: ✓ SHORT entry signal")
+
+// ═══════════════════════════════════════════════════════════════
+// END — GB CIPHER v1.1
+// "Crack the code others can't read."
+// © 2024-2026 GB LLC. All Rights Reserved.
+// ═══════════════════════════════════════════════════════════════
