@@ -29,14 +29,26 @@ for root, dirs, files in os.walk(SOURCE_DIR):
 total = len(all_files)
 print(f"[INFO] Found {total} .md files to translate.")
 
+# Build a set of already-translated filenames (just the filename, not full path)
+# This way even if you run on a different PC, it won't re-translate files
+# that were already done and pushed to GitHub
+already_done = set()
+for root, dirs, files in os.walk(OUT_DIR):
+    for f in files:
+        if f.endswith(".md"):
+            already_done.add(f.lower())  # case-insensitive match
+
+print(f"[INFO] Already translated: {len(already_done)} files (will skip these)")
+
 # Auto-push helper
 def git_push(label="auto"):
     try:
+        subprocess.run(["git", "-C", REPO_DIR, "pull", "--rebase"], check=True)
         subprocess.run(["git", "-C", REPO_DIR, "add", "2_translated/"], check=True)
         result = subprocess.run(
             ["git", "-C", REPO_DIR, "diff", "--cached", "--quiet"]
         )
-        if result.returncode != 0:  # there are staged changes
+        if result.returncode != 0:
             subprocess.run(
                 ["git", "-C", REPO_DIR, "commit", "-m", f"Auto-save translation progress ({label})"],
                 check=True
@@ -53,11 +65,12 @@ translated_count = 0
 
 for i, filepath in enumerate(all_files):
     rel_path = os.path.relpath(filepath, SOURCE_DIR)
+    fname = os.path.basename(filepath)
     out_path = os.path.join(OUT_DIR, rel_path)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
-    # Skip already translated
-    if os.path.exists(out_path):
+    # Skip if already translated - checks by filename so works across different PCs
+    if fname.lower() in already_done or os.path.exists(out_path):
         print(f"[SKIP] [{i+1}/{total}] {rel_path}")
         continue
 
@@ -81,6 +94,8 @@ for i, filepath in enumerate(all_files):
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(translated)
 
+        # Add to already_done so we don't re-translate in same session
+        already_done.add(fname.lower())
         translated_count += 1
 
         # Auto-push every N files
