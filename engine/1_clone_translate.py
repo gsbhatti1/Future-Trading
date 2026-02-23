@@ -1,51 +1,67 @@
-import os, subprocess, ollama
-from dotenv import dotenv_values
+import os
+import subprocess
+import ollama
 
-BASE     = os.path.join(os.path.expanduser("~"), "qwen-dev")
-ENV      = dotenv_values(os.path.join(BASE, ".env"))
-TOKEN    = ENV["GITHUB_TOKEN"]
-USERNAME = ENV["GITHUB_USERNAME"]
-SOURCE   = ENV["SOURCE_REPO"]
-MODEL    = ENV["MODEL"]
+FMZQUANT_REPO = "https://github.com/fmzquant/strategies.git"
+SOURCE_DIR = os.path.join(os.path.expanduser("~"), "qwen-dev", "Trading-Strategies", "fmz-source")
+OUT_DIR = os.path.join(os.path.expanduser("~"), "qwen-dev", "Future-Trading", "2_translated")
 
-RAW_DIR  = os.path.join(BASE, "Future-Trading", "1_raw")
-OUT_DIR  = os.path.join(BASE, "Future-Trading", "2_translated")
-CLONE_DIR= os.path.join(BASE, "Trading-Strategies")
+os.makedirs(OUT_DIR, exist_ok=True)
 
-def clone_source():
-    url = f"https://{TOKEN}@github.com/{USERNAME}/Trading-Strategies.git"
-    if os.path.exists(CLONE_DIR):
-        print("Pulling latest source...")
-        subprocess.run(["git","-C",CLONE_DIR,"pull"], check=True)
-    else:
-        print("Cloning source repo...")
-        subprocess.run(["git","clone",url,CLONE_DIR], check=True)
+# Step 1: Clone fmzquant/strategies if not already cloned
+if not os.path.exists(SOURCE_DIR):
+    print("[CLONE] Cloning fmzquant/strategies...")
+    os.makedirs(SOURCE_DIR, exist_ok=True)
+    subprocess.run(["git", "clone", FMZQUANT_REPO, SOURCE_DIR], check=True)
+else:
+    print("[CLONE] Already cloned, skipping.")
 
-def translate_all():
-    src = os.path.join(CLONE_DIR,"fmz-source")
-    os.makedirs(OUT_DIR, exist_ok=True)
-    files = [f for f in os.listdir(src) if f.endswith(".md")]
-    total = len(files)
-    print(f"Found {total} files to translate.")
-    for i,fn in enumerate(files,1):
-        out = os.path.join(OUT_DIR,fn)
-        if os.path.exists(out):
-            print(f"[{i}/{total}] Skip: {fn[:50]}")
+# Step 2: Find all .md files
+all_files = []
+for root, dirs, files in os.walk(SOURCE_DIR):
+    for f in files:
+        if f.endswith(".md"):
+            all_files.append(os.path.join(root, f))
+
+total = len(all_files)
+print(f"[INFO] Found {total} .md files to translate.")
+
+# Step 3: Translate each file using Ollama Qwen
+for i, filepath in enumerate(all_files):
+    rel_path = os.path.relpath(filepath, SOURCE_DIR)
+    out_path = os.path.join(OUT_DIR, rel_path)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+    # Skip already translated
+    if os.path.exists(out_path):
+        print(f"[SKIP] [{i+1}/{total}] {rel_path}")
+        continue
+
+    print(f"[TRANSLATING] [{i+1}/{total}] {rel_path}")
+
+    try:
+        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+
+        if len(content.strip()) == 0:
+            print(f"[EMPTY] Skipping empty file.")
             continue
-        try:
-            with open(os.path.join(src,fn),"r",encoding="utf-8") as fp:
-                content = fp.read()
-            r = ollama.chat(model=MODEL, messages=[
-                {"role":"system","content":"Translate Chinese trading strategy to English. Keep Pine Script code blocks EXACTLY unchanged. Only translate Chinese text."},
-                {"role":"user","content":content}
-            ])
-            with open(out,"w",encoding="utf-8") as fp:
-                fp.write(r["message"]["content"])
-            print(f"[{i}/{total}] Done: {fn[:50]}")
-        except Exception as e:
-            print(f"[{i}/{total}] ERROR {fn[:50]}: {e}")
-    print("Translation complete.")
 
-if __name__=="__main__":
-    clone_source()
-    translate_all()
+        response = ollama.chat(
+            model="qwen2.5:7b",
+            messages=[{
+                "role": "user",
+                "content": f"Translate the following trading strategy document from Chinese to English. Keep all code blocks, numbers, and formatting exactly as-is. Only translate the human-readable text.\n\n{content[:6000]}"
+            }]
+        )
+
+        translated = response["message"]["content"]
+
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(translated)
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        continue
+
+print("[DONE] All files processed.")
