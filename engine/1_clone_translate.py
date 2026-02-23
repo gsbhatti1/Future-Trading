@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import ollama
 
@@ -7,7 +8,7 @@ SOURCE_DIR = os.path.join(os.path.expanduser("~"), "qwen-dev", "Trading-Strategi
 OUT_DIR = os.path.join(os.path.expanduser("~"), "qwen-dev", "Future-Trading", "2_translated")
 REPO_DIR = os.path.join(os.path.expanduser("~"), "qwen-dev", "Future-Trading")
 
-AUTO_PUSH_EVERY = 10  # push to GitHub every N translated files
+AUTO_PUSH_EVERY = 10
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -19,7 +20,7 @@ if not os.path.exists(SOURCE_DIR):
 else:
     print("[CLONE] Already cloned, skipping.")
 
-# Step 2: Find all .md files
+# Step 2: Find all .md files to translate
 all_files = []
 for root, dirs, files in os.walk(SOURCE_DIR):
     for f in files:
@@ -29,16 +30,28 @@ for root, dirs, files in os.walk(SOURCE_DIR):
 total = len(all_files)
 print(f"[INFO] Found {total} .md files to translate.")
 
-# Build a set of already-translated filenames (just the filename, not full path)
-# This way even if you run on a different PC, it won't re-translate files
-# that were already done and pushed to GitHub
+# Helper: strip Chinese characters from a string
+def strip_chinese(text):
+    parts = re.split(r'[\u4e00-\u9fff]+', text)
+    english_parts = [p.strip('-').strip() for p in parts if p.strip('-').strip()]
+    if english_parts:
+        result = '-'.join(english_parts)
+        result = re.sub(r'-+', '-', result).strip('-')
+        return result
+    return text
+
+# Build a set of all existing filenames in OUT_DIR (both original and renamed)
+# This catches files whether they were renamed to English or kept original
 already_done = set()
 for root, dirs, files in os.walk(OUT_DIR):
     for f in files:
         if f.endswith(".md"):
-            already_done.add(f.lower())  # case-insensitive match
+            already_done.add(f.lower())
+            # Also add the English-stripped version so we match source filenames
+            stripped = strip_chinese(f[:-3]).lower() + ".md"
+            already_done.add(stripped)
 
-print(f"[INFO] Already translated: {len(already_done)} files (will skip these)")
+print(f"[INFO] Already translated: {len(already_done)//2} files (will skip these)")
 
 # Auto-push helper
 def git_push(label="auto"):
@@ -60,7 +73,7 @@ def git_push(label="auto"):
     except Exception as e:
         print(f"[PUSH ERROR] {e}")
 
-# Step 3: Translate each file using Ollama Qwen
+# Step 3: Translate each file
 translated_count = 0
 
 for i, filepath in enumerate(all_files):
@@ -69,18 +82,22 @@ for i, filepath in enumerate(all_files):
     out_path = os.path.join(OUT_DIR, rel_path)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
-    # Skip if already translated - checks by filename so works across different PCs
-    if fname.lower() in already_done or os.path.exists(out_path):
-        print(f"[SKIP] [{i+1}/{total}] {rel_path}")
+    # Check by exact filename AND english-stripped version
+    fname_lower = fname.lower()
+    fname_stripped = strip_chinese(fname[:-3]).lower() + ".md"
+
+    if fname_lower in already_done or fname_stripped in already_done or os.path.exists(out_path):
+        print(f"[SKIP] [{i+1}/{total}] {fname}")
         continue
 
-    print(f"[TRANSLATING] [{i+1}/{total}] {rel_path}")
+    print(f"[TRANSLATING] [{i+1}/{total}] {fname}")
     try:
         with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
             content = f.read()
 
         if len(content.strip()) == 0:
             print(f"[EMPTY] Skipping empty file.")
+            already_done.add(fname_lower)
             continue
 
         response = ollama.chat(
@@ -94,11 +111,10 @@ for i, filepath in enumerate(all_files):
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(translated)
 
-        # Add to already_done so we don't re-translate in same session
-        already_done.add(fname.lower())
+        already_done.add(fname_lower)
+        already_done.add(fname_stripped)
         translated_count += 1
 
-        # Auto-push every N files
         if translated_count % AUTO_PUSH_EVERY == 0:
             git_push(f"{i+1}/{total}")
 
@@ -106,6 +122,5 @@ for i, filepath in enumerate(all_files):
         print(f"[ERROR] {e}")
         continue
 
-# Final push at the end
 git_push("final")
-print("[DONE] All files processed.")
+print(f"[DONE] All files processed. Newly translated: {translated_count}")
