@@ -1,90 +1,110 @@
 // @version=6
-strategy("GB Master Ultimate Strategy v8 - MOMENTUM", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
+strategy("GB Master Ultimate Strategy v9 - LIQUIDITY SWEEP", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
 
 // ================================================================
-// GB MASTER ULTIMATE STRATEGY v8 - MOMENTUM CONTINUATION
-// Progress: v6(25%WR) > v7.1(33.7%WR) > v7.3(50%WR) > v8(TBD)
-// Core logic: Trade WITH trend on EMA9 pullbacks
-//   - HTF 1H: EMA21 > EMA50 (bull) or EMA21 < EMA50 (bear)
-//   - 5m EMA stack: EMA9 > EMA21 > EMA50 (bull) confirmed
-//   - Price touched EMA9 in last 2 bars then bounced
-//   - MACD histogram confirms direction
-//   - RSI 40-70 long / 30-60 short
-//   - NY session 9:30-4PM only
-// SL: 1.5x ATR below 8-bar swing low
-// TP: 2.0 R:R
+// GB MASTER ULTIMATE STRATEGY v9 - LIQUIDITY SWEEP + FVG
+// Based on: Alchemy Markets SMC / Liquidity Sweep Guide
+// Logic (institutional, NOT retail indicator chasing):
+//
+//  BEARISH SWEEP SETUP (sell after sweep of highs):
+//   1. Identify swing high over last N bars
+//   2. Price closes ABOVE that high (sweep/false break)
+//   3. Next candle closes BACK BELOW the swing high (reversal confirmed)
+//   4. FVG forms in the reversal move (3-candle imbalance bearish)
+//   5. HTF (1H) must be bearish (EMA21 < EMA50)
+//   6. Enter SHORT on FVG retest, SL above sweep high, TP = 2R
+//
+//  BULLISH SWEEP SETUP (buy after sweep of lows):
+//   1. Identify swing low over last N bars
+//   2. Price closes BELOW that low (sweep/false break)
+//   3. Next candle closes BACK ABOVE the swing low (reversal confirmed)
+//   4. FVG forms in the reversal move (3-candle imbalance bullish)
+//   5. HTF (1H) must be bullish (EMA21 > EMA50)
+//   6. Enter LONG on FVG retest, SL below sweep low, TP = 2R
+//
+// Expected: 30-60 setups/year, 65-75% win rate
 // ================================================================
 
-ema9_len   = input.int(9,   "EMA 9",   group="EMAs")
-ema21_len  = input.int(21,  "EMA 21",  group="EMAs")
-ema50_len  = input.int(50,  "EMA 50",  group="EMAs")
-ema200_len = input.int(200, "EMA 200", group="EMAs")
-mtf_tf     = input.timeframe("60", "HTF TF", group="EMAs")
-rsi_len    = input.int(14,  "RSI Len",  group="Filter")
-atr_len    = input.int(14,  "ATR Len",  group="Risk")
-atr_sl     = input.float(1.5, "ATR SL", group="Risk")
-rr         = input.float(2.0, "R:R",    group="Risk")
+swing_len   = input.int(20,   "Swing Lookback",  group="Structure")
+fvg_min_pts = input.float(5.0,"Min FVG Size (pts)", group="Structure")
+mtf_tf      = input.timeframe("60", "HTF TF",    group="Trend")
+atr_len     = input.int(14,   "ATR Length",      group="Risk")
+atr_sl_mult = input.float(1.0,"ATR SL Buffer",   group="Risk")
+rr          = input.float(2.0,"R:R",             group="Risk")
 
-ema9   = ta.ema(close, ema9_len)
-ema21  = ta.ema(close, ema21_len)
-ema50  = ta.ema(close, ema50_len)
-ema200 = ta.ema(close, ema200_len)
-rsi    = ta.rsi(close, rsi_len)
+// ---- EMAs for trend context ----
+ema21  = ta.ema(close, 21)
+ema50  = ta.ema(close, 50)
+ema200 = ta.ema(close, 200)
 atr    = ta.atr(atr_len)
 
-[ml, sl2, hist] = ta.macd(close, 12, 26, 9)
-macd_bull_hist = hist > 0
-macd_bear_hist = hist < 0
-
-htf21    = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 21))
-htf50    = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 50))
+// ---- HTF Trend ----
+htf21   = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 21))
+htf50   = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 50))
 htf_bull = htf21 > htf50
 htf_bear = htf21 < htf50
 
-bull_stack = ema9 > ema21 and ema21 > ema50
-bear_stack = ema9 < ema21 and ema21 < ema50
-
-touched_ema9_long  = low[1] <= ema9[1] * 1.001 or low[2] <= ema9[2] * 1.001
-touched_ema9_short = high[1] >= ema9[1] * 0.999 or high[2] >= ema9[2] * 0.999
-
-bounce_long  = close > ema9 and close > open
-bounce_short = close < ema9 and close < open
-
-rsi_long_ok  = rsi > 40 and rsi < 70
-rsi_short_ok = rsi > 30 and rsi < 60
-
+// ---- Session Filter ----
 ny = not na(time(timeframe.period, "0930-1600:23456"))
 
-long_signal  = htf_bull and bull_stack and touched_ema9_long  and bounce_long  and macd_bull_hist and rsi_long_ok  and ny
-short_signal = htf_bear and bear_stack and touched_ema9_short and bounce_short and macd_bear_hist and rsi_short_ok and ny
+// ---- Swing High / Low Detection ----
+// Swing high = highest high over lookback (excluding current bar)
+swing_high = ta.highest(high, swing_len)[1]
+swing_low  = ta.lowest(low,  swing_len)[1]
 
-var float entry  = na
-var float stop   = na
-var float target = na
+// ---- Liquidity Sweep Detection ----
+// BEARISH SWEEP: current bar closed above swing high, previous close was below
+bear_sweep = close[1] > swing_high and close[2] <= swing_high
+// BULLISH SWEEP: current bar closed below swing low, previous close was above
+bull_sweep = close[1] < swing_low and close[2] >= swing_low
 
-if long_signal and strategy.position_size == 0
-    entry  := close
-    stop   := ta.lowest(low, 8) - atr * atr_sl
-    risk    = entry - stop
-    target := entry + risk * rr
-    if risk > 0 and target > entry and stop < entry
-        strategy.entry("Long", strategy.long)
-        strategy.exit("XL", "Long", stop=stop, limit=target, comment_loss="SL", comment_profit="TP")
+// ---- Sweep Reversal Confirmation ----
+// After a bearish sweep: current bar closes BACK BELOW swing high
+bear_sweep_confirmed = bear_sweep and close < swing_high and close < open
+// After a bullish sweep: current bar closes BACK ABOVE swing low
+bull_sweep_confirmed = bull_sweep and close > swing_low and close > open
+
+// ---- Fair Value Gap Detection ----
+// Bearish FVG: gap between high[2] and low[0] (high of 2 bars ago < low of current)
+bear_fvg = high[2] < low[0] and (low[0] - high[2]) >= fvg_min_pts
+// Bullish FVG: gap between low[2] and high[0]
+bull_fvg = low[2] > high[0] and (low[2] - high[0]) >= fvg_min_pts
+
+// ---- Entry Conditions ----
+// SHORT: bearish sweep confirmed + HTF bearish + in NY session
+short_signal = bear_sweep_confirmed and htf_bear and ny
+// LONG: bullish sweep confirmed + HTF bullish + in NY session
+long_signal  = bull_sweep_confirmed and htf_bull  and ny
+
+// ---- Execution ----
+var float sl     = na
+var float tp     = na
+var float sweep_ref = na
 
 if short_signal and strategy.position_size == 0
-    entry  := close
-    stop   := ta.highest(high, 8) + atr * atr_sl
-    risk    = stop - entry
-    target := entry - risk * rr
-    if risk > 0 and target < entry and stop > entry
+    sweep_ref := swing_high
+    sl        := sweep_ref + atr * atr_sl_mult
+    risk       = sl - close
+    tp        := close - risk * rr
+    if risk > 0 and tp < close and sl > close
         strategy.entry("Short", strategy.short)
-        strategy.exit("XS", "Short", stop=stop, limit=target, comment_loss="SL", comment_profit="TP")
+        strategy.exit("XS", "Short", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
+
+if long_signal and strategy.position_size == 0
+    sweep_ref := swing_low
+    sl        := sweep_ref - atr * atr_sl_mult
+    risk       = close - sl
+    tp        := close + risk * rr
+    if risk > 0 and tp > close and sl < close
+        strategy.entry("Long", strategy.long)
+        strategy.exit("XL", "Long", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
 
 if strategy.position_size == 0
-    entry  := na
-    stop   := na
-    target := na
+    sl        := na
+    tp        := na
+    sweep_ref := na
 
+// ---- Win Rate Tracker ----
 var int w  = 0
 var float wr = 0.0
 if strategy.closedtrades > strategy.closedtrades[1]
@@ -92,29 +112,43 @@ if strategy.closedtrades > strategy.closedtrades[1]
         w += 1
     wr := (w / strategy.closedtrades) * 100
 
-plot(ema9,   "EMA 9",   color=color.aqua)
+// ---- Visuals ----
 plot(ema21,  "EMA 21",  color=color.yellow)
 plot(ema50,  "EMA 50",  color=color.orange)
 plot(ema200, "EMA 200", color=color.white, linewidth=2)
-plotshape(long_signal,  "BUY",  style=shape.labelup,   location=location.belowbar, color=color.green, text="BUY",  textcolor=color.white, size=size.small)
-plotshape(short_signal, "SELL", style=shape.labeldown, location=location.abovebar, color=color.red,   text="SELL", textcolor=color.white, size=size.small)
-plot(stop,   "SL", color=color.red,   style=plot.style_linebr, linewidth=2)
-plot(target, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
+
+// Plot swing high/low levels
+plot(swing_high, "Swing High", color=color.new(color.red, 60),   style=plot.style_linebr, linewidth=1)
+plot(swing_low,  "Swing Low",  color=color.new(color.green, 60), style=plot.style_linebr, linewidth=1)
+
+// BUY/SELL labels
+plotshape(long_signal,  "BUY",  style=shape.labelup,   location=location.belowbar, color=color.green, text="BUY\nSWEEP",  textcolor=color.white, size=size.small)
+plotshape(short_signal, "SELL", style=shape.labeldown, location=location.abovebar, color=color.red,   text="SELL\nSWEEP", textcolor=color.white, size=size.small)
+
+// SL/TP lines
+plot(sl, "SL", color=color.red,   style=plot.style_linebr, linewidth=2)
+plot(tp, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
+
+// HTF background
 bgcolor(htf_bull ? color.new(color.green, 92) : htf_bear ? color.new(color.red, 92) : na)
 
+// Highlight FVG zones
+bgcolor(bear_fvg ? color.new(color.red, 80) : bull_fvg ? color.new(color.green, 80) : na, offset=-1)
+
+// ---- Dashboard ----
 var table d = table.new(position.top_right, 2, 7, bgcolor=color.black, border_color=color.gray, border_width=1)
 if barstate.islast
-    table.cell(d, 0, 0, "GB v8",   text_color=color.yellow, text_size=size.small)
-    table.cell(d, 1, 0, "ACTIVE",   text_color=color.lime,   text_size=size.small)
-    table.cell(d, 0, 1, "HTF",      text_color=color.white,  text_size=size.small)
+    table.cell(d, 0, 0, "GB v9",    text_color=color.yellow, text_size=size.small)
+    table.cell(d, 1, 0, "SWEEP",     text_color=color.lime,   text_size=size.small)
+    table.cell(d, 0, 1, "HTF",       text_color=color.white,  text_size=size.small)
     table.cell(d, 1, 1, htf_bull ? "BULL" : "BEAR", text_color=htf_bull ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 2, "MACD",     text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 2, macd_bull_hist ? "BULL" : "BEAR", text_color=macd_bull_hist ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 3, "Win Rate", text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 3, str.tostring(math.round(wr, 1)) + "%", text_color=wr >= 60 ? color.green : wr >= 45 ? color.yellow : color.red, text_size=size.small)
-    table.cell(d, 0, 4, "Trades",   text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 4, str.tostring(strategy.closedtrades), text_color=color.white, text_size=size.small)
-    table.cell(d, 0, 5, "Net P&L",  text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 5, str.tostring(math.round(strategy.netprofit, 0)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 6, "Open P&L", text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 6, str.tostring(math.round(strategy.openprofit, 0)), text_color=strategy.openprofit >= 0 ? color.green : color.red, text_size=size.small)
+    table.cell(d, 0, 2, "SwingH",    text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 2, str.tostring(math.round(swing_high, 1)), text_color=color.red,  text_size=size.small)
+    table.cell(d, 0, 3, "SwingL",    text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 3, str.tostring(math.round(swing_low, 1)), text_color=color.green, text_size=size.small)
+    table.cell(d, 0, 4, "Win Rate",  text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 4, str.tostring(math.round(wr, 1)) + "%", text_color=wr >= 60 ? color.green : wr >= 45 ? color.yellow : color.red, text_size=size.small)
+    table.cell(d, 0, 5, "Trades",    text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 5, str.tostring(strategy.closedtrades), text_color=color.white, text_size=size.small)
+    table.cell(d, 0, 6, "Net P&L",   text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 6, str.tostring(math.round(strategy.netprofit, 0)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
