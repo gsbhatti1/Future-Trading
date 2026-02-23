@@ -1,0 +1,1 @@
+There was no Chinese text provided in your request to translate. The content you shared already consists of English text and Pine Script code. If you have any specific Chinese descriptions or comments within the code that need translation, please highlight them, and I'll be happy to assist with translating those parts while keeping the code intact.
