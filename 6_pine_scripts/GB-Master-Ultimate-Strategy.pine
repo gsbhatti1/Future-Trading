@@ -1,159 +1,120 @@
 // @version=6
-strategy("GB Master Ultimate Strategy v7 - CONFLUENCE PRO", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
+strategy("GB Master Ultimate Strategy v8 - MOMENTUM", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
 
 // ================================================================
-// GB MASTER ULTIMATE STRATEGY v7.1 - CONFLUENCE PRO (FIXED)
-// v7.0 was too restrictive (4 trades/year). Loosened to 4 filters:
-//   1. HTF 1H EMA trend (fast > slow)
-//   2. EMA stack (20 > 50 > 200 for long)
-//   3. RSI pullback zone (35-55 long / 45-65 short)
-//   4. MACD aligned with direction
-// Removed: volume spike + bounce + near_ema (too strict together)
-// ATR SL: 1.8x | R:R: 2.0
-// Optimized: NAS100, US30 (5m)
+// GB MASTER ULTIMATE STRATEGY v8 - MOMENTUM CONTINUATION
+// Progress: v6(25%WR) > v7.1(33.7%WR) > v7.3(50%WR) > v8(TBD)
+// Core logic: Trade WITH trend on EMA9 pullbacks
+//   - HTF 1H: EMA21 > EMA50 (bull) or EMA21 < EMA50 (bear)
+//   - 5m EMA stack: EMA9 > EMA21 > EMA50 (bull) confirmed
+//   - Price touched EMA9 in last 2 bars then bounced
+//   - MACD histogram confirms direction
+//   - RSI 40-70 long / 30-60 short
+//   - NY session 9:30-4PM only
+// SL: 1.5x ATR below 8-bar swing low
+// TP: 2.0 R:R
 // ================================================================
 
-// ---- INPUTS ----
-ema_fast_len  = input.int(20,  "Fast EMA",     group="Trend")
-ema_slow_len  = input.int(50,  "Slow EMA",     group="Trend")
-ema_trend_len = input.int(200, "Trend Filter", group="Trend")
-mtf_tf        = input.timeframe("60", "HTF TF", group="Trend")
+ema9_len   = input.int(9,   "EMA 9",   group="EMAs")
+ema21_len  = input.int(21,  "EMA 21",  group="EMAs")
+ema50_len  = input.int(50,  "EMA 50",  group="EMAs")
+ema200_len = input.int(200, "EMA 200", group="EMAs")
+mtf_tf     = input.timeframe("60", "HTF TF", group="EMAs")
+rsi_len    = input.int(14,  "RSI Len",  group="Filter")
+atr_len    = input.int(14,  "ATR Len",  group="Risk")
+atr_sl     = input.float(1.5, "ATR SL", group="Risk")
+rr         = input.float(2.0, "R:R",    group="Risk")
 
-rsi_len       = input.int(14, "RSI Length",    group="Pullback")
-rsi_long_max  = input.int(55, "RSI Long Max",  group="Pullback")
-rsi_long_min  = input.int(35, "RSI Long Min",  group="Pullback")
-rsi_short_min = input.int(45, "RSI Short Min", group="Pullback")
-rsi_short_max = input.int(65, "RSI Short Max", group="Pullback")
+ema9   = ta.ema(close, ema9_len)
+ema21  = ta.ema(close, ema21_len)
+ema50  = ta.ema(close, ema50_len)
+ema200 = ta.ema(close, ema200_len)
+rsi    = ta.rsi(close, rsi_len)
+atr    = ta.atr(atr_len)
 
-macd_fast     = input.int(12, "MACD Fast",     group="MACD")
-macd_slow     = input.int(26, "MACD Slow",     group="MACD")
-macd_signal   = input.int(9,  "MACD Signal",   group="MACD")
+[ml, sl2, hist] = ta.macd(close, 12, 26, 9)
+macd_bull_hist = hist > 0
+macd_bear_hist = hist < 0
 
-vol_len       = input.int(20,  "Vol MA Length",  group="Volume")
-vol_mult      = input.float(1.2, "Vol Multiplier", group="Volume")
+htf21    = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 21))
+htf50    = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 50))
+htf_bull = htf21 > htf50
+htf_bear = htf21 < htf50
 
-atr_len       = input.int(14,  "ATR Length",   group="Risk")
-atr_sl_mult   = input.float(1.8, "ATR SL Mult", group="Risk")
-rr_ratio      = input.float(2.0, "Reward:Risk", group="Risk")
+bull_stack = ema9 > ema21 and ema21 > ema50
+bear_stack = ema9 < ema21 and ema21 < ema50
 
-// ---- CALCULATIONS ----
-ema_fast  = ta.ema(close, ema_fast_len)
-ema_slow  = ta.ema(close, ema_slow_len)
-ema_trend = ta.ema(close, ema_trend_len)
-rsi_val   = ta.rsi(close, rsi_len)
-atr_val   = ta.atr(atr_len)
+touched_ema9_long  = low[1] <= ema9[1] * 1.001 or low[2] <= ema9[2] * 1.001
+touched_ema9_short = high[1] >= ema9[1] * 0.999 or high[2] >= ema9[2] * 0.999
 
-// MACD
-[macd_line, signal_line, hist_line] = ta.macd(close, macd_fast, macd_slow, macd_signal)
-macd_bull = macd_line > signal_line
-macd_bear = macd_line < signal_line
+bounce_long  = close > ema9 and close > open
+bounce_short = close < ema9 and close < open
 
-// Volume filter (optional confirmation)
-vol_avg = ta.sma(volume, vol_len)
-vol_ok  = volume > vol_avg * vol_mult
+rsi_long_ok  = rsi > 40 and rsi < 70
+rsi_short_ok = rsi > 30 and rsi < 60
 
-// HTF Trend
-htf_ema_fast = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 20))
-htf_ema_slow = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 50))
-htf_bullish  = htf_ema_fast > htf_ema_slow
-htf_bearish  = htf_ema_fast < htf_ema_slow
+ny = not na(time(timeframe.period, "0930-1600:23456"))
 
-// EMA Structure
-ema_bull_struct = ema_fast > ema_slow
-ema_bear_struct = ema_fast < ema_slow
+long_signal  = htf_bull and bull_stack and touched_ema9_long  and bounce_long  and macd_bull_hist and rsi_long_ok  and ny
+short_signal = htf_bear and bear_stack and touched_ema9_short and bounce_short and macd_bear_hist and rsi_short_ok and ny
 
-// Trend aligned (price above EMA200 for longs, below for shorts)
-price_above_trend = close > ema_trend
-price_below_trend = close < ema_trend
-
-// Session Filter (NY)
-ny_session = not na(time(timeframe.period, "0930-1600:23456"))
-
-// ---- ENTRY CONDITIONS (4 core filters) ----
-// LONG: HTF bull + EMA20>50 + price above EMA200 + RSI pullback + MACD bull + NY session
-long_signal = htf_bullish
-             and ema_bull_struct
-             and price_above_trend
-             and rsi_val >= rsi_long_min and rsi_val <= rsi_long_max
-             and macd_bull
-             and ny_session
-
-// SHORT: HTF bear + EMA20<50 + price below EMA200 + RSI pushback + MACD bear + NY session
-short_signal = htf_bearish
-              and ema_bear_struct
-              and price_below_trend
-              and rsi_val >= rsi_short_min and rsi_val <= rsi_short_max
-              and macd_bear
-              and ny_session
-
-// ---- EXECUTION ----
-var float sl = na
-var float tp = na
-var float ep = na
+var float entry  = na
+var float stop   = na
+var float target = na
 
 if long_signal and strategy.position_size == 0
-    ep := close
-    sl := ta.lowest(low, 10) - (atr_val * atr_sl_mult)
-    risk = ep - sl
-    tp := ep + (risk * rr_ratio)
-    if tp > ep and sl < ep and risk > 0
+    entry  := close
+    stop   := ta.lowest(low, 8) - atr * atr_sl
+    risk    = entry - stop
+    target := entry + risk * rr
+    if risk > 0 and target > entry and stop < entry
         strategy.entry("Long", strategy.long)
-        strategy.exit("Exit L", "Long", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
+        strategy.exit("XL", "Long", stop=stop, limit=target, comment_loss="SL", comment_profit="TP")
 
 if short_signal and strategy.position_size == 0
-    ep := close
-    sl := ta.highest(high, 10) + (atr_val * atr_sl_mult)
-    risk = sl - ep
-    tp := ep - (risk * rr_ratio)
-    if tp < ep and sl > ep and risk > 0
+    entry  := close
+    stop   := ta.highest(high, 8) + atr * atr_sl
+    risk    = stop - entry
+    target := entry - risk * rr
+    if risk > 0 and target < entry and stop > entry
         strategy.entry("Short", strategy.short)
-        strategy.exit("Exit S", "Short", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
+        strategy.exit("XS", "Short", stop=stop, limit=target, comment_loss="SL", comment_profit="TP")
 
 if strategy.position_size == 0
-    sl := na
-    tp := na
-    ep := na
+    entry  := na
+    stop   := na
+    target := na
 
-// ---- MANUAL WINRATE ----
-var int total_trades = 0
-var int win_trades   = 0
-var float win_rate   = 0.0
+var int w  = 0
+var float wr = 0.0
 if strategy.closedtrades > strategy.closedtrades[1]
-    total_trades := strategy.closedtrades
     if strategy.closedtrades.profit(strategy.closedtrades - 1) > 0
-        win_trades += 1
-    win_rate := total_trades > 0 ? (win_trades / total_trades) * 100 : 0.0
+        w += 1
+    wr := (w / strategy.closedtrades) * 100
 
-// ---- VISUALS ----
-plot(ema_fast,  "EMA 20",  color=color.yellow)
-plot(ema_slow,  "EMA 50",  color=color.orange)
-plot(ema_trend, "EMA 200", color=color.white, linewidth=2)
-
+plot(ema9,   "EMA 9",   color=color.aqua)
+plot(ema21,  "EMA 21",  color=color.yellow)
+plot(ema50,  "EMA 50",  color=color.orange)
+plot(ema200, "EMA 200", color=color.white, linewidth=2)
 plotshape(long_signal,  "BUY",  style=shape.labelup,   location=location.belowbar, color=color.green, text="BUY",  textcolor=color.white, size=size.small)
 plotshape(short_signal, "SELL", style=shape.labeldown, location=location.abovebar, color=color.red,   text="SELL", textcolor=color.white, size=size.small)
+plot(stop,   "SL", color=color.red,   style=plot.style_linebr, linewidth=2)
+plot(target, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
+bgcolor(htf_bull ? color.new(color.green, 92) : htf_bear ? color.new(color.red, 92) : na)
 
-plot(sl, "SL", color=color.red,   style=plot.style_linebr, linewidth=2)
-plot(tp, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
-
-bgcolor(htf_bullish ? color.new(color.green, 90) : htf_bearish ? color.new(color.red, 90) : na)
-barcolor(macd_bull and vol_ok ? color.new(color.lime, 60) : macd_bear and vol_ok ? color.new(color.red, 60) : na)
-
-// ---- DASHBOARD ----
-var table d = table.new(position.top_right, 2, 8, bgcolor=color.black, border_color=color.gray, border_width=1)
+var table d = table.new(position.top_right, 2, 7, bgcolor=color.black, border_color=color.gray, border_width=1)
 if barstate.islast
-    table.cell(d, 0, 0, "GB PULLBACK v7",  text_color=color.yellow, text_size=size.small)
-    table.cell(d, 1, 0, "ACTIVE",           text_color=color.lime,   text_size=size.small)
-    table.cell(d, 0, 1, "HTF Trend",        text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 1, htf_bullish ? "BULL" : "BEAR", text_color=htf_bullish ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 2, "MACD",             text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 2, macd_bull ? "BULL" : macd_bear ? "BEAR" : "FLAT", text_color=macd_bull ? color.green : macd_bear ? color.red : color.gray, text_size=size.small)
-    table.cell(d, 0, 3, "Volume",           text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 3, vol_ok ? "HIGH" : "LOW", text_color=vol_ok ? color.green : color.gray, text_size=size.small)
-    table.cell(d, 0, 4, "Win Rate",         text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 4, str.tostring(math.round(win_rate, 1)) + "%", text_color=color.white, text_size=size.small)
-    table.cell(d, 0, 5, "Total Trades",     text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 5, str.tostring(strategy.closedtrades), text_color=color.white, text_size=size.small)
-    table.cell(d, 0, 6, "Net Profit",       text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 6, str.tostring(math.round(strategy.netprofit, 2)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
-    table.cell(d, 0, 7, "Open P&L",         text_color=color.white,  text_size=size.small)
-    table.cell(d, 1, 7, str.tostring(math.round(strategy.openprofit, 2)), text_color=strategy.openprofit >= 0 ? color.green : color.red, text_size=size.small)
+    table.cell(d, 0, 0, "GB v8",   text_color=color.yellow, text_size=size.small)
+    table.cell(d, 1, 0, "ACTIVE",   text_color=color.lime,   text_size=size.small)
+    table.cell(d, 0, 1, "HTF",      text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 1, htf_bull ? "BULL" : "BEAR", text_color=htf_bull ? color.green : color.red, text_size=size.small)
+    table.cell(d, 0, 2, "MACD",     text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 2, macd_bull_hist ? "BULL" : "BEAR", text_color=macd_bull_hist ? color.green : color.red, text_size=size.small)
+    table.cell(d, 0, 3, "Win Rate", text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 3, str.tostring(math.round(wr, 1)) + "%", text_color=wr >= 60 ? color.green : wr >= 45 ? color.yellow : color.red, text_size=size.small)
+    table.cell(d, 0, 4, "Trades",   text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 4, str.tostring(strategy.closedtrades), text_color=color.white, text_size=size.small)
+    table.cell(d, 0, 5, "Net P&L",  text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 5, str.tostring(math.round(strategy.netprofit, 0)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
+    table.cell(d, 0, 6, "Open P&L", text_color=color.white,  text_size=size.small)
+    table.cell(d, 1, 6, str.tostring(math.round(strategy.openprofit, 0)), text_color=strategy.openprofit >= 0 ? color.green : color.red, text_size=size.small)
