@@ -1,0 +1,3 @@
+There is no Chinese text in your provided content that needs translation. All the descriptions and comments are already in English, and the Pine Script code block remains unchanged as requested.
+
+If you have any specific Chinese text or phrases related to this trading strategy that need translation, please provide them separately, and I'll be happy to help translate them into English while keeping any code unchanged.
