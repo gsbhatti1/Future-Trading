@@ -2,43 +2,39 @@
 strategy("GB Master Ultimate Strategy v7 - CONFLUENCE PRO", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
 
 // ================================================================
-// GB MASTER ULTIMATE STRATEGY v7 - CONFLUENCE PRO
-// Major upgrade from v6 (25% win rate -> target 55%+)
-// Fixes:
-//   - Added MACD momentum confirmation
-//   - Added volume filter (1.3x avg)
-//   - EMA structure check (fast > slow for longs)
-//   - Tighter RSI pullback zones (35-52 long / 48-65 short)
-//   - Wider ATR SL (2.0x) to avoid stop hunts on NAS100
-//   - Swing structure: price must bounce off swing low/high
-//   - Better R:R = 2.5
-// Optimized for: NAS100, US30 (5m)
+// GB MASTER ULTIMATE STRATEGY v7.1 - CONFLUENCE PRO (FIXED)
+// v7.0 was too restrictive (4 trades/year). Loosened to 4 filters:
+//   1. HTF 1H EMA trend (fast > slow)
+//   2. EMA stack (20 > 50 > 200 for long)
+//   3. RSI pullback zone (35-55 long / 45-65 short)
+//   4. MACD aligned with direction
+// Removed: volume spike + bounce + near_ema (too strict together)
+// ATR SL: 1.8x | R:R: 2.0
+// Optimized: NAS100, US30 (5m)
 // ================================================================
 
 // ---- INPUTS ----
-ema_fast_len  = input.int(20,  "Fast EMA",       group="Trend")
-ema_slow_len  = input.int(50,  "Slow EMA",       group="Trend")
-ema_trend_len = input.int(200, "Trend Filter",   group="Trend")
-mtf_tf        = input.timeframe("60", "HTF TF",  group="Trend")
+ema_fast_len  = input.int(20,  "Fast EMA",     group="Trend")
+ema_slow_len  = input.int(50,  "Slow EMA",     group="Trend")
+ema_trend_len = input.int(200, "Trend Filter", group="Trend")
+mtf_tf        = input.timeframe("60", "HTF TF", group="Trend")
 
-rsi_len       = input.int(14,  "RSI Length",     group="Pullback")
-rsi_long_max  = input.int(52,  "RSI Long Max",   group="Pullback", tooltip="Buy when RSI < this (pullback zone)")
-rsi_long_min  = input.int(35,  "RSI Long Min",   group="Pullback", tooltip="Avoid oversold extremes")
-rsi_short_min = input.int(48,  "RSI Short Min",  group="Pullback", tooltip="Sell when RSI > this")
-rsi_short_max = input.int(65,  "RSI Short Max",  group="Pullback", tooltip="Avoid overbought extremes")
+rsi_len       = input.int(14, "RSI Length",    group="Pullback")
+rsi_long_max  = input.int(55, "RSI Long Max",  group="Pullback")
+rsi_long_min  = input.int(35, "RSI Long Min",  group="Pullback")
+rsi_short_min = input.int(45, "RSI Short Min", group="Pullback")
+rsi_short_max = input.int(65, "RSI Short Max", group="Pullback")
 
-macd_fast     = input.int(12,  "MACD Fast",      group="MACD")
-macd_slow     = input.int(26,  "MACD Slow",      group="MACD")
-macd_signal   = input.int(9,   "MACD Signal",    group="MACD")
+macd_fast     = input.int(12, "MACD Fast",     group="MACD")
+macd_slow     = input.int(26, "MACD Slow",     group="MACD")
+macd_signal   = input.int(9,  "MACD Signal",   group="MACD")
 
 vol_len       = input.int(20,  "Vol MA Length",  group="Volume")
-vol_mult      = input.float(1.3, "Vol Multiplier", group="Volume")
+vol_mult      = input.float(1.2, "Vol Multiplier", group="Volume")
 
-atr_len       = input.int(14,  "ATR Length",     group="Risk")
-atr_sl_mult   = input.float(2.0, "ATR SL Mult",  group="Risk")
-rr_ratio      = input.float(2.5, "Reward:Risk",  group="Risk")
-
-swing_len     = input.int(10,  "Swing Lookback", group="Structure")
+atr_len       = input.int(14,  "ATR Length",   group="Risk")
+atr_sl_mult   = input.float(1.8, "ATR SL Mult", group="Risk")
+rr_ratio      = input.float(2.0, "Reward:Risk", group="Risk")
 
 // ---- CALCULATIONS ----
 ema_fast  = ta.ema(close, ema_fast_len)
@@ -49,57 +45,45 @@ atr_val   = ta.atr(atr_len)
 
 // MACD
 [macd_line, signal_line, hist_line] = ta.macd(close, macd_fast, macd_slow, macd_signal)
-macd_bull = macd_line > signal_line and hist_line > 0
-macd_bear = macd_line < signal_line and hist_line < 0
+macd_bull = macd_line > signal_line
+macd_bear = macd_line < signal_line
 
-// Volume filter
-vol_avg     = ta.sma(volume, vol_len)
-vol_ok      = volume > vol_avg * vol_mult
+// Volume filter (optional confirmation)
+vol_avg = ta.sma(volume, vol_len)
+vol_ok  = volume > vol_avg * vol_mult
 
-// Higher Timeframe Trend
+// HTF Trend
 htf_ema_fast = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 20))
 htf_ema_slow = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 50))
 htf_bullish  = htf_ema_fast > htf_ema_slow
 htf_bearish  = htf_ema_fast < htf_ema_slow
 
-// Swing structure
-swing_low  = ta.lowest(low, swing_len)
-swing_high = ta.highest(high, swing_len)
-
-// Price near EMA20 (within 0.3% band)
-near_ema_long  = close > ema_fast * 0.997 and close < ema_fast * 1.003
-near_ema_short = close < ema_fast * 1.003 and close > ema_fast * 0.997
-
 // EMA Structure
-ema_bull_struct = ema_fast > ema_slow and ema_slow > ema_trend
-ema_bear_struct = ema_fast < ema_slow and ema_slow < ema_trend
+ema_bull_struct = ema_fast > ema_slow
+ema_bear_struct = ema_fast < ema_slow
 
-// Session Filter (NY Open)
+// Trend aligned (price above EMA200 for longs, below for shorts)
+price_above_trend = close > ema_trend
+price_below_trend = close < ema_trend
+
+// Session Filter (NY)
 ny_session = not na(time(timeframe.period, "0930-1600:23456"))
 
-// Bounce confirmation: candle closed above swing low for longs
-bounce_long  = low[1] <= swing_low * 1.002 and close > open
-bounce_short = high[1] >= swing_high * 0.998 and close < open
-
-// ---- ENTRY CONDITIONS (v7 - 5 filters must align) ----
-// LONG: HTF bullish + EMA stack bullish + RSI pullback zone + MACD bullish + Volume spike + Near EMA20 + Bounce
+// ---- ENTRY CONDITIONS (4 core filters) ----
+// LONG: HTF bull + EMA20>50 + price above EMA200 + RSI pullback + MACD bull + NY session
 long_signal = htf_bullish
              and ema_bull_struct
+             and price_above_trend
              and rsi_val >= rsi_long_min and rsi_val <= rsi_long_max
              and macd_bull
-             and vol_ok
-             and near_ema_long
-             and bounce_long
              and ny_session
 
-// SHORT: HTF bearish + EMA stack bearish + RSI pullback zone + MACD bearish + Volume spike + Near EMA20 + Rejection
+// SHORT: HTF bear + EMA20<50 + price below EMA200 + RSI pushback + MACD bear + NY session
 short_signal = htf_bearish
               and ema_bear_struct
+              and price_below_trend
               and rsi_val >= rsi_short_min and rsi_val <= rsi_short_max
               and macd_bear
-              and vol_ok
-              and near_ema_short
-              and bounce_short
               and ny_session
 
 // ---- EXECUTION ----
@@ -109,7 +93,7 @@ var float ep = na
 
 if long_signal and strategy.position_size == 0
     ep := close
-    sl := ta.lowest(low, swing_len) - (atr_val * atr_sl_mult)
+    sl := ta.lowest(low, 10) - (atr_val * atr_sl_mult)
     risk = ep - sl
     tp := ep + (risk * rr_ratio)
     if tp > ep and sl < ep and risk > 0
@@ -118,7 +102,7 @@ if long_signal and strategy.position_size == 0
 
 if short_signal and strategy.position_size == 0
     ep := close
-    sl := ta.highest(high, swing_len) + (atr_val * atr_sl_mult)
+    sl := ta.highest(high, 10) + (atr_val * atr_sl_mult)
     risk = sl - ep
     tp := ep - (risk * rr_ratio)
     if tp < ep and sl > ep and risk > 0
@@ -130,12 +114,11 @@ if strategy.position_size == 0
     tp := na
     ep := na
 
-// ---- MANUAL WINRATE CALCULATION ----
+// ---- MANUAL WINRATE ----
 var int total_trades = 0
 var int win_trades   = 0
 var float win_rate   = 0.0
-trade_closed = strategy.closedtrades > strategy.closedtrades[1]
-if trade_closed
+if strategy.closedtrades > strategy.closedtrades[1]
     total_trades := strategy.closedtrades
     if strategy.closedtrades.profit(strategy.closedtrades - 1) > 0
         win_trades += 1
@@ -153,8 +136,6 @@ plot(sl, "SL", color=color.red,   style=plot.style_linebr, linewidth=2)
 plot(tp, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
 
 bgcolor(htf_bullish ? color.new(color.green, 90) : htf_bearish ? color.new(color.red, 90) : na)
-
-// MACD histogram color bar (bottom panel indicator is separate but we mark confluence)
 barcolor(macd_bull and vol_ok ? color.new(color.lime, 60) : macd_bear and vol_ok ? color.new(color.red, 60) : na)
 
 // ---- DASHBOARD ----
@@ -176,7 +157,3 @@ if barstate.islast
     table.cell(d, 1, 6, str.tostring(math.round(strategy.netprofit, 2)), text_color=strategy.netprofit >= 0 ? color.green : color.red, text_size=size.small)
     table.cell(d, 0, 7, "Open P&L",         text_color=color.white,  text_size=size.small)
     table.cell(d, 1, 7, str.tostring(math.round(strategy.openprofit, 2)), text_color=strategy.openprofit >= 0 ? color.green : color.red, text_size=size.small)
-
-// ---- ALERTS ----
-alertcondition(long_signal,  title="GB Long Signal",  message="GB v7 LONG - NAS100 Pullback Entry")
-alertcondition(short_signal, title="GB Short Signal", message="GB v7 SHORT - NAS100 Pullback Entry")
