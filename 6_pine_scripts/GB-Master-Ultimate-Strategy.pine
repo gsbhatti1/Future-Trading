@@ -1,148 +1,101 @@
 // @version=6
-strategy("GB Master Ultimate Strategy v4", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=5, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.02)
+strategy("GB Master Ultimate Strategy v5 - PULLBACK PRO", overlay=true, initial_capital=100000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, currency=currency.USD, max_bars_back=500, commission_type=strategy.commission.percent, commission_value=0.01)
 
 // ================================================================
-// GB MASTER ULTIMATE STRATEGY v4
-// Fixed: Entry signals, Exit signals, Stop Loss lines on chart
-// Logic: High-quality confluence - fewer but better trades
-// Optimized for NAS100, US30, SPX - 5m / 15m charts
+// GB MASTER ULTIMATE STRATEGY v5
+// Goal: Fix low win rate by switching to Pullback logic.
+// Logic: Higher TF Trend Filter + Pullback to EMA + Structure SL
+// Optimized for: NAS100, US30 (5m / 15m)
 // ================================================================
 
 // ---- INPUTS ----
-ema_fast_len  = input.int(9,   "EMA Fast",          group="Trend")
-ema_slow_len  = input.int(21,  "EMA Slow",          group="Trend")
-ema_trend_len = input.int(50,  "EMA Trend (50)",    group="Trend")
-rsi_len       = input.int(14,  "RSI Length",        group="Filters")
-rsi_long_max  = input.int(65,  "RSI Long Max",      group="Filters")
-rsi_short_min = input.int(35,  "RSI Short Min",     group="Filters")
-atr_len       = input.int(14,  "ATR Length",        group="Risk")
-atr_sl_mult   = input.float(1.5, "SL ATR Mult",    group="Risk", step=0.1)
-rr_ratio      = input.float(2.0, "R:R Ratio",      group="Risk", step=0.5)
-use_session   = input.bool(true, "NY Session Only (9:30-16:00)", group="Filters")
+ema_fast_len  = input.int(20,  "Fast EMA",       group="Trend")
+ema_slow_len  = input.int(50,  "Slow EMA",       group="Trend")
+ema_trend_len = input.int(200, "Trend Filter",   group="Trend")
+mtf_tf        = input.timeframe("60", "Trend TF", group="Trend")
+
+rsi_len       = input.int(14,  "RSI Length",     group="Pullback")
+rsi_low       = input.int(45,  "RSI Buy Pullback", group="Pullback")
+rsi_high      = input.int(55,  "RSI Sell Pullback",group="Pullback")
+
+atr_len       = input.int(14,  "ATR Length",     group="Risk")
+atr_sl_mult   = input.float(1.5, "ATR SL Mult",  group="Risk")
+rr_ratio      = input.float(2.0, "Reward:Risk",  group="Risk")
 
 // ---- CALCULATIONS ----
 ema_fast  = ta.ema(close, ema_fast_len)
 ema_slow  = ta.ema(close, ema_slow_len)
 ema_trend = ta.ema(close, ema_trend_len)
-[macd_line, sig_line, macd_hist] = ta.macd(close, 12, 26, 9)
-[supertrend, st_dir] = ta.supertrend(3.0, 10)
 rsi_val   = ta.rsi(close, rsi_len)
 atr_val   = ta.atr(atr_len)
 
-// ---- SESSION FILTER ----
-in_session = not na(time(timeframe.period, "0930-1600:23456"))
-sess_ok    = use_session ? in_session : true
+// Higher Timeframe Trend
+htf_ema_fast = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 20))
+htf_ema_slow = request.security(syminfo.tickerid, mtf_tf, ta.ema(close, 50))
+htf_bullish  = htf_ema_fast > htf_ema_slow
+htf_bearish  = htf_ema_fast < htf_ema_slow
 
-// ---- TREND CONDITIONS ----
-bull_trend = ema_fast > ema_slow and ema_slow > ema_trend
-bear_trend = ema_fast < ema_slow and ema_slow < ema_trend
+// Session Filter (NY Open to Lunch)
+ny_session = not na(time(timeframe.period, "0930-1400:23456"))
 
-// ---- ENTRY CONDITIONS (STRICT - fewer, better trades) ----
-// LONG: EMA cross UP + EMA stack bull + SuperTrend green + RSI not overbought + MACD hist positive
-long_cross = ta.crossover(ema_fast, ema_slow)
-long_entry = long_cross and bull_trend and st_dir < 0 and rsi_val < rsi_long_max and macd_hist > 0 and sess_ok
+// ---- PULLBACK LOGIC ----
+// LONG: HTF Trend is UP + Price above EMA 200 + RSI pulls back below 45 + Price crosses above EMA 20
+long_pullback = htf_bullish and close > ema_trend and rsi_val < rsi_low and ta.crossover(close, ema_fast) and ny_session
 
-// SHORT: EMA cross DOWN + EMA stack bear + SuperTrend red + RSI not oversold + MACD hist negative
-short_cross = ta.crossunder(ema_fast, ema_slow)
-short_entry = short_cross and bear_trend and st_dir > 0 and rsi_val > rsi_short_min and macd_hist < 0 and sess_ok
+// SHORT: HTF Trend is DOWN + Price below EMA 200 + RSI pulls back above 55 + Price crosses below EMA 20
+short_pullback = htf_bearish and close < ema_trend and rsi_val > rsi_high and ta.crossunder(close, ema_fast) and ny_session
 
-// ---- STOP LOSS & TAKE PROFIT ----
-var float sl_level = na
-var float tp_level = na
-var float entry_price = na
+// ---- EXECUTION ----
+var float sl = na
+var float tp = na
+var float ep = na
 
-if long_entry and strategy.position_size == 0
-    entry_price := close
-    sl_level    := close - (atr_val * atr_sl_mult)
-    tp_level    := close + (atr_val * atr_sl_mult * rr_ratio)
-    strategy.entry("Long", strategy.long)
-    strategy.exit("Long Exit", "Long", stop=sl_level, limit=tp_level, comment_loss="SL Hit", comment_profit="TP Hit")
+if long_pullback and strategy.position_size == 0
+    ep := close
+    sl := ta.lowest(low, 5) - (atr_val * 0.5) // Swing Low SL
+    risk = ep - sl
+    tp := ep + (risk * rr_ratio)
+    if tp > ep and sl < ep
+        strategy.entry("Long", strategy.long)
+        strategy.exit("Exit", "Long", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
 
-if short_entry and strategy.position_size == 0
-    entry_price := close
-    sl_level    := close + (atr_val * atr_sl_mult)
-    tp_level    := close - (atr_val * atr_sl_mult * rr_ratio)
-    strategy.entry("Short", strategy.short)
-    strategy.exit("Short Exit", "Short", stop=sl_level, limit=tp_level, comment_loss="SL Hit", comment_profit="TP Hit")
+if short_pullback and strategy.position_size == 0
+    ep := close
+    sl := ta.highest(high, 5) + (atr_val * 0.5) // Swing High SL
+    risk = sl - ep
+    tp := ep - (risk * rr_ratio)
+    if tp < ep and sl > ep
+        strategy.entry("Short", strategy.short)
+        strategy.exit("Exit", "Short", stop=sl, limit=tp, comment_loss="SL", comment_profit="TP")
 
-// Clear levels when flat
 if strategy.position_size == 0
-    sl_level    := na
-    tp_level    := na
-    entry_price := na
+    sl := na
+    tp := na
+    ep := na
 
-// ---- VISUAL: EMA LINES ----
-plot(ema_fast,  "EMA 9",  color=color.new(color.yellow, 0), linewidth=1)
-plot(ema_slow,  "EMA 21", color=color.new(color.orange, 0), linewidth=2)
-plot(ema_trend, "EMA 50", color=color.new(color.white,  20), linewidth=2)
+// ---- VISUALS ----
+plot(ema_fast,  "EMA 20",  color=color.yellow)
+plot(ema_slow,  "EMA 50",  color=color.orange)
+plot(ema_trend, "EMA 200", color=color.white, linewidth=2)
 
-// ---- VISUAL: SUPERTREND LINE ----
-st_color = st_dir < 0 ? color.new(color.lime, 0) : color.new(color.red, 0)
-plot(supertrend, "SuperTrend", color=st_color, linewidth=2, style=plot.style_stepline)
+plotshape(long_pullback,  "BUY",  style=shape.labelup,   location=location.belowbar, color=color.green, text="BUY",  textcolor=color.white)
+plotshape(short_pullback, "SELL", style=shape.labeldown, location=location.abovebar, color=color.red,   text="SELL", textcolor=color.white)
 
-// ---- VISUAL: ENTRY SIGNALS (Arrows on chart) ----
-plotshape(long_entry,  title="LONG Entry",  text="BUY",  style=shape.labelup,   location=location.belowbar, color=color.new(color.green, 0), textcolor=color.white, size=size.normal)
-plotshape(short_entry, title="SHORT Entry", text="SELL", style=shape.labeldown, location=location.abovebar, color=color.new(color.red,   0), textcolor=color.white, size=size.normal)
+plot(sl, "SL", color=color.red,  style=plot.style_linebr, linewidth=2)
+plot(tp, "TP", color=color.green, style=plot.style_linebr, linewidth=2)
 
-// ---- VISUAL: STOP LOSS LINE (horizontal, red dashed) ----
-plot(strategy.position_size != 0 ? sl_level : na, "Stop Loss",   color=color.new(color.red,    0), linewidth=2, style=plot.style_linebr)
+// Trend BG
+bgcolor(htf_bullish ? color.new(color.green, 90) : htf_bearish ? color.new(color.red, 90) : na)
 
-// ---- VISUAL: TAKE PROFIT LINE (horizontal, green dashed) ----
-plot(strategy.position_size != 0 ? tp_level : na, "Take Profit", color=color.new(color.lime,   0), linewidth=2, style=plot.style_linebr)
-
-// ---- VISUAL: ENTRY PRICE LINE (horizontal, white) ----
-plot(strategy.position_size != 0 ? entry_price : na, "Entry Price", color=color.new(color.white, 0), linewidth=1, style=plot.style_linebr)
-
-// ---- VISUAL: BACKGROUND TREND COLOR ----
-bg = bull_trend ? color.new(color.green, 93) : bear_trend ? color.new(color.red, 93) : na
-bgcolor(bg, title="Trend BG")
-
-// ---- VISUAL: EXIT LABELS (SL/TP hit markers) ----
-long_closed  = strategy.position_size[1] > 0 and strategy.position_size == 0
-short_closed = strategy.position_size[1] < 0 and strategy.position_size == 0
-
-long_win  = long_closed  and close >= entry_price[1]
-long_loss = long_closed  and close <  entry_price[1]
-short_win = short_closed and close <= entry_price[1]
-short_loss= short_closed and close >  entry_price[1]
-
-plotshape(long_win,   title="Long TP",  text="TP", style=shape.xcross, location=location.abovebar, color=color.new(color.lime,  0), textcolor=color.white, size=size.small)
-plotshape(long_loss,  title="Long SL",  text="SL", style=shape.xcross, location=location.abovebar, color=color.new(color.red,   0), textcolor=color.white, size=size.small)
-plotshape(short_win,  title="Short TP", text="TP", style=shape.xcross, location=location.belowbar, color=color.new(color.lime,  0), textcolor=color.white, size=size.small)
-plotshape(short_loss, title="Short SL", text="SL", style=shape.xcross, location=location.belowbar, color=color.new(color.red,   0), textcolor=color.white, size=size.small)
-
-// ---- DASHBOARD TABLE ----
-var table t = table.new(position.top_right, 2, 9, bgcolor=color.new(color.black, 60), border_color=color.new(color.gray, 40), border_width=1, frame_color=color.new(color.yellow,0), frame_width=1)
-
+// Dashboard
+var table d = table.new(position.top_right, 2, 5, bgcolor=color.black, border_color=color.gray, border_width=1)
 if barstate.islast
-    pos_str   = strategy.position_size > 0 ? "LONG" : strategy.position_size < 0 ? "SHORT" : "FLAT"
-    pos_color = strategy.position_size > 0 ? color.lime : strategy.position_size < 0 ? color.red : color.gray
-    pnl_open  = strategy.openprofit
-    pnl_color = pnl_open >= 0 ? color.lime : color.red
-
-    table.cell(t, 0, 0, "GB MASTER v4",  text_color=color.yellow, text_size=size.small, bgcolor=color.new(color.black, 40))
-    table.cell(t, 1, 0, "",              text_color=color.white,  text_size=size.small, bgcolor=color.new(color.black, 40))
-    table.cell(t, 0, 1, "Position",      text_color=color.gray,   text_size=size.tiny)
-    table.cell(t, 1, 1, pos_str,         text_color=pos_color,    text_size=size.tiny)
-    table.cell(t, 0, 2, "Open P&L",      text_color=color.gray,   text_size=size.tiny)
-    table.cell(t, 1, 2, str.tostring(math.round(pnl_open, 2)), text_color=pnl_color, text_size=size.tiny)
-    table.cell(t, 0, 3, "EMA Trend",     text_color=color.gray,   text_size=size.tiny)
-    table.cell(t, 1, 3, bull_trend ? "BULL" : bear_trend ? "BEAR" : "CHOP", text_color=bull_trend ? color.lime : bear_trend ? color.red : color.gray, text_size=size.tiny)
-    table.cell(t, 0, 4, "SuperTrend",    text_color=color.gray,   text_size=size.tiny)
-    table.cell(t, 1, 4, st_dir < 0 ? "BULL" : "BEAR", text_color=st_dir < 0 ? color.lime : color.red, text_size=size.tiny)
-    table.cell(t, 0, 5, "RSI",           text_color=color.gray,   text_size=size.tiny)
-    table.cell(t, 1, 5, str.tostring(math.round(rsi_val, 1)), text_color=rsi_val > 70 ? color.red : rsi_val < 30 ? color.lime : color.white, text_size=size.tiny)
-    table.cell(t, 0, 6, "MACD",          text_color=color.gray,   text_size=size.tiny)
-    table.cell(t, 1, 6, macd_hist > 0 ? "BULL" : "BEAR", text_color=macd_hist > 0 ? color.lime : color.red, text_size=size.tiny)
-    table.cell(t, 0, 7, "ATR",           text_color=color.gray,   text_size=size.tiny)
-    table.cell(t, 1, 7, str.tostring(math.round(atr_val, 2)), text_color=color.white, text_size=size.tiny)
-    table.cell(t, 0, 8, "Session",       text_color=color.gray,   text_size=size.tiny)
-    table.cell(t, 1, 8, in_session ? "ACTIVE" : "CLOSED", text_color=in_session ? color.lime : color.red, text_size=size.tiny)
-
-// ---- ALERTS ----
-alertcondition(long_entry,  "GB LONG Entry",  "GB v4 LONG - BUY {{ticker}} @ {{close}} | SL below | TP above")
-alertcondition(short_entry, "GB SHORT Entry", "GB v4 SHORT - SELL {{ticker}} @ {{close}} | SL above | TP below")
-alertcondition(long_win,    "GB Long TP Hit", "GB v4 LONG TP HIT on {{ticker}}")
-alertcondition(long_loss,   "GB Long SL Hit", "GB v4 LONG SL HIT on {{ticker}}")
-alertcondition(short_win,   "GB Short TP Hit","GB v4 SHORT TP HIT on {{ticker}}")
-alertcondition(short_loss,  "GB Short SL Hit","GB v4 SHORT SL HIT on {{ticker}}")
+    table.cell(d, 0, 0, "GB PULLBACK v5", text_color=color.yellow)
+    table.cell(d, 0, 1, "HTF Trend",     text_color=color.white)
+    table.cell(d, 1, 1, htf_bullish ? "BULL" : "BEAR", text_color=htf_bullish ? color.green : color.red)
+    table.cell(d, 0, 2, "Win Rate (Sim)", text_color=color.white)
+    table.cell(d, 1, 2, str.tostring(math.round(strategy.winrate, 1)) + "%", text_color=color.white)
+    table.cell(d, 0, 3, "Total Trades",  text_color=color.white)
+    table.cell(d, 1, 3, str.tostring(strategy.closedtrades), text_color=color.white)
+    table.cell(d, 0, 4, "Net Profit",    text_color=color.white)
+    table.cell(d, 1, 4, str.tostring(math.round(strategy.netprofit, 2)), text_color=strategy.netprofit >= 0 ? color.green : color.red)
