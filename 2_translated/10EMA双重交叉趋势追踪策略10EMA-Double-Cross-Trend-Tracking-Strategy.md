@@ -1,3 +1,43 @@
+# 10 EMA Double Cross Trend Tracking Strategy
+
+## Overview
+
+The 10 EMA Double Cross Trend Tracking Strategy uses a three-EMA system (10, 50, and 200-period EMAs) to identify high-probability trend entries with clearly defined entry, stop, and target levels. It detects ideal bull and bear setups based on EMA alignment and cross timing.
+
+## Strategy Logic
+
+**Bull Setup:**
+- Short EMA (10) is above Long EMA (50)
+- Price closes above both short EMA and the 200-period hourly EMA
+- A bearish candle forms after the 10/50 EMA bullish crossover (within 5 bars)
+- Entry above the high of that bar; stop below the low; target is 1.62x the range above entry
+
+**Bear Setup:**
+- Short EMA (10) is below Long EMA (50)
+- Price closes below both short EMA and the 200-period hourly EMA
+- A bullish candle forms after the 10/50 EMA bearish crossunder (within 5 bars)
+- Entry below the low of that bar; stop above the high; target is 1.62x the range below entry
+
+## Key Parameters
+- **EMA 1 (Short)**: 10-period
+- **EMA 2 (Long)**: 50-period
+- **EMA 3 (Hourly)**: 200-period
+- **Ideal cross zone**: Within 5 bars of the 10/50 EMA cross
+- **Target multiplier**: 1.62x (Fibonacci extension)
+
+## Advantages
+1. Clear visual signals with EMA alignment confirmation
+2. Built-in trailing stop exit for profit protection
+3. Uses 3-EMA hierarchy to filter trades against the major trend
+4. Works on both long and short sides
+
+## Risk Analysis
+1. Can generate false signals in choppy/sideways markets
+2. Time filter (0930-1500) limits use to specific trading hours
+3. Fixed multiplier may not suit all market conditions
+
+---
+
 ``` pinescript
 /*backtest
 start: 2022-12-22 00:00:00
