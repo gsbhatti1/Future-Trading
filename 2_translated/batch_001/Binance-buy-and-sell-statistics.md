@@ -1,6 +1,6 @@
 Name
 
-Binance-buy-and-sell-statisticsBinance buy and sell statistics
+Binance-buy-and-sell-statistics Binance buy and sell statistics
 
 Author
 
@@ -15,8 +15,8 @@ Strategy Arguments
 
 
 |Argument|Default|Description|
-|----|----|----|
-|Interval|600|Log interval(second)|
+|--------|-------|-----------|
+|Interval|600|Log interval (second)|
 |Pair|btcusdt|trading pair|
 
 
@@ -46,7 +46,7 @@ function main(){
         var buyNet = _N(tradeHistory.buyData.money - tradeHistory.sellData.money, 3)
         logSting = 'active buy amount:' + _N(tradeHistory.buyData.amount, 3) + ' total money: ' + _N(tradeHistory.buyData.money, 3) + '\n'
         logSting += 'active sell amount:' + _N(tradeHistory.sellData.amount, 3) + ' total money: ' + _N(tradeHistory.sellData.money, 3) + '\n'
-        logSting += 'Net inflow of funds: ' +　_N(tradeHistory.buyData.money - tradeHistory.sellData.money, 3)
+        logSting += 'Net inflow of funds: ' + _N(tradeHistory.buyData.money - tradeHistory.sellData.money, 3)
         LogStatus(logSting)
         if(new Date().getTime() - updateTime > Interval*1000){
             updateTime = new Date().getTime()

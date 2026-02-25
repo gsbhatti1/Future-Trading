@@ -1,21 +1,3 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
-
-> Name
-
-15-Minute Engulfing Breakout Multi-Confirmation Strategy
-
-> Author
-
-ianzeng123
-
-> Strategy Description
-
-![IMG](https://www.fmz.com/upload/asset/2d8395a23f122607ca429.png)
-![IMG](https://www.fmz.com/upload/asset/2d83d11a8a8f6808c0476.png)
-
-
-[trans]
 #### Overview
 The 15-Minute Engulfing Breakout Multi-Confirmation Strategy is a technical analysis trading system based on price action and candlestick patterns, specifically designed for the 15-minute timeframe. The core of this strategy relies on identifying engulfing patterns combined with multiple confirmation conditions to trigger trading signals, reportedly achieving a win ratio of 76%. The strategy detects both bullish and bearish engulfing patterns, then validates whether the price breaks through at least two previous engulfing pattern levels in the opposite direction, thereby filtering out low-quality signals and improving trade success rates. The strategy also incorporates built-in stop-loss and take-profit mechanisms to effectively control risk and enhance capital management efficiency.
 
@@ -45,186 +27,66 @@ The core principles of this Engulfing Breakout Multi-Confirmation Strategy are b
 Through this multi-layered confirmation mechanism, the strategy can effectively filter market noise and capture high-probability trading opportunities.
 
 #### Strategy Advantages
-After analyzing the code structure and logic, this strategy demonstrates the following significant advantages:
+After an in-depth analysis of the code structure and logic, this strategy has several notable advantages:
 
-1. **Multi-Confirmation Filtering Mechanism**: By requiring breakouts through at least two previous engulfing patterns in the opposite direction, it significantly improves signal quality and reduces the risk of losses from false breakouts.
+1. **Multi-Confirmation Filter Mechanism**: By requiring a break through at least two previous opposite-direction engulfing patterns, it significantly enhances signal quality and reduces the risk of false breaks leading to losses.
 
-2. **Dynamic Trading Zones**: Unlike strategies using fixed price levels, this strategy dynamically adjusts trading zones based on real-time price patterns, better adapting to market changes.
+2. **Dynamic Trading Zones**: Unlike fixed price levels, this strategy dynamically adjusts trading zones based on real-time price patterns, better adapting to market changes.
 
-3. **High Win-Rate Performance**: The 76% win rate mentioned in the code comments indicates that the strategy performs consistently on 15-minute charts, far exceeding the average performance of most trading systems.
+3. **High Win Rate Performance**: The 76% win rate mentioned in the code comments indicates consistent performance on the 15-minute chart, far exceeding the average for most trading systems.
 
-4. **Intelligent Risk Management**: By setting stop-loss and take-profit positions related to the trading zone, each trade has a clear exit plan, avoiding the risks of emotional trading.
+4. **Smart Risk Management**: By setting stop-loss and take-profit levels related to the trading zones, each trade has a clear exit plan, mitigating the risk of emotionally driven trades.
 
-5. **Clear Visualization**: By marking engulfing patterns on the chart (triangle markers), traders can intuitively understand the strategy's operating principles and signal generation process.
+5. **Clear Visualization**: Marking engulfing patterns on charts (triangle markers) helps traders understand how the strategy works and how signals are generated.
 
-6. **Flexible Capital Management**: The strategy uses a default percentage of account equity (10%) for position sizing, which helps maintain consistent risk exposure and supports long-term account growth.
+6. **Flexible Capital Management**: The default use of account equity percentage (10%) for position sizing helps maintain consistent risk exposure and supports long-term account growth.
 
-7. **Market Direction Adaptability**: Since the strategy monitors both bullish and bearish engulfing patterns, it can perform well in both uptrends and downtrends adaptively.
+7. **Adaptability to Market Shifts**: Since the strategy monitors both bullish and bearish engulfing patterns, it performs well in both upward and downward trends.
 
 #### Strategy Risks
-Despite its many advantages, through code analysis, we've identified several potential risk points:
+Despite its many advantages, code analysis also reveals some potential risks:
 
-1. **Rapid Volatility Market Risk**: In highly volatile markets, prices may quickly break through the engulfing zone and then reverse, triggering stop-losses. Solution: Consider adjusting stop-loss distances or pausing trading when volatility indicators (such as ATR) are high.
+1. **Risk in High-Volatility Markets**: Prices may quickly break out of the engulfing zone and then reverse, triggering stop-losses. Solution: Consider adjusting stop distances or pausing trading when volatility metrics (like ATR) are high.
 
-2. **Missing Major Trends**: Since the strategy resets the corresponding trading zone after each signal trigger (setting it to na), it may miss consecutive opportunities in major trends. Solution: Add a trend filter to maintain directional preference in strong trends.
+2. **Missed Big Trends**: The strategy resets its respective trading zones upon each signal trigger, potentially missing consecutive opportunities during a major trend. Solution: Add a trend filter to maintain directional preference in strong trends.
 
-3. **Fixed Capital Management**: The strategy sets a fixed equity percentage (10%) for each trade without adjusting position size based on different risk characteristics of trades. Solution: Consider dynamically adjusting position size based on stop-loss distance or market volatility.
+3. **Fixed Capital Management**: The strategy uses a fixed percentage of equity (10%) for each trade without adjusting position size based on risk characteristics. Solution: Consider dynamically adjusting position sizes based on stop distance or market volatility.
 
-4. **Pip Setting Optimization**: The strategy uses a fixed pip value (30 × pip size) to adjust stop-loss and take-profit positions, which may need adjustment for different trading instruments. Solution: Parameterize the pip size and optimize based on the characteristics of different trading instruments.
+4. **Optimized Spread Settings**: The use of fixed spreads to adjust stop and take-profit levels may need adjustment across different trading instruments. Solution: Parameterize the spread size, optimizing it for each trading instrument's characteristics.
 
-5. **Drawdown Risk**: Consecutive failed trades may lead to significant account drawdowns, especially when market structure changes. Solution: Consider adding overall market health filters or automatically reducing trading size after consecutive losses.
+5. **Drawdown Risk**: Consecutive losses can lead to significant account drawdowns, especially during market changes. Solution: Consider adding a filter for overall market health or automatically reducing trade sizes after consecutive losses.
 
-6. **Over-Optimization Risk**: The code lacks obvious time filters or other market state filters, which may lead to suboptimal performance in certain market states. Solution: Test different market condition filters such as trading session restrictions and volatility filters.
+6. **Over-Optimization Risk**: The lack of time filters or other market state filters in the code may result in suboptimal performance under certain conditions. Solution: Test different market condition filters, such as trading session restrictions and volatility filtering.
 
 #### Strategy Optimization Directions
-Based on in-depth analysis of the code, this strategy can be optimized in the following directions:
+Based on a deep analysis of the code, this strategy can be optimized from several directions:
 
 1. **Add Trend Filters**:
-   Integrate moving averages, ADX, or other trend indicators to only enter positions when the trend direction aligns with the signal. This can significantly improve the strategy's win rate, as engulfing patterns typically have higher efficacy in the direction of the trend.
+   Integrate moving averages, ADX, or other trend indicators to only enter trades in alignment with the trend direction. This can significantly increase the win rate because engulfing patterns are typically more effective when aligned with trends.
 
-2. **Dynamic Stop-Loss Optimization**:
-   Introduce the ATR indicator to dynamically adjust stop-loss distances rather than using fixed pip multipliers. This method better adapts to market conditions when volatility changes, reducing unnecessary exits due to tight stops.
+2. **Optimize Dynamic Stop Losses**:
+   Use ATR metrics to dynamically adjust stop distances instead of fixed spread multipliers. This method adapts better to market conditions, reducing unnecessary exits due to overly tight stops.
 
 3. **Add Trading Time Filters**:
-   Implement trading time window restrictions to avoid low liquidity sessions and major news release times. This can reduce the risks of unexpected gaps and extreme volatility, improving trade quality.
+   Implement time window restrictions for trades, avoiding low liquidity periods and major news release times. This reduces the risk of unexpected gaps and extreme volatility, improving trade quality.
 
 4. **Integrate Volume Confirmation**:
-   Use volume as an additional confirmation indicator, only confirming entry signals when volume significantly increases. This helps identify genuine market breakouts rather than random fluctuations.
+   Use volume as an additional confirmation metric, only confirming entry signals when significant volume increases are observed. This helps identify genuine market breaks rather than random fluctuations.
 
-5. **Develop Pyramid Position Building Functionality**:
-   Allow the strategy to add positions at favorable locations when the trend continues to strengthen, maximizing returns from successful trends. Simultaneously, move stops to breakeven to protect accrued profits.
+5. **Develop Pyramid Position Sizing Functionality**:
+   Allow the strategy to add positions in favor of the trend direction if strong, maximizing gains on successful trends while moving stop-losses to breakeven points to protect profits.
 
 6. **Add Market Sentiment Indicators**:
-   Integrate RSI, MACD, or other market sentiment indicators as additional entry confirmation conditions, only entering when these indicators synchronize with price action. This provides additional layers of signal confirmation.
+   Integrate RSI, MACD, or other market sentiment indicators as additional entry confirmation criteria, entering only when these indicators align with price action. This provides an extra layer of signal validation.
 
 7. **Develop Adaptive Parameter System**:
-   Create a parameter adaptation mechanism that automatically adjusts key parameters (such as confirmation count, stop-loss distance, etc.) based on recent market performance. This helps the strategy self-optimize as market conditions change.
+   Create a parameter adaptive mechanism that automatically adjusts key parameters (such as the number of confirmations and stop loss distances) based on recent market performance. This helps the strategy self-optimize according to changing market conditions.
 
-#### Summary
-The 15-Minute Engulfing Breakout Multi-Confirmation Strategy is an efficient trading system that combines engulfing pattern recognition with multiple price confirmations. By requiring price to break through at least two previous engulfing pattern levels in the opposite direction, the strategy effectively filters out many low-quality signals, significantly improving trade success rates.
+#### Conclusion
+The 15-Minute Engulfing Breakout Multi-Confirmation Strategy is an effective trading system combining engulfing pattern recognition with multiple price confirmations. By requiring a break through at least two previous opposite-direction engulfing patterns, it effectively filters out low-quality signals and significantly improves trade success rates.
 
-The core advantage of the strategy lies in its multi-layered confirmation mechanism and dynamic trading zone settings, allowing it to adapt to different market states while maintaining a high win rate. The built-in risk management system provides a clear risk control framework for each trade through stop-loss and take-profit settings associated with the trading zone.
+The strategy’s core strengths lie in its multi-layered confirmation mechanism and dynamic trading zones, allowing it to adapt to different market conditions while maintaining high win rates. The built-in risk management system provides a clear framework for controlling risks through stop-loss and take-profit levels related to the trading zones.
 
-However, there remains room for optimization, particularly in trend filtering, dynamic stop-loss adjustment, and market state identification. By integrating trend indicators, volatility measurements, and market sentiment indicators, the strategy's robustness and long-term performance can be further enhanced.
+However, there is still room for optimization, particularly in trend filtering, dynamic stop loss adjustments, and market state identification. By integrating trend indicators, volatility measurements, and market sentiment indicators, this strategy can become more robust and perform better over time.
 
-For investors looking to trade on medium timeframes (15-minute charts), this strategy provides a rule-based, easy-to-understand trading method with statistical advantages. By understanding and applying the principles behind it, traders can gain a consistent edge in the market.
-[/trans]
-
-
-
-> Source (PineScript)
-
-``` pinescript
-/*backtest
-start: 2024-04-16 00:00:00
-end: 2024-05-09 00:00:00
-period: 15m
-basePeriod: 15m
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
-//@version=6
-strategy("15Min Engulfing Break Strategy", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=10)
-
-// === INPUTS ===
-pipSize = input.float(0.0001, "Pip Size", step=0.0001)
-pipOffset = 30 * pipSize
-
-// === FUNCTION: Detect Engulfing Candles ===
-isBullishEngulfing() =>
-    cond1 = close[1] < open[1]  // previous candle bearish
-    cond2 = close > open        // current candle bullish
-    cond3 = open < close[1]     // open below previous close
-    cond4 = close > open[1]     // close above previous open
-    cond1 and cond2 and cond3 and cond4
-
-isBearishEngulfing() =>
-    cond1 = close[1] > open[1]  // previous candle bullish
-    cond2 = close < open        // current candle bearish
-    cond3 = open > close[1]     // open above previous close
-    cond4 = close < open[1]     // close below previous open
-    cond1 and cond2 and cond3 and cond4
-
-// === VARIABLES TO TRACK ZONES ===
-var float buyZoneHigh = na
-var float buyZoneLow = na
-var float sellZoneHigh = na
-var float sellZoneLow = na
-
-// === ARRAYS TO STORE ENGULFING LEVELS ===
-var float[] bullHighs = array.new_float()
-var float[] bearLows = array.new_float()
-
-// === STORE ENGULFING LEVELS ===
-if isBullishEngulfing()
-    array.unshift(bullHighs, high)
-    if array.size(bullHighs) > 10
-        array.pop(bullHighs)
-
-if isBearishEngulfing()
-    array.unshift(bearLows, low)
-    if array.size(bearLows) > 10
-        array.pop(bearLows)
-
-// === CHECK IF BREAKS 2 PRIOR ENGULFINGS ===
-breaksTwoBearishEngulfings() =>
-    count = 0
-    arrSize = array.size(bearLows)
-    if arrSize >= 2
-        for i = 0 to arrSize - 1
-            if high > array.get(bearLows, i)
-                count += 1
-            if count >= 2
-                break
-    count >= 2
-
-breaksTwoBullishEngulfings() =>
-    count = 0
-    arrSize = array.size(bullHighs)
-    if arrSize >= 2
-        for i = 0 to arrSize - 1
-            if low < array.get(bullHighs, i)
-                count += 1
-            if count >= 2
-                break
-    count >= 2
-
-// === SET ENGULFING ZONES ===
-if isBullishEngulfing() and breaksTwoBearishEngulfings()
-    buyZoneHigh := high
-    buyZoneLow := low
-
-if isBearishEngulfing() and breaksTwoBullishEngulfings()
-    sellZoneHigh := high
-    sellZoneLow := low
-
-// === TRADE ENTRIES ===
-longCondition = not na(buyZoneHigh) and low <= buyZoneHigh and close > buyZoneLow
-shortCondition = not na(sellZoneLow) and high >= sellZoneLow and close < sellZoneHigh
-
-if longCondition
-    strategy.entry("Long", strategy.long)
-    strategy.exit("TP/SL", from_entry="Long", stop=buyZoneLow - pipOffset, limit=buyZoneHigh + pipOffset)
-    buyZoneHigh := na
-    buyZoneLow := na
-
-if shortCondition
-    strategy.entry("Short", strategy.short)
-    strategy.exit("TP/SL", from_entry="Short", stop=sellZoneHigh + pipOffset, limit=sellZoneLow - pipOffset)
-    sellZoneHigh := na
-    sellZoneLow := na
-
-// === PLOTTING ===
-plotshape(isBullishEngulfing(), style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small, title="Bull Engulf")
-plotshape(isBearishEngulfing(), style=shape.triangledown, location=location.abovebar, color=color.red, size=size.small, title="Bear Engulf")
-
-```
-
-> Detail
-
-https://www.fmz.com/strategy/490798
-
-> Last Modified
-
-2025-04-16 15:33:57
-[/trans]
+For traders seeking consistent advantages in mid-term charting (15-minute charts), this approach offers a valuable tool for identifying high-probability trading opportunities.

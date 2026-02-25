@@ -1,24 +1,7 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
-
-> Name
-
-Binance Partial Trading Encapsulation Example
-
-> Author
-
-Trader JunTradeMan
-
-
-
-
-
-> Source (python)
-
-``` python
+```python
 # -*- coding = utf-8 -*-
 # @Time:2023/2/20 11:04
-# @Author: 作手君
+# @Author: TradeMan
 # @File: binance.py
 # @Software: PyCharm
 
@@ -40,12 +23,6 @@ def cleanNoneValue(d) -> dict:
 
 def get_timestamp() -> int:
     return int(time.time()) * 1000
-    # cet_tz = pytz.timezone('Etc/GMT+0')
-    # t = datetime.now(cet_tz)
-    # return int(time.mktime(t.timetuple())) * 1000
-    # return (int(time.time()) - (8*60*60)) * 1000
-    # utc_t = datetime.datetime.utcnow().timestamp()
-    # return int(utc_t * 1000)
 
 
 class Binance(object):
@@ -57,32 +34,29 @@ class Binance(object):
         self.method = ''
         self.request_path = ''
 
-    # Trading
+    # Place Order
     def trade_order(self, symbol, pos_side, trade_side, sz, client_id, ord_type="market", px=None):
         self.request_path = '/fapi/v1/order'
         self.method = 'POST'
         params = {
             'symbol': symbol.upper() + 'USDT',
-            'side': trade_side.upper(),  # Buy/Sell direction SELL, BUY
-            'positionSide': pos_side,  # long short
+            'side': trade_side.upper(),  # Buy/Sell
+            'positionSide': pos_side,  # Long/Short
             'type': ord_type.upper(),
             'quantity': sz,  # Quantity
-            'newClientOrderId': 'x-YZChr3zS' + str(client_id),  # Client order ID
-            # 'timeInForce': 'GTC',
+            'newClientOrderId': 'x-YZChr3zS' + str(client_id),  # Client Order ID
         }
         if ord_type == 'limit':
             params['timeInForce'] = 'GTC'
             params['price'] = str(px)
         url = self.generate_url(params)
-        # 0 success 1 pause for a few seconds 2 ignore this trade 3 user stops strategy
         try:
             response = self.send(url)
             if 'code' in response.keys():
                 if int(response['code']) == -2018 or int(response['code']) == -2019:
-                    # Insufficient balance, liquidate directly
+                    # Insufficient balance, directly liquidate positions
                     return {"code": 3, "msg": response.get('msg', ''), "data": {}}
                 return {"code": 1, "msg": response.get('msg', ''), "data": {}}
-                pass
             else:
                 return {
                     'code': 0,
@@ -97,7 +71,7 @@ class Binance(object):
             logger.error(e)
             return {"code": 2, "msg": str(e), "data": {}}
 
-    # Get open orders list
+    # Get Open Orders
     def get_open_order(self):
         self.request_path = '/fapi/v1/openOrders'
         self.method = 'GET'
@@ -117,7 +91,7 @@ class Binance(object):
         response = self.send(url)
         return response
 
-    # Get single currency open orders list
+    # Get Open Orders for a Specific Symbol
     def get_symbol_open_order(self, symbol):
         self.request_path = '/fapi/v1/openOrders'
         self.method = 'GET'
@@ -127,9 +101,8 @@ class Binance(object):
         response = self.send(url)
         return response
 
-    # Get positions
+    # Get Positions
     def get_positions(self, symbol):
-
         self.request_path = '/fapi/v2/account'
         self.method = 'GET'
         url = self.generate_url({})
@@ -137,7 +110,7 @@ class Binance(object):
         positions = response['positions']
         return positions
 
-    # Cancel order
+    # Cancel All Open Orders for a Symbol
     def cancel_order(self, symbol):
         self.request_path = '/fapi/v1/allOpenOrders'
         self.method = 'DELETE'
@@ -180,17 +153,8 @@ class Binance(object):
             response = session.delete(url=url, params=params)
         else:
             response = session.post(url=url, params=params)
-        # logger.info('币安请求信息')
+        # logger.info('Binance request info')
         # logger.info(params)
         # logger.info(response.text)
         return json.loads(response.text)
-
 ```
-
-> Detail
-
-https://www.fmz.com/strategy/417575
-
-> Last Modified
-
-2023-06-14 17:57:06

@@ -1,221 +1,103 @@
----
-
+```markdown
 Name
 
-MACD Low Buy High Sell Auto Follower with Sliding Stop Loss
+MACD drawing example
 
 Author
 
-John.
+Inventor Quantification-Little Dream
 
----
-
-Strategy Arguments
-
-
-|Argument|Default|Description|
-|----|----|----|
-|ac1|0.005|First column after crossover|
-|bc1|-1e-06|Previous column after crossover|
-|SlidePrice|0.3|Sliding price|
-|TrailingStop|0.5|Trailing stop point|
-|orderTimeout|30|Buy order timeout (seconds)|
-|MinStock|30|Minimum holding|
-
----
 
 Source (javascript)
 
+``` javascript
+/*backtest
+start: 2019-05-13 00:00:00
+end: 2019-06-12 00:00:00
+Period: 1d
+exchanges: [{"eid":"Futures_OKCoin","currency":"BTC_USD"}]
+*/
 
-```javascript
-Fixed = function(v) {
-    return Math.floor(v*1000)/1000;
-};
+var preTime = 0;
+var ChartObj = null;
+function main(){
+LogReset(1);
+ChartObj = Chart(null);
+ChartObj.reset();
+var records = null;
+var MACD = null;
+exchange.SetContractType("quarter");
+// Log(exchange.GetUSDCNY());
+// exchange.SetRate(exchange.GetUSDCNY());
+exchange.SetRate(1);
+ChartObj = $.GetCfg();
 
-// for orders
-WaitOrder = function(exchange, orderId, timeoutToCancel) {
-    var ts = (new Date()).getTime();
-    while (true) {
-        Sleep(3000);
-        var orderInfo = exchange.GetOrder(orderId);
-        if (!orderInfo) {
-            continue;
-        }
-        if (orderInfo.Status == ORDER_STATE_CLOSED || orderInfo.Status == ORDER_STATE_CANCELED) {
-            return orderInfo;
-        }
-        if (((new Date()).getTime() - ts) > timeoutToCancel) {
-            exchange.CancelOrder(orderId);
-        }
-    }
-};
-
-Buy = function(exchange, maxPrice, slidePrice, balanceRatio, timeoutS) {
-    var ts = (new Date()).getTime();
-    var account;
-    var dealAmount = 0.0;
-    var usedBlance = 0.0;
-    var maxBalanceUse = 0.0;
-    var isFirst = true;
-    do {
-        if (isFirst) {
-            isFirst = false;
-        } else {
-            Sleep(3000);
-        }
-
-        var ticker = exchange.GetTicker();
-        if (!ticker) {
-            continue;
-        }
-
-        var buyPrice = ticker.Sell + slidePrice;
-
-        // Price too high, wait...
-        if (buyPrice > maxPrice) {
-            continue;
-        }
-
-        // Initialize at first
-        if (!account) {
-            account = exchange.GetAccount();
-            if (!account) {
-                continue;
-            }
-            // Initialize maxBalanceUse
-            maxBalanceUse = account.Balance * balanceRatio;
-        }
-
-        var buyAmount = Fixed((maxBalanceUse - usedBlance) / buyPrice);
-        if (buyAmount < MinStock) {
-            break;
-        }
-
-        orderId = exchange.Buy(buyPrice, buyAmount);
-        if (!orderId) {
-            Log(buyPrice, buyAmount, maxBalanceUse, usedBlance);
-            continue;
-        }
-
-        var orderInfo = WaitOrder(exchange, orderId, timeoutS);
-        dealAmount += orderInfo.DealAmount;
-        usedBlance += orderInfo.Price * orderInfo.DealAmount;
-        if (orderInfo.Status == ORDER_STATE_CLOSED) {
-            break;
-        }
-    } while (((new Date()).getTime() - ts) < timeoutS);
-
-    return {amount: dealAmount, price: (dealAmount > 0 ? usedBlance / dealAmount : 0)};
-};
-
-Sell = function(exchange, sellAmount, slidePrice) {
-    // Account info must set
-    var account = exchange.GetAccount();
-    while (!account) {
-        Sleep(2000);
-        account = exchange.GetAccount();
-    }
-
-    sellAmount = Math.min(sellAmount, account.Stocks);
-
-    var cash = 0.0;
-    var remain = sellAmount;
-
-    while (remain >= exchange.GetMinStock()) {
-        var ticker = exchange.GetTicker();
-        if (!ticker) {
-            Sleep(2000);
-            continue;
-        }
-        var sellPrice = ticker.Buy - slidePrice;
-        var sellOrderId = exchange.Sell(sellPrice, remain);
-        if (!sellOrderId) {
-            Sleep(2000);
-            continue;
-        }
-        var orderInfo = WaitOrder(exchange, sellOrderId, 10000);
-        remain -= orderInfo.DealAmount;
-        cash += orderInfo.Price * orderInfo.DealAmount;
-    }
-    return {amount: sellAmount, price: (sellAmount > 0 ? cash / sellAmount : 0)};
-};
-
-var BuyInfo;
-var BanlanceRatio = 1.0;
-var Profit = 0.0;
-var timeAtBuy = 0;
-
-function onTick(exchange) {
-    var ticker = exchange.GetTicker();
-    var records = exchange.GetRecords();
-    if (!ticker || !records || records.length < 45) {
-        return;
-    }
-
-    var ticks = [];
-    for (var i = 0; i < records.length; i++) {
-        ticks.push(records[i].Close);
-    }
-
-    var macd = TA.MACD(records, 12, 26, 9);
-    var dif = macd[0];
-    var dea = macd[1];
-    var his = macd[2];
-    
-    var op = 0;
-    if (!BuyInfo) {
-        if (dif[ticks.length-1] > 0 && his[ticks.length-1] > ac1 && his[ticks.length-2] < bc1) {
-            op = 1;
-        }
-    } else {
-        if (records[records.length-2].Time > timeAtBuy && records[records.length-1].Close < records[records.length-1].Open - 0.5
-                && records[records.length-2].Close < records[records.length-2].Open - 0.5
-                && records[records.length-1].Close < records[records.length-2].Close - 0.5) {
-            op = 2;
-        } else if (records[records.length-2].Time > timeAtBuy && BuyInfo.price > records[records.length-1].Close && records[records.length-1].Close < records[records.length-1].Open - 0.5) {
-            op = 2;
-        } else if ((BuyInfo.price < ticker.Last || dif[ticks.length-1] < 0) && his[ticks.length-1] <= 0) {
-            op = 2;
-        } else if ((BuyInfo.price > ticker.Last) && ((BuyInfo.price - ticker.Last) / BuyInfo.price > TrailingStop)) {
-            op = 2;
-        }
-    }
-
-    if (op == 1) {
-        var info = Buy(exchange, ticker.Sell + (SlidePrice * 3), SlidePrice, BanlanceRatio, orderTimeout * 1000);
-        if (info.amount > 0) {
-            BuyInfo = info;
-            timeAtBuy = records[records.length-1].Time;
-        }
-    } else if (op == 2) {
-        var info = Sell(exchange, BuyInfo.amount, SlidePrice);
-        if (info.amount > 0) {
-            Profit += info.amount * (info.price - BuyInfo.price);
-            LogProfit(Profit);
-            BuyInfo = null;
-        }
-    }
+// Process indicator axis------------------------
+ChartObj.yAxis = [{
+title: {text: 'K line'},//title
+style: {color: '#4572A7'},//Style
+opposite: false //Generate the right Y axis
+},
+{
+title:{text: "Indicator Axis"},
+opposite: true, //Generate the right Y axis ceshi
+}
+];
+//Initialize indicator line
+while(!records || records.length < 30){
+records = _C(exchange.GetRecords);
+LogStatus("records.length:", records.length);
+Sleep(1000);
 }
 
-function main() {
-    var account = exchange.GetAccount();
-    if (account) {
-        Log(exchange.GetName(), exchange.GetCurrency(), account);
-    }
-    
-    while (true) {
-        onTick(exchange);
-        Sleep(30000);
-    }
+$.PlotRecords(records, 'OK Futures');
+$.PlotLine('dif', 0, records[records.length - 1].Time);
+$.PlotLine('dea', 0, records[records.length - 1].Time);
+var chart = $.PlotLine('macd', 0, records[records.length - 1].Time);
+//Modify indicator line coordinate axis Y axis
+for(var key in ChartObj.series){
+if(ChartObj.series[key].name == 'dif' || ChartObj.series[key].name == 'dea' || ChartObj.series[key].name == 'macd'){
+ChartObj.series[key].yAxis = 1;
+}
+}
+chart.update(ChartObj);
+chart.reset();
+
+while(true){
+records = _C(exchange.GetRecords);
+if(records.length > 50){
+$.PlotRecords(records, 'OK Futures');
+MACD = TA.MACD(records);
+var dif = MACD[0];
+var dea = MACD[1];
+var macd = MACD[2];
+if(preTime !== records[records.length - 1].Time){
+$.PlotLine('dif', dif[dif.length - 2], records[records.length - 2].Time);
+$.PlotLine('dea', dea[dea.length - 2], records[records.length - 2].Time);
+$.PlotLine('macd', macd[macd.length - 2], records[records.length - 2].Time);
+
+$.PlotLine('dif', dif[dif.length - 1], records[records.length - 1].Time);
+$.PlotLine('dea', dea[dea.length - 1], records[records.length - 1].Time);
+$.PlotLine('macd', macd[macd.length - 1], records[records.length - 1].Time);
+
+preTime = records[records.length - 1].Time;
+}else{
+$.PlotLine('dif', dif[dif.length - 1], records[records.length - 1].Time);
+$.PlotLine('dea', dea[dea.length - 1], records[records.length - 1].Time);
+$.PlotLine('macd', macd[macd.length - 1], records[records.length - 1].Time);
+}
+}
+LogStatus("records.length:", records.length, records[records.length - 1]);
+// Log(records[records.length - 1]);
+Sleep(1000);
 }
 ```
 
----
-
 Detail
 
-https://www.fmz.com/strategy/194224
+https://www.fmz.com/strategy/151972
 
 Last Modified
 
-2020-04-20 11:54:46
+2020-02-27 14:09:37
+```

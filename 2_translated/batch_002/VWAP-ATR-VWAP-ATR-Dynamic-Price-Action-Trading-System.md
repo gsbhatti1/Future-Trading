@@ -1,51 +1,4 @@
-> Name
-
-VWAP-ATR Dynamic Price Action Trading System
-
-> Author
-
-ChaoZhang
-
-> Strategy Description
-
-![IMG](https://www.fmz.com/upload/asset/166eab541e99a249154.png)
-
-[trans]
-#### Overview
-This is an intraday trading strategy combining Volume Weighted Average Price (VWAP), Average True Range (ATR), and price action analysis. The strategy judges market trends by observing price crossovers with VWAP, while dynamically setting stop-losses and profit targets using ATR. Its core idea is to look for trading opportunities when prices retrace to VWAP, controlling risk through ATR.
-
-#### Strategy Principle
-The strategy is mainly based on the following core principles:
-1. Using VWAP as a baseline for trend judgment; bullish when price is above VWAP, bearish when below.
-2. Determining entry timing by observing price crossovers with VWAP.
-3. Dynamically calculating stop-loss and profit targets using ATR, providing more flexible risk management.
-4. Long entry condition: price crosses up from below VWAP.
-5. Short entry condition: price crosses down from above VWAP.
-6. Stop-loss is set at one times current ATR, profit target at 1.5 times current ATR.
-
-#### Strategy Advantages
-1. Dynamic Risk Management: Adjusting stop-loss and profit targets dynamically with ATR allows the strategy to adapt to different market volatility environments.
-2. Trend Following: Using VWAP as a trend benchmark effectively captures market trends.
-3. Objective Trading Signals: Based on clear technical indicators, reducing subjective judgment influences.
-4. Reasonable Risk-Reward Ratio: Setting profit targets at 1.5 times ATR ensures a favorable risk-reward ratio.
-5. Strong Adaptability: The strategy can be applied to different markets and time frames.
-
-#### Strategy Risks
-1. Sideways Market Risk: Frequent VWAP crossovers in sideways markets may lead to excessive false signals.
-2. Slippage Risk: Significant slippage may occur during rapidly fluctuating markets.
-3. Stop-Loss Magnitude Risk: One times ATR stop-loss may be slightly insufficient in highly volatile markets.
-4. False Breakout Risk: Price-VWAP crossovers may result in false breakouts.
-
-#### Strategy Optimization Directions
-1. Add Volume Filtering: Incorporate volume confirmation mechanisms to improve trade signal reliability.
-2. Optimize Stop-Loss Settings: Dynamically adjust ATR multiples based on varying market conditions.
-3. Add Trend Filters: Introduce additional trend indicators to avoid frequent trades in sideways markets.
-4. Optimize Entry Timing: Add price pattern confirmation to enhance entry accuracy.
-5. Introduce Time Filtering: Add trading time period restrictions to avoid highly volatile opening and closing sessions.
-
-#### Conclusion
-This is a quantitative trading strategy integrating technical analysis and dynamic risk management. By utilizing VWAP and ATR together, it ensures both objective trading signals and effective risk control. The strategy's design philosophy meets modern quantitative trading standards and offers good practicality and scalability. There remains room for further performance enhancement through the suggested optimization directions. ||
-
+---
 #### Overview
 This is an intraday trading strategy that combines Volume Weighted Average Price (VWAP), Average True Range (ATR), and price action analysis. The strategy determines market trends by observing price crossovers with VWAP while using ATR to set dynamic stop-loss and profit targets. The core concept is to identify trading opportunities when price pulls back to VWAP, with risk management controlled by ATR.
 
@@ -79,19 +32,11 @@ The strategy is based on several core principles:
 5. Implement time filters: Add trading session restrictions to avoid highly volatile market opens and closes
 
 #### Summary
-This is a quantitative trading strategy combining technical analysis and dynamic risk management. The combination of VWAP and ATR ensures objective trading signals while maintaining effective risk control. The strategy design aligns with modern quantitative trading requirements, offering good practicality and scalability. Through the suggested optimizations, there is room for further performance improvement.[/trans]
+This is a quantitative trading strategy combining technical analysis and dynamic risk management. The combination of VWAP and ATR ensures objective trading signals while maintaining effective risk control. The strategy design aligns with modern quantitative trading requirements, offering good practicality and scalability. Through the suggested optimizations, there is room for further performance improvement.
 
-> Source (PineScript)
+#### Source (PineScript)
 
-``` pinescript
-/*backtest
-start: 2019-12-23 08:00:00
-end: 2024-11-25 08:00:00
-period: 1d
-basePeriod: 1d
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
+```pinescript
 //@version=5
 strategy("Price Action + VWAP + ATR Intraday Strategy", overlay=true)
 
@@ -129,13 +74,13 @@ plot(vwapValue, color=color.blue, linewidth=2, title="VWAP")
 
 // Plot ATR on the chart for reference (Optional)
 plot(atr, title="ATR", color=color.orange, linewidth=1)
-
 ```
 
-> Detail
+#### Detail
 
 https://www.fmz.com/strategy/473130
 
-> Last Modified
+#### Last Modified
 
 2024-11-27 14:51:52
+---

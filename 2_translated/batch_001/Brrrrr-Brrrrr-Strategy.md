@@ -1,12 +1,14 @@
-> Name
+```plaintext
+Name
 
 Brrrrr-Strategy
 
-> Author
+Author
 
 ChaoZhang
 
-> Strategy Description
+Strategy Description
+
 
 [trans]
 The stock "Brrrrr" strategy is a trading strategy based on monitoring changes in the issuance of stablecoins and achieving profits by going long and short on cryptocurrency. The name of this strategy comes from "Brrrrr" (the sound of a printer operating), which is intended to express that the strategy's operating principle is to judge the price changes of cryptocurrency by tracking the printing of stable coins.
@@ -18,14 +20,33 @@ In order to filter out too many invalid signals, this strategy uses Donchian cha
 The advantage of this strategy is that it captures the market law of the impact of stablecoin issuance on cryptocurrency prices, filters out some noise through technical indicators, and can provide more accurate trading signals at major trend turning points. However, this strategy is only based on a single variable, and the issuance and shrinkage of stablecoins are difficult to predict, so there are certain immediate risks.
 
 Overall, the stock "Brrrrr" strategy is an interesting trading strategy based on monitoring stablecoin issuance and deserves further testing and optimization, but traders need to be cautious and not put all their money on it. The effectiveness of this strategy may be further enhanced by combining various other variables and technical indicators.
+
+
+||
+
+Stock “Brrrrr” Strategy Introduction
+
+This "Brrrrr" strategy is a trading strategy that aims to profit by going long or short cryptocurrencies based on monitoring stablecoin issuance changes. The name comes from the sound "Brrrrr" that represents money printing, reflecting how the strategy operates by tracking stablecoin printing to determine crypto price movements.
+
+The basic principle is: when stablecoins are issued, Bitcoin price rises; when stablecoins are burned, Bitcoin price falls. Based on this, we can go long Bitcoin when stablecoins are printed and close position or short Bitcoin when stablecoins are burned.
+
+To filter out excessive invalid signals, the strategy adopts Donchian Channel techniques. Only when stablecoin issuance exceeds the highest level in the past 50 days will a long signal trigger. Only when issuance falls below the lowest level in the past 50 days will a close or short signal trigger.
+
+The advantage of this strategy is capturing the market dynamic of stablecoin impacts on crypto prices, and filtering some noise through technical indicators to give relatively accurate trade signals around major trend turning points. But risks exist as it relies on a single variable, and stablecoin issuance is unpredictable.
+
+In summary, the stock “Brrrrr” strategy is an interesting trading strategy worth further testing and optimizing based on monitoring stablecoin issuance, but traders should be cautious not to bet the farm on it. Combining more variables and indicators may further improve the strategy.
+
 [/trans]
+
 
 > Strategy Arguments
 
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|true|Use short|
-|v_input_int_1|50|len|
+
+| Argument | Default | Description |
+| --- | --- | --- |
+| v_input_1 | true | Use short |
+| v_input_int_1 | 50 | len |
+
 
 > Source (PineScript)
 
@@ -59,12 +80,12 @@ plot(l, color = color.red)
 
 //Trading
 if brrrrr > h[1]
-strategy.entry("Long", strategy.long)
+    strategy.entry("Long", strategy.long)
 if brrrrr < l[1]
-if short
-strategy.entry("Short", strategy.short)
-if short == false
-strategy.close_all()
+    if short
+        strategy.entry("Short", strategy.short)
+    if short == false
+        strategy.close_all()
 
 ```
 
@@ -75,3 +96,4 @@ https://www.fmz.com/strategy/426582
 > Last Modified
 
 2023-09-13 14:53:16
+```

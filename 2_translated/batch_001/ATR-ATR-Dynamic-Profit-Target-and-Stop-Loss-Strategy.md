@@ -8,13 +8,60 @@ ChaoZhang
 
 > Strategy Description
 
+
+
+[trans]
+
+## Strategy Principle
+
+This strategy uses dynamic take-profit and stop-loss points to trade. Take profit and stop loss points are adjusted in real time based on the current price and volatility.
+
+Specific transaction logic:
+
+1. Calculate the average true fluctuation range ATR for a certain period (such as 20 days)
+
+2. When in a bullish state, the take-profit and stop-loss points are the highest price minus the ATR multiplier
+
+3. When in a bearish state, the take-profit and stop-loss points are the lowest price plus the ATR multiplier
+
+4. Carry out reverse trading when the price exceeds the take-profit and stop-loss points
+
+5. Change the trend status when the price breaks through the take-profit and stop-loss points
+
+6. Adjust the take profit and stop loss levels according to the new status
+
+This strategy makes full use of ATR to automatically set stop loss and profit levels, achieving dynamic tracking. It can lock in profits in time and avoid losses from expanding.
+
+## Strategic Advantages
+
+- ATR automatically calculates take profit and stop loss levels
+
+- Dynamically adjust and track prices in real time
+
+- Timely profit taking and stopping controls risks
+
+## Strategy Risk
+
+- ATR parameters require repeated testing and optimization
+
+- The stop loss is too close and it is easy to be stopped.
+
+- Pay attention to real-time changes in ATR value
+
+## Summary
+
+This strategy uses ATR to dynamically set take profit and stop loss levels, achieving automatic tracking. Optimizing ATR parameters can achieve better stop loss effect. However, a stop loss that is too close should be used with caution.
+
+
+||
+
 ## Strategy Logic
 
 This strategy uses dynamic profit targets and stop losses that adjust based on current price and volatility.
 
 The logic is:
 
-1. Calculate Average True Range (ATR) over a period (e.g. 20 days)
+1. Calculate Average True Range (ATR) over a period (e.g., 20 days)
 
 2. In uptrend, profit target/stop is highest price minus ATR multiple
 
@@ -48,12 +95,17 @@ The strategy leverages ATR to automatically set dynamic trailing profit targets 
 
 This strategy uses ATR to dynamically set profit/stop levels for automatic trailing. ATR tuning can improve stop performance. But over-tight stops require caution.
 
+[/trans]
+
 > Strategy Arguments
+
+
 
 |Argument|Default|Description|
 |----|----|----|
 |v_input_1|20|length|
 |v_input_2|true|mult|
+
 
 > Source (PineScript)
 
@@ -91,12 +143,11 @@ bullish = close > vstop
 
 
 if (bullish)
-strategy.entry("Buy", strategy.long, 1)
-
+    strategy.entry("Buy", strategy.long, 1)
 
 
 if (bearish)
-strategy.entry("Sell", strategy.short, 1)
+    strategy.entry("Sell", strategy.short, 1)
 
 
 ```

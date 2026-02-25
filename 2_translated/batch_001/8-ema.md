@@ -1,21 +1,12 @@
-> Name
+Name
 
 8 hours-ema
 
-> Author
+Author
 
 Crypto Joe
 
-> Description
-
-This strategy uses three EMAs with different periods for trading signals on an 8-hour chart:
-- EMA12 
-- EMA169
-- EMA676
-
-The strategy enters a long position when EMA12 crosses above EMA169, and exits when EMA12 crosses below EMA169.
-
-> Source (javascript)
+Source (javascript)
 
 ``` javascript
 /*backtest
@@ -41,7 +32,7 @@ lastK = records[records.length - 1];
 continue;
 }
 
-// records The last K-line is the K-line generated at the opening and needs to be removed because we only care about the closing K-line
+// Remove the last K-line as it is generated at the opening and we only care about the closing K-line
 records.splice(-1);
 
 const ema169 = talib.EMA(records, 169);
@@ -67,14 +58,13 @@ bought = false;
 }
 
 }
-
 }
 ```
 
-> Detail
+Detail
 
 https://www.fmz.com/strategy/451516
 
-> Last Modified
+Last Modified
 
 2024-05-15 21:44:49

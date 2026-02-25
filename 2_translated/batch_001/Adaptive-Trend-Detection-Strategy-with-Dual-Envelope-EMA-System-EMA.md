@@ -10,7 +10,6 @@ ChaoZhang
 
 ![IMG](https://www.fmz.com/upload/asset/1416bcbc2a64a9f99ae.png)
 
-[trans]
 #### Overview
 This strategy is an innovative trend detection system based on dual Exponential Moving Average (EMA) envelope calculations. It analyzes multidimensional price characteristics to calculate real-time bull-bear power comparisons, identifying market trend changes and persistence. The strategy's main feature is its adaptability, allowing dynamic adjustment of signal strength based on market conditions.
 
@@ -48,7 +47,7 @@ This is a scientifically-based trend following strategy that effectively capture
 
 #### Source (PineScript)
 
-``` pinescript
+```pinescript
 /*backtest
 start: 2024-02-19 00:00:00
 end: 2024-11-14 08:00:00
@@ -60,7 +59,6 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // This work is licensed under a Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 // https://creativecommons.org/licenses/by-nc-sa/4.0/
 // © alexgrover
-
 //
 // Original post: 
 // https://alpaca.markets/learn/andean-oscillator-a-new-technical-indicator-based-on-an-online-algorithm-for-trend-analysis/
@@ -68,11 +66,11 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 //@version=5
 strategy(title="Andean Oscillator [Strategy]",
      shorttitle="AndeanOsc_Strategy",
-     overlay=false,              // Display in a separate window
+     overlay=false,              // Can be displayed in a separate window
      initial_capital=10000,      // Initial capital
      default_qty_type=strategy.percent_of_equity,
      default_qty_value=100,      // Use 100% of the account for one trade
-     pyramiding=0)               // Do not increase positions
+     pyramiding=0)               // Do not increase position size
 
 //------------------------------------------------------------------------------
 // Inputs
@@ -94,7 +92,7 @@ var float dn2 = 0.
 C = close
 O = open
 
-// Calculation of EMA envelopes
+// Calculation of EMA bands
 up1 := nz(math.max(C, O, up1[1] - (up1[1] - C) * alpha), C)
 up2 := nz(math.max(C * C, O * O, up2[1] - (up2[1] - C * C) * alpha), C * C)
 
@@ -109,12 +107,11 @@ bear   = math.sqrt(up2 - up1 * up1)
 signal = ta.ema(math.max(bull, bear), sig_length)
 
 //------------------------------------------------------------------------------
-// Simple STRATEGY LOGIC (just for demonstration)
+// Simple STRATEGY LOGIC (for demonstration only)
 //------------------------------------------------------------------------------
-
-// Example:
-// - If bull > bear, enter long position (bullish power greater than bearish power)
-// - If bear > bull, enter short position (bearish power greater than bullish power)
-
-// With pyramiding=0, a new position is opened only if the opposite signal occurs.
+// Example: 
+// - If bull > bear, enter long (bullish power greater than bearish)
+// - If bear > bull, enter short (bearish power greater than bullish)
+//
+// With pyramiding=0, a new position is opened only when the opposite signal arrives – no additional positions are added.
 ```

@@ -1,214 +1,128 @@
-```markdown
-# Name
+Name
 
-MACD Low Buy High Sell Auto Following Order with Sliding Stop Loss
+MACD Top Escape Strategy
 
-# Author
+Author
 
-John.
+program
 
-## Strategy Arguments
+Strategy Description
+
+**Introduction:** Sell and hold the currency when MACD volume and price divergence.
+**Principle implementation:** Starting from the current macd value, traverse forward to find the closing price of the k-line corresponding to the index greater than the current macd value, lock the corresponding k-line price to the maximum value within the current closing k-line range, and trigger selling if the current price is greater than the highest price in the area.
+Traverse macd data forward. When the maximum retention length is greater than 15, select the nearest macd maximum value.
+![IMG](https://www.fmz.com/upload/asset/245a08277f17f12091cf4.png)
+**Backtest data:**
+![IMG](https://www.fmz.com/upload/asset/245180e358693ba791ce0.png)
+
+**Note:** The strategy only supports spot trading and can be run in multiple currencies at the same time. The source code is for reference only. Please operate with caution during real-time operations.
+
+> Strategy Arguments
+
 
 
 |Argument|Default|Description|
 |----|----|----|
-|ac1|0.005|Cross after the first column|
-|bc1|-1e-06|Cross before the previous column|
-|SlidePrice|0.3|Sliding price|
-|TrailingStop|0.5|Trail stop point|
-|orderTimeout|30|Buy order timeout (seconds)|
-|MinStock|30|Minimum holding|
+|num|0.1|Sale quantity|
 
-## Source (JavaScript)
 
-```javascript
-Fixed = function(v) {
-    return Math.floor(v * 1000) / 1000;
-};
+> Source(python)
 
-// for orders
-WaitOrder = function(exchange, orderId, timeoutToCancel) {
-    var ts = (new Date()).getTime();
-    while (true) {
-        Sleep(3000);
-        var orderInfo = exchange.GetOrder(orderId);
-        if (!orderInfo) {
-            continue;
-        }
-        if (orderInfo.Status == ORDER_STATE_CLOSED || orderInfo.Status == ORDER_STATE_CANCELED) {
-            return orderInfo;
-        }
-        if (((new Date()).getTime() - ts) > timeoutToCancel) {
-            exchange.CancelOrder(orderId);
-        }
-    }
-};
+```python
+'''backtest
+start: 2023-01-01 00:00:00
+end: 2023-05-12 00:00:00
+Period: 1d
+basePeriod: 1h
+exchanges: [{"eid":"Bitfinex","currency":"BTC_USD","stocks":10}]
+'''
 
-Buy = function(exchange, maxPrice, slidePrice, balanceRatio, timeoutS) {
-    var ts = (new Date()).getTime();
-    var account;
-    var dealAmount = 0.0;
-    var usedBlance = 0.0;
-    var maxBalanceUse = 0.0;
-    var isFirst = true;
-    do {
-        if (isFirst) {
-            isFirst = false;
-        } else {
-            Sleep(3000);
-        }
 
-        var ticker = exchange.GetTicker();
-        if (!ticker) {
-            continue;
-        }
+# from matplotlib import pyplot as plt
+# plt.figure()
 
-        var buyPrice = ticker.Sell + slidePrice;
+class ExitTop(object):
+    def __init__(self, index):
+        self.index = index
+        self.totestlist = []  # MACD data
+        self.klist = []  # k line data
+        self.toplus = []
+        self.tocpn = []
+        self.Sell = False
 
-        // Price too high, wait...
-        if (buyPrice > maxPrice) {
-            continue;
-        }
+    # Get K-line and MACD data
+    def GetRecord(self) -> bool:
+        self.totestlist = []
+        self.klist = []
+        self.toplus = []
+        self.tocpn = []
+        records = exchanges[self.index].GetRecords()
+        macd = TA.MACD(records, 12, 26, 9)
+        # Determine whether DIF is greater than DEA
+        if not macd[0][-2] > macd[1][-2] and macd[0][-3] < macd[1][-3] or not macd[0][-2] > macd[1][-2] and macd[0][-4] < macd[1][-4]:
+            return False
+        self.totestlist = macd[0][len(macd[0])-80:]
+        # Encapsulate k-line data
+        for get in range(len(records)):
+            self.klist.append(records[get]["Close"])
+        self.klist = self.klist[len(self.klist)-80:]
+        return True
 
-        // Initialize at first
-        if (!account) {
-            account = exchange.GetAccount();
-            if (!account) {
-                continue;
-            }
-            // Initialize maxBalanceUse
-            maxBalanceUse = account.Balance * balanceRatio;
-        }
+    def mepath(self):
+        if not self.GetRecord():
+            return False
+        # Traverse forward to find the maximum value
+        maxsign = -1000000000000
+        for i in range(len(self.totestlist)-1, -1, -1):
+            if self.totestlist[i] > maxsign:
+                maxsign = self.totestlist[i]
+                self.tocpn.append([1, i])
+            else:
+                if len(self.tocpn) > 0:
+                    self.tocpn[-1][0] = self.tocpn[-1][0]+1
+        self.toplus.insert(0, maxsign)
+        sign = False
+        shorttime = [0, 0]  # step size, index
+        for i in range(len(self.tocpn)):
+            if self.tocpn[i][0] > 15 and sign == False:
+                shorttime = [self.tocpn[i][0], self.tocpn[i][1]]
+                sign = True
+        # If the maximum index is not yourself
+        if shorttime[1] < len(self.klist)-4:
+            # Lock the highest price in the area
+            are = max(self.klist[shorttime[1]:-4])
+            # Determine whether there is a value greater than the current macd, if the current price is greater than the highest price in the area
+            if self.totestlist[-2]+300 < self.totestlist[shorttime[1]] and self.klist[-2] >= are:
+                return True
+        return False
 
-        var buyAmount = Fixed((maxBalanceUse - usedBlance) / buyPrice);
-        if (buyAmount < MinStock) {
-            break;
-        }
+    def main(self):
+        result = self.mepath()
+        if result == True and self.Sell == False:
+            exchanges[self.index].Sell(-1, num)
+            self.Sell = True
+        elif result == False:
+            if self.Sell == True:
+                self.Sell = False
+        # plt.plot(self.totestlist)
+        # plt.plot(self.toplus)
+        # LogStatus(plt)
 
-        orderId = exchange.Buy(buyPrice, buyAmount);
-        if (!orderId) {
-            Log(buyPrice, buyAmount, maxBalanceUse, usedBlance);
-            continue;
-        }
 
-        var orderInfo = WaitOrder(exchange, orderId, timeoutS);
-        dealAmount += orderInfo.DealAmount;
-        usedBlance += orderInfo.Price * orderInfo.DealAmount;
-        if (orderInfo.Status == ORDER_STATE_CLOSED) {
-            break;
-        }
-    } while (((new Date()).getTime() - ts) < timeoutS);
-
-    return {amount: dealAmount, price: (dealAmount > 0 ? usedBlance / dealAmount : 0)};
-};
-
-Sell = function(exchange, sellAmount, slidePrice) {
-    // Account info must set
-    var account = exchange.GetAccount();
-    while (!account) {
-        Sleep(2000);
-        account = exchange.GetAccount();
-    }
-
-    sellAmount = Math.min(sellAmount, account.Stocks);
-
-    var cash = 0.0;
-    var remain = sellAmount;
-
-    while (remain >= exchange.GetMinStock()) {
-        var ticker = exchange.GetTicker();
-        if (!ticker) {
-            Sleep(2000);
-            continue;
-        }
-        var sellPrice = ticker.Buy - slidePrice;
-        var sellOrderId = exchange.Sell(sellPrice, remain);
-        if (!sellOrderId) {
-            Sleep(2000);
-            continue;
-        }
-        var orderInfo = WaitOrder(exchange, sellOrderId, 10000);
-        remain -= orderInfo.DealAmount;
-        cash += orderInfo.Price * orderInfo.DealAmount;
-    }
-    return {amount: sellAmount, price: (sellAmount > 0 ? cash / sellAmount : 0)};
-};
-
-var BuyInfo;
-var BanlanceRatio = 1.0;
-var Profit = 0.0;
-var timeAtBuy = 0;
-
-function onTick(exchange) {
-    var ticker = exchange.GetTicker();
-    var records = exchange.GetRecords();
-    if (!ticker || !records || records.length < 45) {
-        return;
-    }
-
-    var ticks = [];
-    for (var i = 0; i < records.length; i++) {
-        ticks.push(records[i].Close);
-    }
-
-    var macd = TA.MACD(records, 12, 26, 9);
-    var dif = macd[0];
-    var dea = macd[1];
-    var his = macd[2];
-
-    var op = 0;
-    if (!BuyInfo) {
-        if (dif[ticks.length - 1] > 0 && his[ticks.length - 1] > ac1 && his[ticks.length - 2] < bc1) {
-            op = 1;
-        }
-    } else {
-        if (records[records.length - 2].Time > timeAtBuy && records[records.length - 1].Close < records[records.length - 1].Open - 0.5
-                && records[records.length - 2].Close < records[records.length - 2].Open - 0.5
-                && records[records.length - 1].Close < records[records.length - 2].Close - 0.5) {
-            op = 2;
-        } else if (records[records.length - 2].Time > timeAtBuy && BuyInfo.price > records[records.length - 1].Close && records[records.length - 1].Close < records[records.length - 1].Open - 0.5) {
-            op = 2;
-        } else if ((BuyInfo.price < ticker.Last || dif[ticks.length - 1] < 0) && his[ticks.length - 1] <= 0) {
-            op = 2;
-        } else if ((BuyInfo.price > ticker.Last) && ((BuyInfo.price - ticker.Last) / BuyInfo.price > TrailingStop)) {
-            op = 2;
-        }
-    }
-
-    if (op == 1) {
-        var info = Buy(exchange, ticker.Sell + (SlidePrice * 3), SlidePrice, BanlanceRatio, orderTimeout * 1000);
-        if (info.amount > 0) {
-            BuyInfo = info;
-            timeAtBuy = records[records.length - 1].Time;
-        }
-    } else if (op == 2) {
-        var info = Sell(exchange, BuyInfo.amount, SlidePrice);
-        if (info.amount > 0) {
-            Profit += info.amount * (info.price - BuyInfo.price);
-            LogProfit(Profit);
-            BuyInfo = null;
-        }
-    }
-}
-
-function main() {
-    var account = exchange.GetAccount();
-    if (account) {
-        Log(exchange.GetName(), exchange.GetCurrency(), account);
-    }
-
-    while (true) {
-        onTick(exchange);
-        Sleep(30000);
-    }
-}
+def main():
+    transaction = []
+    for index in range(len(exchanges)):
+        transaction.append(ExitTop(index))
+    while True:
+        for tran in range(len(transaction)):
+            transaction[tran].main()
+        Sleep(1000*60)
 ```
 
-## Detail
+> Detail
 
-https://www.fmz.com/strategy/194224
+https://www.fmz.com/strategy/356399
 
-## Last Modified
+> Last Modified
 
-2020-04-20 11:54:46
-```
+2023-05-13 21:21:01

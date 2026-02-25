@@ -1,9 +1,6 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
-
 > Name
 
-VWAP Trading Strategy
+VWAP Trading Strategy - VWAP-Trading-Strategy
 
 > Author
 
@@ -101,31 +98,6 @@ shortCondition = close < vwapValue and close < ema and volume > volume[1] and op
 
 // Exit Conditions
 longExitCondition = ta.crossunder(close, vwapValue) or ta.crossunder(close, ema) or close - strategy.position_avg_price >= targetPoints or close - strategy.position_avg_price <= -stopLossPoints or exit_time
-shortExitCondition = ta.crossover(close, vwapValue) or ta.crossover(close, ema) or strategy.position_avg_price - close >= targetPoints or strategy.position_avg_price - close <= -stopLossPoints or exit_time
-
-// Plotting
-plot(vwapValue, color=color.blue, title="VWAP")
-plot(ema, color=color.green, title="EMA")
-
-// Strategy
-if longCondition
-    strategy.entry("Long", strategy.long)
-
-if shortCondition
-    strategy.entry("Short", strategy.short)
-
-if longExitCondition
-    strategy.close('Long', immediately=true)
-
-if shortExitCondition
-    strategy.close("Short", immediately=true)
+shortExitCondition = ta.crossover(close, vwapValue) or ta.crossover(close, ema) or close - strategy.position_avg_price >= targetPoints or close - strategy.position_avg_price <= -stopLossPoints or exit_time
 
 ```
-
-> Detail
-
-https://www.fmz.com/strategy/449813
-
-> Last Modified
-
-2024-04-29 14:20:39

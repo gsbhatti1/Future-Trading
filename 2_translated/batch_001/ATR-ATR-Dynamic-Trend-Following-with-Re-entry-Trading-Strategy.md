@@ -1,4 +1,3 @@
----
 > Name
 
 ATR Dynamic Trend Following with Re-entry Trading Strategy - ATR-Dynamic-Trend-Following-with-Re-entry-Trading-Strategy
@@ -12,7 +11,7 @@ ChaoZhang
 ![IMG](https://www.fmz.com/upload/asset/1130fe9232956b0e1dc.png)
 
 #### Overview
-This is a trend-following strategy that dynamically adjusts using ATR, combining moving averages and ATR indicators to determine entry and exit points. The strategy's core feature is using ATR to dynamically adjust moving average bands, entering long positions when price breaks above the upper band, and setting stop-loss and take-profit levels based on ATR multiples. Additionally, the strategy includes an innovative re-entry mechanism allowing new positions when price retraces to the entry point.
+This is a trend-following strategy that dynamically adjusts using ATR, combining moving averages and ATR indicators to determine entry and exit points. The core feature of the strategy is using ATR to dynamically adjust moving average bands, entering long positions when price breaks above the upper band, and setting stop-loss and take-profit levels based on ATR multiples. Additionally, the strategy includes an innovative re-entry mechanism allowing new positions when price retraces to the entry point.
 
 #### Strategy Principles
 The strategy operates based on the following key elements:
@@ -21,7 +20,7 @@ The strategy operates based on the following key elements:
 3. Sets stop-loss at 2×ATR below entry price.
 4. Sets take-profit at (5+custom multiplier)×ATR above entry price.
 5. Automatically re-enters positions if price retraces to original entry level after stop-loss or take-profit.
-6. Implements a 30-bar maximum display limit for optimized chart visualization.
+6. Implements a maximum of 30 bars display limit for optimized chart visualization.
 
 #### Strategy Advantages
 1. Strong Dynamic Adaptability: ATR-adjusted moving averages self-adapt to market volatility changes.
@@ -33,7 +32,7 @@ The strategy operates based on the following key elements:
 #### Strategy Risks
 1. Trend Reversal Risk: Frequent stop-losses possible in ranging markets.
 2. Re-entry Risk: Consecutive stop-losses possible when re-entering at previous entry points.
-3. Slippage Risk: Actual execution prices may deviate from signal prices during high volatility periods.
+3. Slippage Risk: Actual execution prices may deviate from signal prices during high volatility.
 4. Parameter Sensitivity: Optimal parameters may vary significantly across different market conditions.
 5. Computational Load: Real-time calculation of multiple technical indicators may increase system load.
 

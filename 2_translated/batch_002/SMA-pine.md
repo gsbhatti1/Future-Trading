@@ -1,15 +1,14 @@
-> Name
+Name
 
 SMA-pine language teaching strategy script
 
-> Author
+Author
 
 Zer3192
 
-> Source (PineScript)
+Source (PineScript)
 
 ```pinescript
-
 //@version=4
 study("SMA Cross", overlay=true)
 //strategy("strategy.percent_of_equity", overlay = false, default_qty_value = 100, default_qty_type = strategy.percent_of_equity, initial_capital = 1000000)
@@ -41,15 +40,15 @@ strategy.entry("Long", strategy.long, when=longCondition)
 strategy.entry("Short", strategy.short, when=shortCondition)
 // StopLoss/Takeprofit
 if (strategy.position_size > 0)
-strategy.exit("stoploss/takeprofit","Long",stop=longStop, limit=longEntry)
+    strategy.exit("stoploss/takeprofit","Long", stop=longStop, limit=longEntry)
 if (strategy.position_size < 0)
-strategy.exit("stoploss/takeprofit","Short", stop=shortStop, limit=shortEntry)
+    strategy.exit("stoploss/takeprofit","Short", stop=shortStop, limit=shortEntry)
 ```
 
-> Detail
+Detail
 
 https://www.fmz.com/strategy/400134
 
-> Last Modified
+Last Modified
 
 2023-02-15 18:19:03

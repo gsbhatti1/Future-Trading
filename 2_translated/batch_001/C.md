@@ -1,14 +1,4 @@
-> Name
-
-C++ version multi-chart test
-
-> Author
-
-Inventor Quantification-Little Dream
-
-> Source (cpp)
-
-``` cpp
+```cpp
 /*backtest
 start: 2019-01-22 00:00:00
 end: 2019-01-23 00:00:00
@@ -116,7 +106,7 @@ json zz = R"({
 "y" : 0
 })"_json;
 zz["y"] = rand() % 100;
-chart.add(3,zz);
+chart.add(3, zz);
 
 while(true) {
 Sleep(1000);

@@ -1,6 +1,6 @@
 > Name
 
-OKEX Intertemporal Hedging Strategy Tutorial websocket-version
+websocket-version OKEX intertemporal hedging strategy tutorial
 
 > Author
 
@@ -15,9 +15,9 @@ Inventor Quantification-Little Dream
 
 - Only the positive move is done, the reverse move can be modified, and the contract is exchanged to achieve the reverse move.
 
-- Add two exchange objects, the first one is the quarter, the second one is the current week.
+- Two exchange objects are added: the first one is for the quarter, the second one is for the current week.
 
-- All the code that can be simplified has been streamlined, and there is still a lot of room for optimization. The teaching strategy is prudent and firm, and there are certain risks in the inter-period period.
+- All code that can be simplified has been streamlined, and there is still a lot of room for optimization. The teaching strategy is prudent and firm, and there are certain risks in the inter-period period.
 
 - Place an order using the counterparty price.
 
@@ -39,8 +39,8 @@ Inventor Quantification-Little Dream
 |_Profit|true|Close the difference profit|
 |_Count|10|Number of nodes|
 |_ContractNum|true|Node order quantity|
-|_Instrument_id_A|LTC-USD-190628|A Exchange Quarterly Contract ID|
-|_Instrument_id_B|LTC-USD-190426|B exchange's current week's contract ID|
+|_Instrument_id_A|LTC-USD-190628|A exchange quarterly contract ID|
+|_Instrument_id_B|LTC-USD-190426|B exchange’s current week’s contract ID|
 
 
 > Source (javascript)

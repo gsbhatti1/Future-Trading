@@ -1,22 +1,4 @@
-The translation you requested appears to already be completed in your provided content. The detailed strategy description is already in English, while the PineScript code block remains unchanged as requested.
-
-Here's the properly formatted version with only the Chinese name translated:
-
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
-> Name
-
-SMI and Pivot Point Momentum Crossover Strategy
-
-> Author
-
-ChaoZhang
-
-> Strategy Description
-
-![IMG](https://www.fmz.com/upload/asset/12fc8023b9055fcb53f.png)
-
-[trans]
+```markdown
 #### Overview
 
 This strategy is a trading system that combines the Stochastic Momentum Index (SMI) with standard pivot points. It primarily uses the crossover signals from the SMI indicator to determine changes in market momentum, while incorporating price position near pivot points to determine entry timing. This approach aims to capture momentum shifts in the market while utilizing important support and resistance levels to enhance trading accuracy.
@@ -77,81 +59,25 @@ To mitigate these risks, consider the following measures:
 
 1. Dynamic Parameter Adjustment: Automatically adjust SMI length and smoothing parameters based on market volatility to adapt to different market environments.
 
-2. Multi-timeframe Analysis: Introduce SMI signals from longer timeframes as filters to reduce the impact of short-term noise.
+2. Multi-timeframe Analysis: Introduce SMI signals from longer timeframes as filters to reduce short-term noise.
 
-3. Quantify Pivot Point Impact: Adjust position size or set different entry conditions based on the distance between price and pivot points.
+3. Quantify Pivot Point Impact: Adjust position sizes or entry conditions based on the distance between price and pivot points.
 
-4. Optimize Exit Strategy: The current strategy only focuses on entry; add exit logic based on the SMI indicator, such as reverse crossovers or overbought/oversold levels.
+4. Optimize Exit Strategy: Currently, the strategy focuses only on entry; add exit logic based on SMI indicator, such as reverse crossovers or overbought/oversold levels.
 
 5. Introduce Volatility Filtering: Adjust strategy parameters or pause trading during high volatility periods to avoid false signals.
 
-6. Integrate Trend Indicators: Combine with trend indicators like moving averages or ADX to trade only in the direction of the main trend.
+6. Integrate Trend Indicators: Combine with trend indicators like moving averages or ADX to trade only in the main trend direction.
 
-7. Backtesting and Optimization: Conduct comprehensive backtests on different parameter combinations to find the optimal parameter settings.
+7. Backtest and Optimize: Comprehensive backtesting of different parameter combinations to find optimal settings.
 
-These optimization directions aim to improve the strategy's stability and adaptability while reducing false signals and increasing profitability.
+These optimization directions aim to enhance strategy stability and performance while reducing false signals and improving profitability.
 
 #### Summary
 
-The SMI and Pivot Point Momentum Crossover Strategy is a trading method that combines technical analysis and price action. It uses the SMI indicator to capture changes in market momentum while using pivot points to identify important price levels. The advantage of this method lies in its ability to effectively identify potential trend changes while utilizing key support and resistance levels to improve trading accuracy.
+SMI with pivot points combined momentum crossover strategy is a trading method that integrates technical analysis and price behavior. It uses the SMI indicator to capture changes in market momentum, while using pivot points to determine key price levels. This approach effectively identifies potential trend changes and leverages critical support and resistance levels for enhanced trading accuracy.
 
-However, the strategy also faces some challenges, such as signal lag and the risk of false breakouts. To overcome these issues, traders need to carefully optimize parameters and consider introducing additional filtering conditions. Through continuous backtesting and optimization, as well as combining other technical indicators and analysis methods, the strategy's performance and stability can be further improved.
+However, this strategy also faces challenges such as signal lag and false breakouts. To overcome these issues, traders need to carefully optimize parameters and consider introducing additional filtering conditions. Continuous backtesting and optimization, along with integrating other technical indicators and analytical methods, can further improve the performance and stability of the strategy.
 
-Overall, this is a promising trading strategy framework suitable for traders who wish to build a systematic trading method based on technical analysis. With proper risk management and continuous strategy improvement, it has the potential to become a reliable trading tool.
-
-[/trans]
-
-> Source (PineScript)
-
-``` pinescript
-/*backtest
-start: 2024-06-01 00:00:00
-end: 2024-06-30 23:59:59
-period: 1h
-basePeriod: 15m
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
-//@version=5
-strategy("SMI Strategy", overlay=true)
-
-// Parameters for SMI
-smiLength = input.int(8, title="SMI Length")
-smiK = input.int(6, title="SMI K Length")
-smiD = input.int(6, title="SMI D Length")
-smiSource = input.source(close, title="SMI Source")
-
-// Calculate SMI components
-h = ta.highest(smiSource, smiLength)
-l = ta.lowest(smiSource, smiLength)
-m = (h + l) / 2
-d = (smiSource - m) / (h - l) * 100
-
-// Calculate SMI
-smi = ta.sma(d, smiK)
-smiSignal = ta.sma(smi, smiD)
-
-// Define conditions for buy and sell signals
-bullishCondition = ta.crossover(smi, smiSignal)
-bearishCondition = ta.crossunder(smi, smiSignal)
-
-// Generate buy and sell signals
-if (bullishCondition)
-    strategy.entry("Buy", strategy.long)
-
-if (bearishCondition)
-    strategy.entry("Sell", strategy.short)
-
-// Plot SMI and SMI Signal
-plot(smi, title="SMI", color=color.blue)
-plot(smiSignal, title="SMI Signal", color=color.red)
-
+In summary, it is a promising trading framework for those looking to build systematic trading methods based on technical analysis. With proper risk management and ongoing strategy refinement, it has the potential to become a reliable trading tool.
 ```
-
-> Detail
-
-https://www.fmz.com/strategy/458036
-
-> Last Modified
-
-2024-07-29 14:03:42

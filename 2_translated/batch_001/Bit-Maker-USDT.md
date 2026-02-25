@@ -1,8 +1,6 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
 > Name
 
-Bit-Maker-Spot USDT Contract Total Balance Monitor
+Bit-Maker-Real-Time Monitoring of Total USDT Contract Balance for Spot Trading
 
 > Author
 
@@ -10,40 +8,39 @@ AutoBitMaker-ABM
 
 > Strategy Description
 
-**AutoBitMaker** currently officially launches a risk-free arbitrage strategy.
-The strategy principle is based on hedging between spot and contract, which can also be completed manually.
-However, compared to manual operations, BOT captures profit opportunities across all trading pairs in the market, executing hundreds of trades per day. This further frees your hands and reduces market risks.
+**AutoBitMaker** is currently officially releasing a risk-free arbitrage strategy.
+The principle behind the strategy involves hedging between spot and contract trading, which can also be manually completed. However, compared to manual operations, the BOT will capture profit opportunities across all trading pairs in the market, with transactions happening hundreds of times daily. This further frees up your hands and reduces market risks.
 
-We are **AutoBitMaker**, abbreviated as **ABM Capital**. Please carefully verify our team's name and WeChat ID to distinguish authenticity.
-We temporarily only communicate with domestic clients via WeChat and Email, not using other methods like QQ.
+We are **AutoBitMaker**, commonly known as **ABM Capital**. Please carefully verify our team name, WeChat ID, to distinguish authenticity.
+Currently, we only communicate with domestic clients via WeChat and email; other methods such as QQ will not be used.
 
-**ABM Team** currently offers 3 types of strategies:
+**ABM Team** currently provides three types of strategies:
 * Contract Trading
 * Spot Trading
 * Arbitrage Trading
 
-The current code is only for account monitoring, with source code published for everyone to check or use at their discretion.
-It monitors the USDT value of spot + USDT contracts.
+The current code is solely for account monitoring. The source code has been publicly disclosed, allowing you to check or use it at your discretion.
+It monitors the USDT value from spot trading and USDT contract.
 
-Currently, the team's strategy server cluster has reached 80 servers, with over 50 additional support servers, checking account stop-loss conditions at an average speed of 2 times per second, allowing quick exits when risks arise.
+Currently, our team's strategy server cluster has reached 80 machines, with an additional 50 supporting servers. At an average of two checks per second for account stop-loss conditions, we can quickly exit in times of risk.
 
-Using a heterogeneous hybrid cloud architecture of Alibaba Cloud, Amazon Cloud, and Microsoft Cloud, separating management and execution nodes, multiple nodes form clusters for redundancy assurance, safely and effectively achieving smooth business operations and fund security guarantees.
+Using Alibaba Cloud, Amazon Cloud, and Microsoft Cloud architectures with a heterogeneous hybrid cloud model, management nodes are separated from execution nodes, forming clusters to ensure redundancy, securely and effectively achieving smooth business operations and financial security.
 
-Regarding trials:
-Depending on your capital scale, we provide about 2 weeks of trial runs. During the trial phase, we do not charge commissions.
-After the Bot takes over your account, please do not perform any manual operations. When any manual positions are detected, all Bots will exit immediately.
+Regarding the trial period:
+Based on your capital scale, we provide a 2-week test run. During this phase, no commission will be deducted.
+Please do not perform any actions after the BOT takes over your account; upon detecting any manual positions, all Bots will immediately exit.
 
 Regarding commissions:
-This depends on your capital volume. We can discuss details after the trial run. If you can create an account using our referral link, we will charge very low commissions.
+This depends on your capital volume. We can discuss details after the trial period. If you open an account using our recommended link, we will charge a low commission.
 
 Contact Information:
-1. Face-to-face meetings available nationwide
+1. Available for face-to-face meetings across China
 2. WeChat: DuQi_SEC/autobitmaker/autobitmaker_001/Shawn_gb2312/ABM_DD 
-3. Email:  liuhongyu.louie@autobitmaker.com/autobitmaker_master@autobitmaker.com
+3. Email: liuhongyu.louie@autobitmaker.com/autobitmaker_master@autobitmaker.com
 
-* Special Note (WeChat ID autobitmaker001 is NOT us!! We are not makebit!! The WeChat ID autobitmaker_001 is ours)
+* Special Note (WeChat ID autobitmaker001 is not us! We also do not call ourselves makebit! The correct WeChat ID is autobitmaker_001)
 
-Submit trial application through WeChat Mini Program:
+Submit your trial application via the WeChat Mini Program:
 ![WeChat Mini Program QR Code](https://www.fmz.cn![IMG](https://www.fmz.com/upload/asset/1281e73989f891ac26aa9.jpg))
 
 > Strategy Arguments
@@ -103,19 +100,19 @@ function getChartPosition(avaliableMargin) {
             height: '300px'
         },
         title: {
-            text: '保证金占比(%)'
+            text: 'Margin Ratio (%)'
         },
         series: [{
             type: 'pie',
             name: 'one',
             data: [{
-                name: '可用保证金(%)',
+                name: 'Available Margin (%)',
                 y: avaliableMargin,
                 color: '#dff0d8',
                 sliced: true,
                 selected: true
             }, {
-                name: '保证金占用(%)',
+                name: 'Used Margin (%)',
                 y: 100 - avaliableMargin,
                 color: 'rgb(217, 237, 247)',
                 sliced: true,
@@ -196,11 +193,11 @@ function printPositionInfo(exchangeInnerArray, totalProfitUSDT, totalProfitRate)
         rows: []
     }
     table.rows.push([{
-        body: '本策略是 USDT 本位，基于均值回归的币安现货-合约无风险套利策略',
+        body: 'This strategy is USDT-centric, based on mean reversion arbitrage between Binance spot and contract trading.',
         colspan: 5
     }]);
     table.rows.push([{
-        body: '套利覆盖币安永续合约全部币种交易对',
+        body: 'Arbitrage covers all trading pairs of Binance perpetual contracts.',
         colspan: 5
     }]);
     var position = exchangeInnerArray[0].GetPosition()
@@ -213,51 +210,5 @@ function printPositionInfo(exchangeInnerArray, totalProfitUSDT, totalProfitRate)
     table.rows.push([{
         body: 'TOTAL PROFIT OF CURRENT POSITION',
         colspan: 4
-    }, totalProfit.toFixed(6) + ' USDT']);
-    table.rows.push([{
-        body: 'TOTAL PROFIT',
-        colspan: 4
-    }, totalProfitUSDT + ' USDT']);
-    table.rows.push([{
-        body: 'TOTAL PROFIT RATE',
-        colspan: 4
-    }, totalProfitRate + ' %']);
-    LogStatus('`' + JSON.stringify(table) + '`');
-}
-
-function main() {
-    initChart();
-    var ObjChart = Chart([chart, getChartPosition(100)]);
-    while (true) {
-        try {
-            var currentBalance = getBalance();
-            var currentSpotBalance = getSpotBalanceInUSDT();
-            var totalBalance = Number(Number(currentBalance) + Number(currentSpotBalance)).toFixed(4);
-            printProfitInfo(totalBalance);
-            updateAccountDetailChart(ObjChart, totalBalance);
-            for (var i = 0; i < 120; i++) {
-                try {
-                    var avaliableMargin = 100;
-                    ObjChart.update([chart, getChartPosition(avaliableMargin)]);
-                    var profit = Number((totalBalance) - baseOriginalBalance).toFixed(5);
-                    var profitRate = Number((((totalBalance) - baseOriginalBalance) / baseOriginalBalance) * 100).toFixed(4);
-                    printPositionInfo(exchanges, profit, profitRate);
-                    Sleep(1000 * 120);
-                } catch (errInner) {
-                    throw errInner;
-                }
-            }
-        } catch (err) {
-            throw err;
-        }
-    }
-}
+    }]);
 ```
-
-> Detail
-
-https://www.fmz.com/strategy/255590
-
-> Last Modified
-
-2021-02-27 18:42:01

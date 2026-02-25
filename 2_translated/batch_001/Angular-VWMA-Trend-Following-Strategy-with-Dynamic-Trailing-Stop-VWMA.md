@@ -50,45 +50,7 @@ This is a well-structured trend-following strategy that achieves good performanc
 
 ||
 
-#### Overview
-This is a trend-following strategy based on Volume Weighted Moving Average (VWMA) and Exponential Moving Average (EMA), incorporating price angle analysis and dynamic trailing stop mechanism. The strategy primarily determines entry points through VWMA and fast moving average crossovers, combined with price movement angle conditions, while using percentage-based trailing stops for risk management.
-
-#### Strategy Principles
-The core logic is based on several key components:
-1. 25-period VWMA as the main trend indicator
-2. 8-period VWMA as the fast signal line
-3. 50-period EMA for longer-term trend identification
-4. 50-period EMA angle calculation (set at 45-degree threshold)
-5. Optional 200-period EMA as market bias filter
-Entry signals are triggered when the fast moving average crosses the main VWMA and price angle conditions are met. The strategy protects profits through a 1% dynamic trailing stop.
-
-#### Strategy Advantages
-1. Multi-timeframe validation - Strategy performs well on H1 and above, as well as M1 timeframes
-2. Angle filtration - Reduces false breakouts through price movement angle conditions
-3. Robust risk management - Employs percentage-based trailing stops for dynamic profit protection
-4. High adaptability - Can be adjusted through parameters to suit different market conditions
-5. Comprehensive trend confirmation - Uses multiple moving average crossovers for trend confirmation
-
-#### Strategy Risks
-1. Suboptimal performance in ranging markets - May generate frequent false signals in sideways markets
-2. Delayed entry - Multiple confirmations may cause missing early trend opportunities
-3. Poor performance on M15 timeframe - Should be avoided on this timeframe
-4. Parameter sensitivity - Angle threshold and moving average period selection significantly impact strategy performance
-5. Early exits from trailing stops - May result in premature stopouts in volatile markets
-
-#### Strategy Optimization Directions
-1. Implement volatility adaptation - Dynamically adjust trailing stop percentage based on market volatility
-2. Add volume filters - Enhance signal quality through volume confirmation
-3. Optimize angle calculation - Consider using adaptive angle thresholds
-4. Incorporate market state recognition - Develop trend/range market identification mechanisms
-5. Improve exit mechanisms - Optimize exit timing through price patterns and momentum indicators
-
-#### Summary
-This is a well-structured trend-following strategy that achieves good performance in major trends through the combination of angle analysis and multiple moving averages. While it has certain limitations in terms of lag and parameter sensitivity, there is room for improvement through the suggested optimization directions. It is particularly suitable for trend trading in longer timeframes.
-
-||
-
-> Source (PineScript)
+#### Source (PineScript)
 
 ```pinescript
 /*backtest
@@ -121,7 +83,7 @@ shortBias = useBias ? close < bias : true
 
 // === CALCULATION OF THE 50 EMA ANGLE ===
 ma50 = ta.ema(close, 50)
-angle = math.atan((ma50 - ma50[anglePeriod]) / anglePeriod) * (180 / math.pi)  // Convert radians to degrees
+angle = math.atan((ma50 - ma50[anglePeriod]) / anglePeriod) * (180 / math.pi)  // Converts radians to degrees
 
 // === ANGLE CONDITION ===
 validAngleL = angle >= 45
@@ -142,17 +104,5 @@ plotshape(series=(strategy.position_size < 0) ? maValue : na,
 
 // === ENTRY CONDITIONS ===
 enterLong  = close > maValue and ta.crossover(maFast, maValue) and close > maLong and longBias and validAngleL
-enterShort = close < maValue and ta.crossunder(maFast, maValue) and shortBias and validAngleS
-
-if (enterLong)
-    strategy.entry("Long", strategy.long)
-
-if (enterShort)
-    strategy.entry("Short", strategy.short)
-
-// === TRAILING STOP ===
-strategy.exit("Trailing Stop Long", "Long", trail_offset=ma50 * trailPerc, comment="Long Trailing Stop")
-strategy.exit("Trailing Stop Short", "Short", trail_offset=ma50 * trailPerc, comment="Short Trailing Stop")
-
+enterShort = close < maValue and ta.crossunder(maFast, maValue)
 ```
-[/trans]

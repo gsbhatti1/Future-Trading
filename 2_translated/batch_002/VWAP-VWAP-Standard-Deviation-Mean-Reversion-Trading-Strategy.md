@@ -1,121 +1,60 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
+---
 
-
-> Name
-
-VWAP Standard Deviation Mean Reversion Trading Strategy
-
-> Author
-
-ChaoZhang
-
-> Strategy Description
-
-![IMG](https://www.fmz.com/upload/asset/1ac8ab640a7eb6ad5fa.png)
-
-[trans]
 #### Overview
-This is a mean reversion trading strategy based on Volume Weighted Average Price (VWAP) and standard deviation channels. The strategy identifies trading opportunities by measuring price deviations from VWAP, entering counter-trend positions when price breaks through standard deviation bands, and closing positions when price reverts to VWAP. This approach leverages market mean reversion characteristics, combining technical analysis and statistical principles.
+This is a mean reversion trading strategy based on Volume Weighted Average Price (VWAP) and standard deviation channels. The strategy identifies trading opportunities by measuring price deviations from VWAP, entering counter-trend positions when the price breaks through standard deviation bands, and closing positions when the price reverts to VWAP. This approach leverages market mean reversion characteristics, combining technical analysis and statistical principles.
 
 #### Strategy Principles
 The core mechanism relies on calculating VWAP and price volatility standard deviations to establish trading ranges. Specific implementation includes:
-1. Calculating cumulative VWAP: Using the cumulative product of price and volume divided by cumulative volume
-2. Computing standard deviation: Based on 20-period standard deviation of closing prices
-3. Constructing channels: Adding and subtracting 2 standard deviations from VWAP
+1. Calculating cumulative VWAP: Using the cumulative product of price and volume divided by cumulative volume.
+2. Computing standard deviation: Based on a 20-period standard deviation of closing prices.
+3. Constructing channels: Adding and subtracting 2 standard deviations from VWAP.
 4. Trading signals:
-   - Long entry: Price crosses below lower band
-   - Short entry: Price crosses above upper band
-   - Exit conditions: Price reverts to VWAP level
+   - Long entry: Price crosses below lower band.
+   - Short entry: Price crosses above upper band.
+   - Exit conditions: Price reverts to VWAP level.
 
 #### Strategy Advantages
-1. Statistical foundation: Strategy built on reliable mean reversion statistical principles
-2. Objective trading signals: Uses clear mathematical indicators, avoiding subjective judgment
-3. Robust risk control: Limits entry points through standard deviation channels, uses VWAP reversion for profit-taking
-4. High adaptability: Standard deviation multiplier can be adjusted for different market conditions
-5. Liquidity consideration: VWAP is a key reference for institutional traders, trading in high liquidity zones
+1. Statistical foundation: The strategy is built on reliable mean reversion statistical principles.
+2. Objective trading signals: Uses clear mathematical indicators, avoiding subjective judgment.
+3. Robust risk control: Limits entry points through standard deviation channels and uses VWAP reversion for profit-taking.
+4. High adaptability: Standard deviation multiplier can be adjusted for different market conditions.
+5. Liquidity consideration: VWAP is a key reference for institutional traders, trading in high liquidity zones.
 
 #### Strategy Risks
-1. Trend market risk: Mean reversion assumption may fail in strong trending markets
-2. Volatility change risk: Market volatility shifts can lead to wide stop losses
-3. Money management risk: Requires proper position sizing for each trade
-4. Slippage risk: May face significant slippage during high volatility
+1. Trend market risk: Mean reversion assumptions may fail in strong trending markets.
+2. Volatility change risk: Market volatility shifts can lead to wide stop losses.
+3. Money management risk: Proper position sizing must be set for each trade.
+4. Slippage risk: Significant slippage is possible during high volatility periods.
+
 Mitigation measures:
-- Add trend filters
-- Dynamically adjust standard deviation multiplier
-- Set maximum holding time
-- Implement percentage-based stops
+- Add trend filters.
+- Dynamically adjust standard deviation multiplier.
+- Set maximum holding time.
+- Implement percentage-based stops.
 
 #### Optimization Directions
 1. Add trend identification:
-   - Incorporate moving average combinations for trend detection
-   - Pause counter-trend trading during strong trends
+   - Incorporate moving average combinations for trend detection.
+   - Pause counter-trend trading during strong trends.
 2. Optimize parameters:
-   - Implement adaptive standard deviation multiplier
-   - Adjust stop losses based on volatility
+   - Implement adaptive standard deviation multipliers.
+   - Adjust stop losses based on volatility.
 3. Enhance risk management:
-   - Add maximum holding time limits
-   - Introduce volatility filters
+   - Add maximum holding time limits.
+   - Introduce volatility filters.
 4. Improve accuracy:
-   - Combine with other technical indicators for signal confirmation
-   - Consider volume changes
+   - Combine with other technical indicators for signal confirmation.
+   - Consider volume changes.
 
 #### Summary
-This is a market-neutral strategy based on statistical principles, capturing price deviation and reversion using VWAP and standard deviation channels. The strategy features objective and systematic characteristics but requires attention to risk control and parameter optimization in practical application. Strategy stability and reliability can be further enhanced through the addition of trend filters and improved risk management mechanisms. || 
+This is a market-neutral strategy based on statistical principles, capturing price deviation and reversion using VWAP and standard deviation channels. The strategy features objective and systematic characteristics but requires attention to risk control and parameter optimization in practical application. Strategy stability and reliability can be further enhanced through the addition of trend filters and improved risk management mechanisms.
 
-#### Overview
-This is a mean reversion trading strategy based on Volume Weighted Average Price (VWAP) and standard deviation channels. The strategy identifies trading opportunities by measuring price deviations from VWAP, entering counter-trend positions when price breaks through standard deviation bands, and closing positions when price reverts to VWAP. This approach leverages market mean reversion characteristics, combining technical analysis and statistical principles.
+---
 
-#### Strategy Principles
-The core mechanism relies on calculating VWAP and price volatility standard deviations to establish trading ranges. Specific implementation includes:
-1. Calculating cumulative VWAP: Using the cumulative product of price and volume divided by cumulative volume
-2. Computing standard deviation: Based on 20-period standard deviation of closing prices
-3. Constructing channels: Adding and subtracting 2 standard deviations from VWAP
-4. Trading signals:
-   - Long entry: Price crosses below lower band
-   - Short entry: Price crosses above upper band
-   - Exit conditions: Price reverts to VWAP level
+#### Source (PineScript)
 
-#### Strategy Advantages
-1. Statistical foundation: Strategy built on reliable mean reversion statistical principles
-2. Objective trading signals: Uses clear mathematical indicators, avoiding subjective judgment
-3. Robust risk control: Limits entry points through standard deviation channels, uses VWAP reversion for profit-taking
-4. High adaptability: Standard deviation multiplier can be adjusted for different market conditions
-5. Liquidity consideration: VWAP is a key reference for institutional traders, trading in high liquidity zones
-
-#### Strategy Risks
-1. Trend market risk: Mean reversion assumption may fail in strong trending markets
-2. Volatility change risk: Market volatility shifts can lead to wide stop losses
-3. Money management risk: Requires proper position sizing for each trade
-4. Slippage risk: May face significant slippage during high volatility
-Mitigation measures:
-- Add trend filters
-- Dynamically adjust standard deviation multiplier
-- Set maximum holding time
-- Implement percentage-based stops
-
-#### Optimization Directions
-1. Add trend identification:
-   - Incorporate moving average combinations for trend detection
-   - Pause counter-trend trading during strong trends
-2. Optimize parameters:
-   - Implement adaptive standard deviation multiplier
-   - Adjust stop losses based on volatility
-3. Enhance risk management:
-   - Add maximum holding time limits
-   - Introduce volatility filters
-4. Improve accuracy:
-   - Combine with other technical indicators for signal confirmation
-   - Consider volume changes
-
-#### Summary
-This is a market-neutral strategy based on statistical principles, capturing price deviation and reversion using VWAP and standard deviation channels. The strategy features objective and systematic characteristics but requires attention to risk control and parameter optimization in practical application. Strategy stability and reliability can be further enhanced through the addition of trend filters and improved risk management mechanisms.[/trans]
-
-
-
-> Source (PineScript)
-
-``` pinescript
-/*backtest
+```pinescript
+/* backtest 
 start: 2024-12-03 00:00:00
 end: 2024-12-10 00:00:00
 period: 1m
@@ -166,10 +105,4 @@ if (strategy.position_size < 0 and close < vwap)
 
 ```
 
-> Detail
-
-https://www.fmz.com/strategy/474675
-
-> Last Modified
-
-2024-12-11 15:06:33
+>

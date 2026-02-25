@@ -1,31 +1,3 @@
-> Name
-
-bybit Inverse Contract Dynamic Grid Specialized Grid
-
-> Author
-
-@cqz
-
-
-
-> Strategy Arguments
-
-
-|Argument|Default|Description|
-|----|----|----|
-|GridPercentage|0.05|GridPercentage|
-|StartPositionRate|0.3|StartPositionRate|
-|EndPositionRate|0.7|EndPositionRate|
-|StartPrice|24000|StartPrice|
-|EndPrice|60000|EndPrice|
-|MinOrderCoinSize|0.001|MinOrderCoinSize|
-|CoinSymbol|BTC|CoinSymbol|
-|MinOrderAmount|5|MinOrderAmount|
-|Reset|false|Reset|
-
-
-> Source (javascript)
-
 ``` javascript
 //Arguments:
 //1. StartPrice
@@ -80,10 +52,10 @@ function getPrice(coinSize, currency, amount) {
     let varA = amount < 0 ? sellVarA : buyVarA;
     // Log("(" + (coinSize + amount) + " * y) / (" + coinSize + " * y + " + currency + ") = " + varA + " * y + " + varB);
     // ((coinSize + amount) * y) / (coinSize * y + currency) = varA * y + varB;
-    // Log("(" + (coinSize + amount) + " * y)  = " + (varA * coinSize) + " * y^2 + " + ((varA * currency) + (varB * coinSize)) + " * y + (varB * currency));
-    //((coinSize + amount) * y)  = varA * coinSize * y^2 + ((varA * currency) + (varB * coinSize)) * y + (varB * currency)
+    // Log("(" + (coinSize + amount) + " * y)  = " + (varA * coinSize) + " * y^ + " + ((varA * currency) + (varB * coinSize)) + " * y + " + (varB * currency));
+    //((coinSize + amount) * y)  = varA * coinSize * y^ + ((varA * currency) + (varB * coinSize)) * y + (varB * currency)
     // Log("y^2 + " + (((varA * currency) + (varB * coinSize) - (coinSize + amount)) / (varA * coinSize)) + " * y  =  " + (-(varB * currency) / (varA * coinSize)));
-    // y^2 + (((varA * currency) + (varB * coinSize) - (coinSize + amount))/(varA * coinSize)) * y  =  -(varB * currency)/(varA * coinSize)
+    // y^ + (((varA * currency) + (varB * coinSize) - (coinSize + amount))/(varA * coinSize)) * y  =  -(varB * currency)/(varA * coinSize)
     let k = (varA * currency + varB * coinSize - coinSize - amount) / (2 * varA * coinSize);
     let l = Math.sqrt(-((varB * currency) / (varA * coinSize)) + Math.pow(k, 2));
     let p1 = -l - k;
@@ -106,68 +78,62 @@ function getPrice(coinSize, currency, amount) {
     return parseInt(price);
 }
 
-let pricesChart = Chart([ // This chart in JavaScript is an object. Before using the Chart function, we need to declare a configuration object variable named chart.
+let pricesChart = Chart([ // This chart in JavaScript is an object. Before using the Chart function, we need to declare a configuration variable for the chart.
     {
-        __isStock: true, // Mark whether it's a general chart. You can change this to false and run to see the difference.
+        __isStock: true, // Mark whether it's a regular chart. You can change this to false and run to see the difference.
         tooltip: {
             xDateFormat: '%Y-%m-%d %H:%M:%S, %A'
-        }, // Zooming tools
+        }, // Range selector
         title: {
             text: 'Profit Analysis Chart'
         }, // Title
-        rangeSelector: { // Selection range
-            buttons: [
-                {
-                    type: 'hour',
-                    count: 1,
-                    text: '1h'
-                },
-                {
-                    type: 'hour',
-                    count: 3,
-                    text: '3h'
-                },
-                {
-                    type: 'hour',
-                    count: 8,
-                    text: '8h'
-                },
-                {
-                    type: 'all',
-                    text: 'All'
-                }
-            ],
+        rangeSelector: { // Selecting a range
+            buttons: [{
+                type: 'hour',
+                count: 1,
+                text: '1h'
+            }, {
+                type: 'hour',
+                count: 3,
+                text: '3h'
+            }, {
+                type: 'hour',
+                count: 8,
+                text: '8h'
+            }, {
+                type: 'all',
+                text: 'All'
+            }],
             selected: 0,
             inputEnabled: false
         },
         xAxis: {
             type: 'datetime'
-        }, // The coordinate axis for the horizontal axis, i.e., x-axis. The current setting is of type: time.
-        yAxis: { // The coordinate axis for the vertical axis, i.e., y-axis. By default, it adjusts according to the data size.
+        }, // X-axis, the current type is : time.
+        yAxis: { // Y-axis, default values adjust according to data size.
             title: {
                 text: 'Profit'
             }, // Title
-            opposite: false, // Whether to enable the right-side y-axis
+            opposite: false, // Whether to enable the right Y-axis
         },
-        series: [ // Data series. This property saves various data series (lines, candlestick charts, labels, etc.)
+        series: [ // Data series, this property stores various data series (lines, candlestick charts, labels, etc.)
             {
                 name: "Zero",
                 id: "Zero",
                 dashStyle: 'shortdash',
                 data: []
-            },
-            {
+            }, {
                 name: "Strategy Profit",
-                id: "Strategy Profit, strategyProfit",
+                id: "Strategy Profit",
                 data: []
-            },
-            {
+            }, {
                 name: "Spot Profit",
-                id: "Spot Profit, spotProfit",
+                id: "Spot Profit",
                 data: []
             }
         ]
     }]);
+
 function GetOrders() {
     let ordersResp = exchange.IO("api", "GET", "/v2/private/order", "symbol=" + CoinSymbol + "USD");
     if (!ordersResp || ordersResp.ret_code !== 0) {
@@ -191,5 +157,5 @@ function GetFilledOrder(orderId) {
 }
 
 function sell(price, amount) {
-    let createOrderResp = exchange.IO("api", "POST", 
+    let createOrderResp = exchange.IO("api", "POST", "/v2/private/order",
 ```

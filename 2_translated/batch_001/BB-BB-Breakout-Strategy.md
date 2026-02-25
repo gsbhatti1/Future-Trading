@@ -1,9 +1,6 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
-
 > Name
 
-BB Breakout Strategy
+BB均线突破策略-BB-Breakout-Strategy
 
 > Author
 
@@ -40,21 +37,12 @@ This strategy is based on the Bollinger Bands indicator and generates trading si
 
 #### Summary
 The BB Breakout Strategy is a trading strategy based on the Bollinger Bands indicator, seeking trading opportunities when prices break through the upper or lower bands. The strategy's advantages are clear signals and easy implementation, with certain risk control measures in place. However, the strategy also has some limitations, such as potentially high trading frequency and signal lag. Therefore, in practical applications, improvements can be considered in areas such as signal confirmation, stop-loss optimization, and parameter optimization to enhance the strategy's stability and profitability.
-[/trans]
 
+||
 
+#### Source (PineScript)
 
-> Source (PineScript)
-
-``` pinescript
-/*backtest
-start: 2023-06-08 00:00:00
-end: 2024-06-13 00:00:00
-period: 1d
-basePeriod: 1h
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
+```pinescript
 //@version=5
 strategy("BB Strategy", overlay=true)
 
@@ -95,16 +83,5 @@ if (longCondition)
     strategy.entry("Long", strategy.long)
 if (shortCondition)
     strategy.entry("Short", strategy.short)
-if (shortCondition and strategy.position_size > 0)
-    strategy.close("Long")
-if (longCondition and strategy.position_size < 0)
-    strategy.close("Short")
+if (shortCondition and strate
 ```
-
-> Detail
-
-https://www.fmz.com/strategy/454141
-
-> Last Modified
-
-2024-06-14 15:21:03

@@ -1,6 +1,6 @@
 > Name
 
-MACD Trend Following Strategy
+MACD Trend Following Strategy MACD-Trend-Following-Strategy
 
 > Author
 
@@ -8,174 +8,123 @@ ChaoZhang
 
 > Strategy Description
 
-![IMG](https://www.fmz.com/upload/asset/830b1dca0535cb6a50.png)
+![IMG](https://www.fmz.com/upload/asset/10f4a7de16353ec4c9d.png)
 [trans]
+### Overview
 
-## Overview
+The MACD trend following strategy determines the trend by calculating the golden cross of the MACD indicator and its signal line and realizes profits from following the trend.
 
-The MACD Trend Following Strategy is a quantitative trading strategy based on the MACD indicator. This strategy identifies MACD golden cross and death cross signals to determine market trends and track price trends.
+### Strategy Principles
 
-## Strategy Logic
+This strategy determines the trend direction based on the MACD indicator. The MACD indicator is a trend-following exponential smoothed moving average of convergence and divergence, consisting of a fast line (MACD), a slow line (Signal) and a histogram. A golden cross on the fast and slow lines indicates that the market may start a bull market, while a dead cross indicates that the market may start a bear market. The histogram represents the difference between the fast line and the slow line, and the distance and change speed of the two average lines can be judged through color changes.
 
-The core logic of the MACD Trend Following Strategy is:
+When the Histogram rises from a negative number to a positive number, a golden cross signal is generated, indicating that the market may have just begun, and a long position can be established; when the Histogram turns from a positive number to a negative number, a dead cross signal is generated, indicating that the market may have peaked, and the long position can be closed or a short position can be established.
 
-1. Calculate the MACD line and signal line.
-2. When the MACD line crosses above 0 from bottom up, record the highest point then, and wait for a death cross signal.
-3. When the MACD line crosses below 0 from top down, record the lowest point then, and wait for a golden cross signal.
-4. When a golden cross happens, record the current closing price as the long entry point, set the stop loss point, and open a long position.
-5. When a death cross happens, record the current closing price as the short entry point, set the stop loss point, and open a short position.
-6. When holding a long position, if the profit ratio reaches the preset target or the drawdown reaches the stop loss point, close the position to realize profits.
-7. When holding a short position, if the profit ratio reaches the preset target or the drawdown reaches the stop loss point, close the position to realize profits.
+### Advantage Analysis
 
-Through this trend following mechanism, the strategy can timely capture turns of market trends and make profits.
+- Utilize the double smoothing average line golden and dead cross patterns to determine the trend, with a higher win rate
+- The histogram clearly indicates the trend and speed of the MACD indicator
+- There is a large space for parameter optimization and can be adjusted to the best state
+- Can be used with other indicators to filter out false signals
 
-## Advantage Analysis
+### Risk and Optimization
 
-The MACD Trend Following Strategy has the following advantages:
+- There is a certain degree of lag
+- May generate false signals
+- Try confirming trends with MA, KD, etc.
+- Adjustable parameters to find the best configuration
 
-1. The source of strategy signals is singular and clear, generated directly by the MACD indicator, avoiding interference of signals.
-2. Utilize the golden cross and death cross characteristics of the MACD indicator to determine market trend directions, with accurate judgements.
-3. Timely tracking turns of trends, with strong profit tracking capability.
-4. Proper risk control in place, with a stop loss mechanism.
+### Summary
 
-## Risk Analysis
-
-The MACD Trend Following Strategy also has the following risks:
-
-1. The MACD indicator tends to generate false signals, which may lead to losses in ultra short-term operations.
-2. Improper stop loss point settings may expand single losses.
-3. Difficult to balance between profit tracking ratio and stop loss point, with risk of over tracking leading to losses.
-
-To address the above risks, the following optimization measures can be adopted:
-
-1. Combine with other indicators to filter out false signals.
-2. Dynamically adjust stop loss points.
-3. Optimize parameters of profit tracking ratio and stop loss points.
-
-## Optimization Directions
-
-The MACD Trend Following Strategy can be optimized in the following aspects:
-
-1. Optimize MACD indicator parameters to reduce false signal rate. Different cycle parameters of MACD can be tested.
-2. Add other indicators like trading volume to filter out signals. Minimum trading volume conditions can be set.
-3. Set up dynamic trailing stop loss mechanism. Stop loss points can be adjusted dynamically based on volatility.
-4. Optimize the signal determination logic for opening positions. More rigorous trigger conditions can be set.
-5. Incorporate machine learning models to filter out signals. Models can be trained to judge reliability of signals.
-
-## Conclusion
-
-In general, the MACD Trend Following Strategy is a relatively mature quantitative strategy. It utilizes the MACD indicator to determine market trend directions and controls risks with a stop loss mechanism, which can effectively track price trends. But the MACD indicator itself also has some flaws, easy to generate false signals. So there are rooms for further optimization of this strategy, mainly on aspects like indicator parameters, stop loss mechanism, signal filtering etc.
+The MACD trend following strategy is generally a more reliable method of trend judgment. By optimizing parameters and confirming with other indicators, the false signal rate can be greatly reduced, thereby obtaining higher strategic returns. The strategy idea is simple and easy to understand, making it the first choice for getting started with automated quantitative trading.
 
 ||
 
-## Overview
 
-The MACD Trend Following Strategy is a quantitative trading strategy based on the MACD indicator. This strategy identifies MACD golden cross and death cross signals to determine market trends and track price trends.
+### Overview
 
-## Strategy Logic
+The MACD trend following strategy judges the trend by calculating the golden cross and dead cross of the MACD indicator and its signal line to follow the trend for profit.
 
-The core logic of the MACD Trend Following Strategy is:
+### Strategy Principle
 
-1. Calculate the MACD line and signal line.
-2. When the MACD line crosses above 0 from bottom up, record the highest point then, and wait for a death cross signal.
-3. When the MACD line crosses below 0 from top down, record the lowest point then, and wait for a golden cross signal.
-4. When a golden cross happens, record the current closing price as the long entry point, set the stop loss point, and open a long position.
-5. When a death cross happens, record the current closing price as the short entry point, set the stop loss point, and open a short position.
-6. When holding a long position, if the profit ratio reaches the preset target or the drawdown reaches the stop loss point, close the position to realize profits.
-7. When holding a short position, if the profit ratio reaches the preset target or the drawdown reaches the stop loss point, close the position to realize profits.
+This strategy is based on the MACD indicator to determine the trend direction. The MACD indicator is a trend-following momentum indicator, consisting of the MACD line, Signal line, and Histogram. A golden cross of the MACD and Signal lines suggests a potential bull market, while a dead cross suggests a potential bear market. The Histogram represents the difference between the two lines, indicating their divergence and changing speed through color change.
 
-Through this trend following mechanism, the strategy can timely capture turns of market trends and make profits.
+When the Histogram rises from negative to positive, a golden cross signal is generated, indicating the uptrend may just begin, and long positions can be built. When the Histogram turns from positive to negative, a dead cross signal is generated, indicating the uptrend may be topping, and long positions can be exited or short positions can be built.
 
-## Advantage Analysis
+### Advantage Analysis
 
-The MACD Trend Following Strategy has the following advantages:
+- Utilize golden/dead cross of double smoothing lines to judge trend with relatively high win rate
+- Histogram clearly indicates the progress and speed of MACD indicator
+- Large parameter tuning space for optimization
+- Can be combined with other indicators to filter fake signals
 
-1. The source of strategy signals is singular and clear, generated directly by the MACD indicator, avoiding interference of signals.
-2. Utilize the golden cross and death cross characteristics of the MACD indicator to determine market trend directions, with accurate judgements.
-3. Timely tracking turns of trends, with strong profit tracking capability.
-4. Proper risk control in place, with a stop loss mechanism.
+### Risk and Optimization
 
-## Risk Analysis
+- There is some degree of lagging
+- May generate false signals
+- Try confirming trends with MA, KD etc.
+- Adjust parameters for best configuration
 
-The MACD Trend Following Strategy also has the following risks:
+### Conclusion
 
-1. The MACD indicator tends to generate false signals, which may lead to losses in ultra short-term operations.
-2. Improper stop loss point settings may expand single losses.
-3. Difficult to balance between profit tracking ratio and stop loss point, with risk of over tracking leading to losses.
+The MACD trend following strategy overall is a relatively reliable way to determine trends. By optimizing parameters and confirming with other indicators, the fake signal rate can be largely reduced, resulting in higher strategy profit. The strategy logic is simple and easy to understand, making it the first choice for algorithmic trading starters.
 
-To address the above risks, the following optimization measures can be adopted:
+[/trans]
 
-1. Combine with other indicators to filter out false signals.
-2. Dynamically adjust stop loss points.
-3. Optimize parameters of profit tracking ratio and stop loss points.
+> Strategy Arguments
 
-## Optimization Directions
 
-The MACD Trend Following Strategy can be optimized in the following aspects:
 
-1. Optimize MACD indicator parameters to reduce false signal rate. Different cycle parameters of MACD can be tested.
-2. Add other indicators like trading volume to filter out signals. Minimum trading volume conditions can be set.
-3. Set up dynamic trailing stop loss mechanism. Stop loss points can be adjusted dynamically based on volatility.
-4. Optimize the signal determination logic for opening positions. More rigorous trigger conditions can be set.
-5. Incorporate machine learning models to filter out signals. Models can be trained to judge reliability of signals.
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|12|Fast Length|
+|v_input_2|26|Slow Length|
+|v_input_3_close|0|Source: close|high|low|open|hl2|hlc3|hlcc4|ohlc4|
+|v_input_4|9|Signal Smoothing|
 
-## Conclusion
 
-In general, the MACD Trend Following Strategy is a relatively mature quantitative strategy. It utilizes the MACD indicator to determine market trend directions and controls risks with a stop loss mechanism, which can effectively track price trends. But the MACD indicator itself also has some flaws, easy to generate false signals. So there are rooms for further optimization of this strategy, mainly on aspects like indicator parameters, stop loss mechanism, signal filtering etc.
+> Source (PineScript)
 
-||
+```pinescript
+/*backtest
+start: 2022-11-17 00:00:00
+end: 2023-11-23 00:00:00
+Period: 1d
+basePeriod: 1h
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
 
-``` pinescript
-//@version=5
-strategy("MACD Cross Strategy", overlay=true)
+//@version=3
+strategy("MACD")
 
-// Get MACD values
-[macdLine, signalLine, _] = ta.macd(close, 12, 26, 9)
-var float entryLongPrice = na
-var float entryShortPrice = na
+// Getting inputs
+fastLength = input(title="Fast Length", defval=12)
+slowlength = input(title="Slow Length", defval=26)
+src = input(title="Source", defval=close)
+signalLength = input(title="Signal Smoothing", minval = 1, maxval = 50, defval = 9)
 
-var float highestLongProfit = 0
-var float highestShortProfit = 0
+//Calculating
+macd = ema(close, fastLength) - ema(close, slowlength)
+signal = ema(macd, signalLength)
+delta=macd-signal
 
-var float highestMACD = 0
-var float lowestMACD = 0
-var bool haveOpenedLong = false
-var bool haveOpenedShort = false
+//Plot colors
+col_grow_above = #26A69A
+col_grow_below = #FFCDD2
+col_fall_above = #B2DFDB
+col_fall_below = #EF5350
+col_macd = #0094ff
+col_signal = #ff6a00
 
-var float stoploss = 0.04 // To be adjust for different investment
-var float minProfit = 0.05 // To be adjust for different investment
+//Plot histogram
+plot(delta, title="Histogram", style=columns, color=(delta>=0 ? (delta[1] < delta ? col_grow_above : col_fall_above) : (delta[1] < delta ? col_grow_below : col_fall_below) ), transp=0 )
+plot(macd, title="MACD", color=col_macd, transp=0)
+plot(signal, title="Signal", color=col_signal, transp=0)
 
-if macdLine > 0
-    lowestMACD := 0
-    highestMACD := math.max(highestMACD, macdLine)
-    haveOpenedShort := false
-else
-    highestMACD := 0
-    lowestMACD := math.min(lowestMACD, macdLine)
-    haveOpenedLong := false
-
-// Enter long position when MACD line crosses above the signal line
-if ta.crossover(macdLine, signalLine) and macdLine < highestMACD and macdLine > 0 and haveOpenedLong == false
-    strategy.entry("Long", strategy.long)
-    entryLongPrice := close
-    lowestMACD := macdLine
-    haveOpenedLong := true
-
-// Enter short position when MACD line crosses below the signal line
-if ta.crossunder(macdLine, signalLine) and macdLine > lowestMACD and macdLine < 0 and haveOpenedShort == false
-    strategy.entry("Short", strategy.short)
-    entryShortPrice := close
-    highestMACD := macdLine
-    haveOpenedShort := true
-
-// Calculate profit and stop loss points
-longProfit = (close - entryLongPrice) / entryLongPrice
-shortProfit = (entryShortPrice - close) / entryShortPrice
-
-if longProfit >= minProfit or longProfit <= -stoploss
-    strategy.close("Long")
-    
-if shortProfit >= minProfit or shortProfit <= -stoploss
-    strategy.close("Short")
+// Plot orders
+if (crossover(delta, 0))
+    strategy.entry("buy", strategy.long)
+if (crossunder(delta, 0))
+    strategy.entry("sell", strategy.short)
 
 ```

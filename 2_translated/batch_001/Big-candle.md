@@ -1,9 +1,6 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
-
 > Name
 
-Big-candle sharing
+Big-candle Share
 
 > Author
 
@@ -14,7 +11,6 @@ a624587332
 > Strategy Arguments
 
 
-
 |Argument|Default|Description|
 |----|----|----|
 |v_input_color_1|#000000|Bearish candle|
@@ -23,16 +19,16 @@ a624587332
 |v_input_int_1|120|Lookback length|
 |v_input_int_2|7|DI Length|
 |v_input_int_3|26|ADX Smoothing|
-|v_input_float_2|9| stop loss|
-|v_input_int_10|100| qty percent|
-|v_input_float_3|1.3| Take profit|
-|v_input_bool_1|true|(?BACKTEST)Backtest|
-|v_input_int_4|2022|start year|
-|v_input_int_5|true|start month|
-|v_input_int_6|true|start day|
-|v_input_int_7|2220|stop year|
-|v_input_int_8|12|stop month|
-|v_input_int_9|31|stop day|
+|v_input_float_2|9|Stop loss|
+|v_input_int_10|100|Qty percent|
+|v_input_float_3|1.3|Take profit|
+|v_input_bool_1|true|(?BACKTEST) Backtest|
+|v_input_int_4|2022|Start year|
+|v_input_int_5|true|Start month|
+|v_input_int_6|true|Start day|
+|v_input_int_7|2220|Stop year|
+|v_input_int_8|12|Stop month|
+|v_input_int_9|31|Stop day|
 
 
 > Source (PineScript)
@@ -42,14 +38,14 @@ a624587332
 // © DiegoRoz0
 //@version=5
 // https://cn.tradingview.com/script/76QDmNz9
-// 2022年，500%的利润
-strategy("Big candle", overlay=true,  pyramiding=1,initial_capital = 10000, default_qty_type= strategy.percent_of_equity, default_qty_value = 100, calc_on_order_fills=false, slippage=0,commission_type=strategy.commission.percent,commission_value=0.04)
+// Generated a 500% profit in 2022
+strategy("Big candle", overlay=true, pyramiding=1, initial_capital = 10000, default_qty_type=strategy.percent_of_equity, default_qty_value=100, calc_on_order_fills=false, slippage=0, commission_type=strategy.commission.percent, commission_value=0.04)
 
-//inputs
+// Inputs
 colorBe = input.color(title="Bearish candle", defval=color.new(#000000, 0))
 colorBu = input.color(title="Bullish candle", defval=color.new(#4CAF50, 0))
 multiplier = input.float(title="Multiplier", defval=1.8)
-lookback = input.int(title="Lookback lenght", defval=120)
+lookback = input.int(title="Lookback length", defval=120)
 
 average = math.sum(high - low, lookback) / lookback * multiplier
 averageVol = math.sum(volume, 200) / 200 * multiplier * 1.5
@@ -72,10 +68,10 @@ if direction != direction[1]
 
 barcolor(bullishCondition and usedBuCandle == false ? colorBu: bearishCondition and usedBeCandle == false ? colorBe: na)
 if bullishCondition and usedBuCandle == false
-    label.new(bar_index, low, color = color.green, text = "Bu ?", style = label.style_label_up)
+    label.new(bar_index, low, color=color.green, text="Bu ?", style=label.style_label_up)
 
 else if bearishCondition and usedBeCandle == false
-    label.new(bar_index, high, color = color.orange, text = "Be ??")
+    label.new(bar_index, high, color=color.orange, text="Be ??")
 
 if bullishCondition
     usedBuCandle := true
@@ -83,7 +79,7 @@ if bullishCondition
 else if bearishCondition 
     usedBeCandle := true 
 
-//BACKTESTING inputs --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// BACKTESTING Inputs --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ACT_BT              =                   input.bool(true,                             title="Backtest",                                                                                 group= "BACKTEST")
 testStartYear       =                   input.int(2022,                             title="start year",                                         minval = 1997, maxval = 3000,                                                   group= "BACKTEST") 
@@ -98,7 +94,7 @@ testPeriod          =                   time >= testPeriodStart and time <= test
 
 // Backtest  ==================================================================================================================================================================================================================================================================================================================================
 
-//Signals======================================================================================================================================================================================================================
+// Signals======================================================================================================================================================================================================================
 
 if bullishCondition and usedBuCandle 
     strategy.entry("L", strategy.long, when=ACT_BT and testPeriod)
@@ -108,19 +104,5 @@ if  bearishCondition and usedBeCandle
     
 per(pcnt) =>
     strategy.position_size != 0 ? math.round(pcnt / 100 * strategy.position_avg_price / syminfo.mintick) : float(na)
-stoploss=input.float(title=" stop loss", defval=9, minval=0.01)
-los = per(stoploss)
-q=input.int(title=" qty percent", defval=100, minval=1)
-
-tp=input.float(title=" Take profit", defval=1.3, minval=0.01)
-
-strategy.exit("tp", qty_percent = q, profit = per(tp), loss = los)
+stoploss=input.float
 ```
-
-> Detail
-
-https://www.fmz.com/strategy/375951
-
-> Last Modified
-
-2022-08-02 14:31:12

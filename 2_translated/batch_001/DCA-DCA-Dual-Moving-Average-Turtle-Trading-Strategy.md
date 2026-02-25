@@ -1,6 +1,6 @@
 > Name
 
-DCA Dual Moving Average Turtle Trading Strategy
+DCA Dual Moving Average Turtle Trading Strategy - DCA-Dual-Moving-Average-Turtle-Trading-Strategy
 
 > Author
 
@@ -12,48 +12,77 @@ ChaoZhang
 
 [trans]
 #### Overview
-The DCA Dual Moving Average Turtle Trading Strategy is a quantitative trading strategy based on dual moving average crossover and Dollar Cost Averaging (DCA). This strategy uses two Simple Moving Averages (SMAs) with different periods as buy and sell signals, while employing the DCA method to reduce purchase costs. A buy signal is generated when the fast SMA crosses above the slow SMA, and a sell signal is generated when the opposite occurs. The strategy aims to capture medium to long-term market trends while mitigating risks from market volatility through the DCA approach.
+The DCA Dual Moving Average Turtle Trading Strategy is a quantitative trading strategy based on the crossover of two moving averages and Dollar Cost Averaging (DCA). The strategy uses two Simple Moving Averages (SMAs) with different periods as buy and sell signals. When the fast SMA crosses above the slow SMA, a buy signal is generated, and when the fast SMA crosses below the slow SMA, a sell signal is generated. The strategy aims to capture medium to long-term market trends while reducing risks associated with market volatility through the use of DCA.
 
-#### Strategy Principle
+#### Strategy Principles
 1. Calculate the fast SMA and slow SMA.
-2. When the fast SMA crosses above the slow SMA, a buy signal is generated, and the strategy purchases a fixed amount (DCA amount).
-3. When the fast SMA crosses below the slow SMA, a sell signal is generated, and the strategy sells all positions.
-4. At each DCA interval (e.g., 14 days), the strategy makes another fixed-amount purchase to reduce the average holding cost.
-5. The strategy reduces purchase costs through the DCA method while capturing market trends via SMA crossovers.
+2. When the fast SMA crosses above the slow SMA, a buy signal is generated, and the strategy buys a fixed amount (DCA amount).
+3. When the fast SMA crosses below the slow SMA, a sell signal is generated, and the strategy sells all holdings.
+4. At each DCA interval (e.g., 14 days), the strategy buys an additional fixed amount to lower the average holding cost.
+5. The strategy reduces the average buying cost through DCA while capturing market trends using SMA crossovers.
 
 #### Strategy Advantages
-1. Dual moving average crossovers effectively capture medium to long-term market trends.
-2. The DCA method can lower purchase costs and reduce risks from market volatility.
-3. The strategy logic is simple, making it easy to implement and optimize.
-4. It is applicable to most markets and assets, offering strong versatility.
+1. Dual moving average crossovers can effectively capture medium to long-term market trends.
+2. The DCA method can lower the average buying cost and reduce risks associated with market volatility.
+3. The strategy logic is simple, easy to implement, and optimize.
+4. Applicable to most markets and assets, with strong versatility.
 
 #### Strategy Risks
-1. During market consolidation or unclear trends, frequent crossovers may generate excessive trading signals, increasing transaction costs.
-2. While the DCA method can reduce average purchase costs, it may increase potential losses in a continuously declining market.
-3. The strategy relies on historical data and may become ineffective when significant market changes occur.
+1. During market fluctuations or unclear trends, frequent crossovers may lead to excessive trading signals, increasing trading costs.
+2. Although the DCA method can lower the average buying cost, it may increase potential losses in a persistently declining market.
+3. The strategy relies on historical data and may lose effectiveness when significant market changes occur.
 
 #### Strategy Optimization Directions
-1. Optimize SMA period parameters to find combinations better suited for specific markets and assets.
-2. Introduce other technical indicators such as RSI and MACD to assist in assessing market trends and signal reliability.
-3. Adjust the DCA amount and interval according to market characteristics and risk preferences.
-4. Add stop-loss and take-profit mechanisms to control the risk and return of individual trades.
+1. Optimize the SMA period parameters to find the most suitable parameter combinations for specific markets and assets.
+2. Introduce other technical indicators, such as RSI and MACD, to assist in judging market trends and signal reliability.
+3. Optimize the DCA amount and interval based on market characteristics and risk preferences.
+4. Incorporate stop-loss and take-profit mechanisms to control risks and returns for individual trades.
 
 #### Summary
-The DCA Dual Moving Average Turtle Trading Strategy captures market trends through SMA crossovers and reduces purchase costs and risks using the DCA method. The strategy features simple logic and broad applicability but requires careful parameter optimization and risk management in practice. Further improvements in performance and stability can be achieved by incorporating additional technical indicators, optimizing DCA parameters, and adding stop-loss and take-profit mechanisms.
-[/trans]
+The DCA Dual Moving Average Turtle Trading Strategy captures market trends through dual moving average crossovers and reduces buying costs and risks using the DCA method. The strategy is simple, widely applicable, but requires attention to parameter optimization and risk control in practical applications. By introducing other technical indicators, optimizing DCA parameters, and incorporating stop-loss and take-profit mechanisms, the strategy's performance and stability can be further enhanced.
 
-> Strategy Arguments
+||
 
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|14|Fast SMA Period|
-|v_input_2|28|Slow SMA Period|
-|v_input_3|100|DCA Amount|
-|v_input_4|14|DCA Interval (Days)|
+#### Overview
+The DCA Dual Moving Average Turtle Trading Strategy is a quantitative trading strategy based on the crossover of two moving averages and Dollar Cost Averaging (DCA). The strategy uses two Simple Moving Averages (SMAs) with different periods as buy and sell signals. When the fast SMA crosses above the slow SMA, a buy signal is generated, and when the fast SMA crosses below the slow SMA, a sell signal is generated. The strategy aims to capture medium to long-term market trends while reducing risks associated with market volatility through the use of DCA.
+
+#### Strategy Principles
+1. Calculate the fast SMA and slow SMA.
+2. When the fast SMA crosses above the slow SMA, a buy signal is generated, and the strategy buys a fixed amount (DCA amount).
+3. When the fast SMA crosses below the slow SMA, a sell signal is generated, and the strategy sells all holdings.
+4. At each DCA interval (e.g., 14 days), the strategy buys an additional fixed amount to lower the average holding cost.
+5. The strategy reduces the average buying cost through DCA while capturing market trends using SMA crossovers.
+
+#### Strategy Advantages
+1. Dual moving average crossovers can effectively capture medium to long-term market trends.
+2. The DCA method can lower the average buying cost and reduce risks associated with market volatility.
+3. The strategy logic is simple, easy to implement, and optimize.
+4. Applicable to most markets and assets, with strong versatility.
+
+#### Strategy Risks
+1. During market fluctuations or unclear trends, frequent crossovers may lead to excessive trading signals, increasing trading costs.
+2. Although the DCA method can lower the average buying cost, it may increase potential losses in a persistently declining market.
+3. The strategy relies on historical data and may lose effectiveness when significant market changes occur.
+
+#### Strategy Optimization Directions
+1. Optimize the SMA period parameters to find the most suitable parameter combinations for specific markets and assets.
+2. Introduce other technical indicators, such as RSI and MACD, to assist in judging market trends and signal reliability.
+3. Optimize the DCA amount and interval based on market characteristics and risk preferences.
+4. Incorporate stop-loss and take-profit mechanisms to control risks and returns for individual trades.
+
+#### Summary
+The DCA Dual Moving Average Turtle Trading Strategy captures market trends through dual moving average crossovers and reduces buying costs and risks using the DCA method. The strategy is simple, widely applicable, but requires attention to parameter optimization and risk control in practical applications. By introducing other technical indicators, optimizing DCA parameters, and incorporating stop-loss and take-profit mechanisms, the strategy's performance and stability can be further enhanced.
+
+| Argument | Default | Description |
+| --- | --- | --- |
+| v_input_1 | 14 | Fast SMA Period |
+| v_input_2 | 28 | Slow SMA Period |
+| v_input_3 | 100 | DCA Amount |
+| v_input_4 | 14 | DCA Interval (Days) |
 
 > Source (PineScript)
 
-```pinescript
+``` pinescript
 /*backtest
 start: 2024-04-21 00:00:00
 end: 2024-04-28 00:00:00
@@ -69,12 +98,12 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 strategy("DCA YSMA HSMA Stratejisi", overlay=true, calc_on_every_tick=true)
 
 // Parameters
-sma_fast = input(14, "Hızlı SMA Dönemi")
-sma_slow = input(28, "Yavaş SMA Dönemi")
-dca_amount = input(100, "DCA Miktarı")
-dca_interval = input(14, "DCA Aralığı (Gün)")
+sma_fast = input(14, "Fast SMA Period")
+sma_slow = input(28, "Slow SMA Period")
+dca_amount = input(100, "DCA Amount")
+dca_interval = input(14, "DCA Interval (Days)")
 
-// Fast and slow SMA calculations
+// Calculating fast and slow SMAs
 fast_sma = ta.sma(close, sma_fast)
 slow_sma = ta.sma(close, sma_slow)
 
@@ -97,12 +126,13 @@ if (shortCondition)
     strategy.entry("Satım", strategy.short)
 
 // Plotting
-plot(fast_sma, "Hızlı SMA", color=color.blue)
-plot(slow_sma, "Yavaş SMA", color=color.red)
+plot(fast_sma, "Fast SMA", color=color.blue)
+plot(slow_sma, "Slow SMA", color=color.red)
 
 // Alerts
 alertcondition(longCondition, "Alım Sinyali", "Alım Sinyali")
 alertcondition(shortCondition, "Satım Sinyali", "Satım Sinyali")
+
 ```
 
 > Detail
