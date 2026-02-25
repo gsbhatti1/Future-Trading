@@ -1,0 +1,56 @@
+```markdown
+## Overview
+
+The Cross-Momentum Trend Following Strategy is a simple yet effective trading system that cleverly combines two technical indicators - Simple Moving Average (SMA) and Relative Strength Index (RSI) - to form an automated buy and sell signal generation system. The strategy utilizes price crossovers with the 20-period SMA as the primary signal trigger condition, while incorporating RSI momentum confirmation to filter out low-quality trading signals. The strategy also includes a performance tracking module that monitors success and failure rates in real-time, providing traders with decision-making reference.
+
+## Strategy Principles
+
+The core principle of this strategy is to capture trend reversal points through price and moving average crossovers, while using the RSI momentum indicator for signal confirmation:
+
+1. **Buy Condition**: When price crosses above the 20-period SMA and the RSI value is greater than 60, the system generates a buy signal. This condition combines two dimensions: price breaking above the moving average indicates a potential uptrend formation, while an RSI value above 60 confirms the presence of upward momentum.
+
+2. **Sell Condition**: When price crosses below the 20-period SMA and the RSI value is less than 40, the system generates a sell signal. Similarly, this condition identifies potential trend reversals and confirms downward momentum through the sub-40 RSI value.
+
+3. **Performance Tracking Mechanism**: The strategy has a built-in trade performance monitoring system that tracks the following metrics:
+   - Total Signal Count: Records the number of all generated buy signals
+   - Success Count: Number of times price rises more than 2% after buying
+   - Failure Count: Number of times price falls below the buy candle's low within 7 periods
+
+4. **Visualization**: The strategy marks buy and sell points on the chart with "B" (Buy) and "S" (Sell), and displays performance statistics in real-time through a table.
+
+## Strategy Advantages
+
+1. **Simplicity and Efficiency**: Uses only two common technical indicators (SMA and RSI) to build a complete trading system, reducing the risk of over-optimization and overfitting.
+2. **Dual Confirmation Mechanism**: Combines trend indicator (SMA) and momentum indicator (RSI), improving signal reliability. Price must not only break through the moving average but also have sufficient momentum to trigger a trade.
+3. **High Degree of Automation**: The strategy completely automates the generation of buy and sell signals, reducing emotional interference and is suitable for systematic traders.
+4. **Built-in Performance Evaluation**: Real-time tracking of key performance metrics allows traders to objectively assess strategy performance and timely adjust parameters or exit underperforming strategies.
+5. **Risk Control Awareness**: By monitoring price behavior within 7 periods after buying, it helps identify potential stop-loss points and cultivates risk management awareness.
+6. **Intuitive Visualization**: Through chart markers and performance tables, traders can intuitively understand strategy execution, facilitating backtesting analysis and strategy improvement.
+
+## Strategy Risks
+
+1. **False Breakout Risk**: Despite using RSI for filtering, the strategy may still produce numerous false breakout signals in consolidating markets, leading to frequent trading and unnecessary transaction costs.
+2. **Parameter Sensitivity**: Strategy performance highly depends on the 20-period SMA cycle, 8-period RSI cycle, and their threshold values (60/40). These fixed parameters may perform poorly in different market environments or asset classes.
+3. **Lack of Adaptability**: The strategy lacks the ability to identify market conditions, performing well in trending markets but potentially leading to frequent losses in volatile ones.
+4. **Simple Stop Loss Mechanism**: While the strategy tracks failures, it does not implement a dynamic stop loss feature, which may result in substantial losses during highly volatile periods.
+5. **Lack of Position Sizing**: The strategy adopts fixed position sizing for entering and exiting trades without adjusting based on market volatility or signal strength, failing to optimize capital utilization.
+6. **Limited Performance Evaluation**: Defining success as a 2% price increase may not be suitable for all market environments; high-volatility assets might require higher thresholds.
+
+## Strategy Optimization Directions
+
+1. **Market Environment Filterer**: Introduce volatility indicators (like ATR) or trend strength indicators (like ADX) to help identify market states, reducing trading frequency in volatile markets or adjusting parameters.
+2. **Dynamic Parameter Mechanism**: Implement dynamic adjustment of SMA and RSI parameters based on recent market performance to automatically optimize cycles and thresholds for better adaptability.
+3. **Optimized Position Sizing**: Design a dynamic position allocation system based on signal strength (like RSI deviation), market volatility, or account risk, controlling single trade risks.
+4. **Enhanced Stop Loss Mechanism**: Implement ATR-based dynamic stop loss or trailing stop features to more precisely control each trade's risk.
+5. **Time Filtering**: Consider the time factor in markets, avoiding trading during abnormal volatility periods or low liquidity times to improve signal quality.
+6. **Multi-Cycle Confirmation**: Integrate multi-cycle analysis requiring agreement between larger timeframe trend direction and transaction direction to filter out reverse-trend transactions.
+7. **Improved Performance Evaluation**: Refine success/failure definitions by considering risk-adjusted returns or return/risk ratios for more comprehensive evaluations.
+
+## Conclusion
+
+The Cross-Momentum Trend Following Strategy is a simple yet practical trading system that combines SMA and RSI indicators to identify trend reversal points while confirming momentum, effectively filtering out low-quality signals. This strategy is particularly suitable for new entrants in quantitative trading, providing clear trading signals while incorporating performance tracking features to help traders objectively evaluate strategy performance.
+
+Although the strategy design is relatively simple, it embodies key principles of quantitative trading: trend following, signal confirmation, and performance monitoring. By suggesting optimizations like market environment filtering, dynamic parameter adjustment, and enhanced stop loss mechanisms, traders can significantly enhance the robustness and adaptability of the strategy while maintaining its core logic.
+```
+
+Note that this translation preserves all code blocks, numbers, and formatting as specified in your request.
