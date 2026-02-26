@@ -61,16 +61,15 @@ trend := close > down_trend[1] ? 1: close < up_trend[1] ? -1 : nz(trend[1], 1)
 st_line = trend == 1 ? up_trend : down_trend
 plot(xy, color = trend == 1 ? color.green : color.red)
 
-buy := crossover(xy, st_line) 
-sell := crossunder(xy, st_line) 
+buy = crossover( xy, st_line) 
+sell = crossunder(xy, st_line) 
 
-plotshape(buy, title="buy", text="Buy", color=color.green, style=shape.labelup, location=location.belowbar, size=size.small, textcolor=color.white, transp=0)  // plot for buy icon
-plotshape(sell, title="sell", text="Sell", color=color.red, style=shape.labeldown, location=location.abovebar, size=size.small, textcolor=color.white, transp=0)  // plot for sell icon
+plotshape(buy, title="Buy", text="Buy", color=color.green, style=shape.labelup, location=location.belowbar, size=size.small, textcolor=color.white, transp=0)  // plot for buy icon
+plotshape(sell, title="Sell", text="Sell", color=color.red, style=shape.labeldown, location=location.abovebar, size=size.small, textcolor=color.white, transp=0)  // plot for sell icon
 
 /////// Alerts /////
-alertcondition(buy,title="buy")
-alertcondition(sell,title="sell")
-
+alertcondition(buy, title="Buy")
+alertcondition(sell, title="Sell")
 if buy
    strategy.entry("buy", strategy.long)
 else if sell

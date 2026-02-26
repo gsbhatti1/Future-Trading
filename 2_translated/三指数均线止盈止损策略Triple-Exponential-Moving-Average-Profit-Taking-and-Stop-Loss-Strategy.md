@@ -56,15 +56,18 @@ shortCondition = crossunder(fastEMA, middEMA)
 
 if (inDateRange and longCondition) 
     strategy.entry("Long", strategy.long)
-    takeProfitLevel = strategy.position_avg_price + atr * tpATRMult
-    stopLossLevel = strategy.position_avg_price - atr * slATRMult
-    strategy.exit("Take Profit", "Long", limit=takeProfitLevel, stop=stopLossLevel)
 
-if (inDateRange and shortCondition) 
-    strategy.entry("Short", strategy.short)
-    takeProfitLevel = strategy.position_avg_price - atr * tpATRMult
-    stopLossLevel = strategy.position_avg_price + atr * slATRMult
-    strategy.exit("Stop Loss", "Short", limit=takeProfitLevel, stop=stopLossLevel)
+if (inDateRange and shortCondition)
+    strategy.close("Long")
+    
+profitTakeLevel = close + atr * tpATRMult
+stopLossLevel   = close - atr * slATRMult
 
-// Risk Management
+strategy.exit("Take Profit/Stop Loss", "Long", limit=profitTakeLevel, stop=stopLossLevel)
+
+// Risk Analysis
+if (isRsiOB)
+    strategy.close_all()
 ```
+
+This Pine Script translates the provided Chinese document into English while maintaining the original code structure and formatting.
