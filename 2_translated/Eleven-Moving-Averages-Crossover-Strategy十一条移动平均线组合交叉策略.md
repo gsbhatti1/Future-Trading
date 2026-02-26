@@ -1,6 +1,6 @@
 > Name
 
-Eleven-Moving-Averages-Crossover-Strategy 十一条移动平均线组合交叉策略
+Eleven-Moving-Averages-Crossover-Strategy Ten Moving Averages Crossover Strategy
 
 > Author
 
@@ -26,8 +26,8 @@ The core strategy logic relies on crossovers between two moving averages to dete
 
 The entry conditions are:
 
-Long entry: Fast MA > Slow MA 
-Short entry: Fast MA < Slow MA
+Long entry: Fast MA > Slow MA  
+Short entry: Fast MA < Slow MA  
 
 Exits are determined by one of three criteria:
 
@@ -39,8 +39,8 @@ The strategy allows configuring key parameters like the MA type and length, pyra
 
 ## Advantages
 
-- Combines 11 different MA types for robust signals
-- Flexible configuration of key parameters 
+- Combines 11 different MA types for robust signals  
+- Flexible configuration of key parameters
 - Take profit and stop loss features protect profits and limit losses
 - Pyramiding allows increased position size for strong trends
 
@@ -70,61 +70,59 @@ The eleven moving averages crossover strategy provides a systematic approach to 
 
 ## Overview
 
-该策略组合使用了11种不同类型的移动平均线的交叉来进行做多和做空。使用的11种移动平均线包括:简单移动平均线(SMA)、指数移动平均线(EMA)、加权移动平均线(WMA)、成交量加权移动平均线(VWMA)、平滑移动平均线(SMMA)、双指数移动平均线(DEMA)、三次指数移动平均线(TEMA)、赫尔移动平均线(HMA)、零滞后指数移动平均线(ZEMA)、三角移动平均线(TMA)和超平滑过滤器(SSMA)。
+This strategy combines 11 different types of moving averages (SMA, EMA, WMA, VWMA, SMMA, DEMA, TEMA, HMA, ZEMA, TMA, SSMA) to generate both long and short trading signals. The core logic revolves around crossovers between two selected MA lines.
 
-该策略允许配置两个移动平均线——一个较快的和一个较慢的，都从11种选择中选择。当较快的MA交叉超过较慢的MA时，会生成做多信号。当较快的MA交叉低于较慢的MA时，会生成做空信号。
+The strategy allows the user to configure:
 
-附加功能包括梯形设置、止盈和止损水平。
+- Two moving averages: a fast one and a slow one
+- Take profit and stop loss levels
+- Pyramiding settings
 
-## Strategy Logic
+### Entry Conditions
 
-核心策略逻辑依赖于两个移动平均线之间的交叉来确定进入和退出。
+- Long entry: Fast MA crosses above Slow MA  
+- Short entry: Fast MA crosses below Slow MA  
 
-进入条件是：
+### Exit Criteria
 
-做多入场: 快速MA > 慢速MA  
-做空入場: 快速MA < 慢速MA
+- Reaching the take profit level
+- Reaching the stop loss level 
+- Generating an opposite signal (crossover in the opposite direction)
 
-退出由以下三个标准中的一个确定：
+Key parameters like MA type, length, and settings can be fine-tuned for different market conditions.
 
-1. 止盈水平达到
-2. 止损水平达到   
-3. 生成相反信号(移动平均线以相反方向交叉)
+## Advantages
 
-该策略允许配置关键参数，如MA类型和长度、梯形设置、止盈和止损百分比。这为根据不同的市场条件和风险偏好优化策略提供了灵活性。
+- Combines 11 different MA types to generate robust signals  
+- Flexible configuration options
+- Protection through take profit and stop loss features
+- Ability to increase position size with pyramiding during strong trends
 
-## 优势  
+## Risks
 
-- 结合11种不同的MA类型以产生强大信号  
-- 主要参数配置灵活    
-- 止盈和止损功能保护利润、限制损失
-- 梯形允许强势趋势中增加仓位  
+- Like any technical indicator, there's a risk of generating false signals
+- Overfitting the strategy may reduce its effectiveness in future markets
+- Hard stop losses might force exiting profitable trades prematurely in volatile periods
 
-## 风险  
+To mitigate these risks, using price action confirmation for entries, employing trailing stops, and avoiding overfitting are recommended.
 
-- 和任何技术指标一样，MA交叉可能会生成错误信号  
-- 过度优化当前市场条件可能降低未来表现  
-- 硬止损过早退出了波动大的正确交易  
+## Enhancement Opportunities
 
-可以通过为入场信号使用价位确认、使用追踪止损而不是硬止损以及避免过度优化来加强风险管理。
+Improvements can be made by:
 
-## 优化空间  
+1. Incorporating additional filters before entry (e.g., volume and price action checks)
+2. Systematically testing different MA types to select the most optimal 1-2
+3. Optimizing MA lengths specifically for the trading instrument and timeframe
+4. Replacing hard stops with trailing stops 
+5. Adding incremental profit-taking levels as the trend extends
 
-可以通过几种方式改进该策略：  
+## Conclusion
 
-1. 在入场前加入额外过滤器，如成交量和价位检查  
-2. 系统地测试不同MA类型的表现，选择最佳的1-2种    
-3. 针对特定交易品种和时间段优化MA长度   
-4. 使用追踪止损替代硬止损     
-5. 随着趋势加长添加分阶段止盈    
-
-## 总结  
-
-十一条移动平均线交叉策略提供了一种系统化交易交叉的方法。通过结合跨多种MA指标的信号并允许配置关键参数，它提供了一个强大且灵活的交易框架。优化和风险管理将发挥关键作用，以优化表现。该策略在动量交易中具有很强的潜力，但应根据不同的市场环境进行调整。
+The eleven moving averages crossover strategy provides a structured approach to detecting crossovers. By combining signals from multiple MA indicators and allowing flexible parameter configurations, it offers a robust yet adaptable trading framework. Fine-tuning and effective risk management are crucial for optimal performance. The strategy has significant potential in momentum-based trading but should be tailored to varying market conditions.
 
 ||
 
-## Strategy Arguments
+> Strategy Arguments
 
 
 |Argument|Default|Description|
@@ -143,23 +141,22 @@ The eleven moving averages crossover strategy provides a systematic approach to 
 |v_input_12|false|Stop Loss Short|
 |v_input_13|3|Stop Loss %|
 
-## Source (PineScript)
+> Source (PineScript)
 
-```pinescript
+``` pinescript
 //@version=3
-
-strategy(title = "[STRATEGY] MA Cross Eleven", overlay = true)
+strategy(title="[STRATEGY] MA Cross Eleven", overlay=true)
 
 // MA - type, source, length
 
-type = input(defval="ZEMA", title="MA Type: ", options=["SMA", "EMA", "WMA", "VWMA", "SMMA", "DEMA", "TEMA", "HullMA", "ZEMA", "TMA", "SSMA"])
-len1 = input(defval=8, title="Fast MA Length", minval=1)
+type = input("ZEMA", title="MA Type: ", options=["SMA", "EMA", "WMA", "VWMA", "SMMA", "DEMA", "TEMA", "HullMA", "ZEMA", "TMA", "SSMA"])
+len1 = input(8, title="Fast MA Length", minval=1)
 srcclose1 = input(close, "Fast MA Source")
-len2 = input(defval=21, title="Slow MA Length", minval=1)
+len2 = input(21, title="Slow MA Length", minval=1)
 srcclose2 = input(close, "Slow MA Source")
 
 // Returns MA input selection variant, default to SMA if blank or typo.
-
 variant(type, src, len) =>
     v1 = sma(src, len)
+
 ```
