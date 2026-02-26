@@ -1,11 +1,14 @@
-```plaintext
+```markdown
 Name
+
 EHMA-Range-Strategy
 
 Author
+
 ChaoZhang
 
 Strategy Description
+
 This script is a modified version of @borserman's script for the Exponential Hull Moving Average.
 All credit for the EHMA goes to him :)
 
@@ -18,46 +21,34 @@ Please remember that past performance may not be indicative of future results.
 Due to various factors, including changing market conditions, the strategy may no longer perform as good as in historical backtesting.
 This post and the script don’t provide any financial advice.
 
-**Backtest**
+**backtest**
+
 ![IMG](https://www.fmz.com/upload/asset/dd1ae65fe62a72b29b.jpg)
 
 > Strategy Arguments
 
-| Argument | Default | Description |
-| --- | --- | --- |
-| v_input_1 | 0 | Position Type: Both | Long | Short |
-| v_input_2 | 180 | Length |
-| v_input_3 | 0.02 | Range Width |
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|0|Position Type: Both|Long|Short|
+|v_input_2|180|Length|
+|v_input_3|0.02|Range Width|
 
 > Source (PineScript)
 
 ```pinescript
-//backtest
-// start: 2021-05-08 00:00:00
-// end: 2022-05-07 23:59:00
-// period: 1d
-// basePeriod: 1h
-// exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-
-// Credit is due where credit is due:
-// Hull Moving Average: developed by Alan Hull
-// EHMA: coded by Twitter @borserman
-// I've built on their work in an attempt to create a strategy more robust to fake moves
-// @0xLetoII
-
 //@version=4
-//strategy(
-//  title="EHMA Range Strategy",
-//  process_orders_on_close=true,
-//  explicit_plot_zorder=true,
-//  overlay=true, 
-//  initial_capital=1500, 
-//  default_qty_type=strategy.percent_of_equity, 
-//  commission_type=strategy.commission.percent, 
-//  commission_value=0.085,
-//  default_qty_value=100
-//  )
-  
+strategy(
+  title="EHMA Range Strategy",
+  process_orders_on_close=true,
+  explicit_plot_zorder=true,
+  overlay=true, 
+  initial_capital=1500, 
+  default_qty_type=strategy.percent_of_equity, 
+  commission_type=strategy.commission.percent, 
+  commission_value=0.085,
+  default_qty_value=100
+)
+
 // Position Type
 pos_type = input(defval="Both", title="Position Type", options=["Both", "Long", "Short"])
 
@@ -80,7 +71,7 @@ upper = EHMA + (EHMA * RangeWidth)
 lower = EHMA - (EHMA * RangeWidth)
 
 // Plots
-EHMAcolor = (close > EHMA ? color.green : color.red)
+EHMAcolor = close > EHMA ? color.green : color.red
 plot(EHMA, color=EHMAcolor, linewidth=2)
 plot(lower, color=color.orange, linewidth=2)
 plot(upper, color=color.blue, linewidth=2)
@@ -96,8 +87,8 @@ exit_short = close > upper
 // Calculate start/end date and time condition
 //startDate  = input(timestamp("2017-01-01T00:00:00"))
 //finishDate = input(timestamp("2029-01-01T00:00:00"))
- 
-time_cond  = true
+
+time_cond = true
 
 
 // Entries & Exits
@@ -115,8 +106,10 @@ if pos_type == "Short"
 ```
 
 > Detail
+
 https://www.fmz.com/strategy/362103
 
 > Last Modified
+
 2022-05-10 00:01:08
 ```
