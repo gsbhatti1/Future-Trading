@@ -1,5 +1,5 @@
-``` pinescript
-/*backtest
+```pinescript
+/* backtest
 start: 2021-05-08 00:00:00
 end: 2022-05-07 23:59:00
 period: 4h
@@ -10,7 +10,7 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // © RafaelZioni
 
 //@version=4
-study(title = "Easy Stock", overlay = true)
+study(title = "Easy stock", overlay = true)
 tf10 = input("W", title = "Timeframe", type = input.resolution, options = ["1", "5", "15", "30", "60","120", "240","360","720", "D", "W"])
 
 length = input(24, title = "Period", type = input.integer)
@@ -36,13 +36,12 @@ plot(linear_reg, color=color.blue, title="LR", linewidth=3)
 
 buy = crossover(linear_reg, b) 
 sell = crossunder(linear_reg, b) 
-plotshape(buy, title="buy", text="Buy", color=color.green, style=shape.labelup, location=location.belowbar, size=size.small, textcolor=color.white, transp=0)  //plot for buy icon
-plotshape(sell, title="sell", text="Sell", color=color.red, style=shape.labeldown, location=location.abovebar, size=size.small, textcolor=color.white, transp=0)  //plot for sell icon
+plotshape(buy, title="buy", text="Buy", color=color.green, style=shape.labelup, location=location.belowbar, size=size.small, textcolor=color.white, transp=0)  // plot for buy icon
+plotshape(sell, title="sell", text="Sell", color=color.red, style=shape.labeldown, location=location.abovebar, size=size.small, textcolor=color.white, transp=0)  // plot for sell icon
 
 /////// Alerts /////
 alertcondition(buy, title="buy")
 alertcondition(sell, title="sell")
-
 if buy
     strategy.entry("buy", strategy.long)
 else if sell
