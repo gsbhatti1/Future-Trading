@@ -9,12 +9,12 @@ ChaoZhang
 
 Strategy Description
 
-This script is a modified version of @borserman's script for the Exponential Hull Moving Average.
+This script is a modified version of @borserman's script for the Exponential Hull Moving Average (EHMA).
 All credit for the EHMA goes to him :)
 
-In addition to the EHMA, this script works with a range around the EHMA (which can be modified), in an attempt to be robust against fake signals. Many times a bar will close below a moving average, only to reverse again the next bar, which eats away at your profits. Especially on shorter timeframes, but also on choppy longer timeframes this can make a strategy unattractive to use.
+In addition to the EHMA, this script works with a range around the EHMA (which can be modified), in an attempt to be robust against fake signals. Many times a bar will close below a moving average, only to reverse again the next bar, which eats away at your profits. Especially on shorter timeframes, but also on choppy longer timeframes, this can make a strategy unattractive to use.
 
-With the range around the EHMA, the strategy only enters a long/exit-short position if a bar crosses above the upper range. Vice versa, it only enters a short/exit-long position if a bar crosses below the lower range. This avoids positions if bars behave choppy within the EHMA range & only enters a position if the market is confident in its direction. Having said that, fakeouts are still possible, but a lot less frequent. Having backtested this strategy vs the regular EHMA strategy (and having experimented with various settings), this version seems to be a lot more robust & profitable!
+With the range around the EHMA, the strategy only enters a long/exit-short position if a bar crosses above the upper range. Vice versa, it only enters a short/exit-long position if a bar crosses below the lower range. This avoids positions if bars behave choppy within the EHMA range & only enters a position if the market is confident in its direction. Having said that, fakeouts are still possible, but a lot less frequent. Having backtested this strategy vs the regular EHMA strategy (and having experimented with various settings), this version seems to be a lot more robust and profitable!
 
 Disclaimer
 Please remember that past performance may not be indicative of future results.
@@ -23,30 +23,30 @@ This post and the script don’t provide any financial advice.
 
 **backtest**
 
-![IMG](https://www.fmz.com/upload/asset/dd1ae65fe62a72b29b.jpg)
+![](https://www.fmz.com/upload/asset/dd1ae65fe62a72b29b.jpg)
 
 > Strategy Arguments
 
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|0|Position Type: Both|Long|Short|
-|v_input_2|180|Length|
-|v_input_3|0.02|Range Width|
+| Argument  | Default   | Description                 |
+|-----------|-----------|-----------------------------|
+| v_input_1 | Both      | Position Type: Both         | Long | Short |
+| v_input_2 | 180       | Length                      |
+| v_input_3 | 0.02      | Range Width                 |
 
 > Source (PineScript)
 
 ```pinescript
 //@version=4
 strategy(
-  title="EHMA Range Strategy",
-  process_orders_on_close=true,
-  explicit_plot_zorder=true,
-  overlay=true, 
-  initial_capital=1500, 
-  default_qty_type=strategy.percent_of_equity, 
-  commission_type=strategy.commission.percent, 
-  commission_value=0.085,
-  default_qty_value=100
+    title="EHMA Range Strategy",
+    process_orders_on_close=true,
+    explicit_plot_zorder=true,
+    overlay=true, 
+    initial_capital=1500, 
+    default_qty_type=strategy.percent_of_equity, 
+    commission_type=strategy.commission.percent, 
+    commission_value=0.085,
+    default_qty_value=100
 )
 
 // Position Type
@@ -88,7 +88,7 @@ exit_short = close > upper
 //startDate  = input(timestamp("2017-01-01T00:00:00"))
 //finishDate = input(timestamp("2029-01-01T00:00:00"))
 
-time_cond = true
+time_cond  = true
 
 
 // Entries & Exits

@@ -8,8 +8,7 @@ ChaoZhang
 
 Strategy Description
 
-WaveTrend Oscillator is a port of a famous TS/MT indicator.
-When the oscillator is above the overbought band (red lines) and crosses down the signal (dotted line), it is usually a good SELL signal. Similarly, when the oscillator crosses above the signal when below the oversold band (green lines), it is a good BUY signal.
+WaveTrend Oscillator is a port of a famous TS/MT indicator. When the oscillator is above the overbought band (red lines) and crosses down the signal (dotted line), it is usually a good SELL signal. Similarly, when the oscillator crosses above the signal when below the oversold band (green lines), it is a good BUY signal.
 
 I have marked some cross-overs in the above chart. As you can see, they are *not* the only useful signals WT generates. Try it on your instrument and let me know what you think.
 
@@ -73,7 +72,7 @@ plot(osLevel2, color=color.green, style=3)
 plot(wt1, color=color.green)
 plot(wt2, color=color.red, style=3)
 plot(wt1-wt2, color=color.blue, transp=80)
-if wt1 >obLevel1
+if wt1 > obLevel1
     strategy.entry("entry short", strategy.short)
 else if wt1 < osLevel1
     strategy.entry("entry long", strategy.long)
