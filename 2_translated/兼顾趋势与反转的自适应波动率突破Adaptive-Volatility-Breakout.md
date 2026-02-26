@@ -24,8 +24,8 @@ signalLength=input(5)
 // session 
 
 
-pre = input( type=input.session, defval="0400-0935")
-trade_session = input( type=input.session, defval="0945-1700")
+pre = input(type=input.session, defval="0400-0935")
+trade_session = input(type=input.session, defval="0945-1700")
 use_trade_session = true
 isinsession = use_trade_session ? not na(time('1', trade_session)) : true
 
@@ -85,5 +85,5 @@ lower = basis - dev
 
 ema9 = ema(source, 9)
 
-if ( ((crossover(source, upper) and diff>ediff and diff>0) or (close>upper and (vfi >0 or vfima>0 or ediff>0.0
+if ( ((crossover(source, upper) and diff>ediff and diff>0) or (close>upper and (vfi >0 or vfima>0 or ediff>0.0)
 ```
