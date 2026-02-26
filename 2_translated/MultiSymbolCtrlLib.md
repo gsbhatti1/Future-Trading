@@ -1,8 +1,26 @@
+> Name
+
+MultiSymbolCtrlLib
+
+> Author
+
+InnovatorQuant - XiaoXiaoMeng
+
+> Strategy Description
+
+## Description
+
+The template used in the article [https://www.fmz.com/digest-topic/7373](https://www.fmz.com/digest-topic/7373)
+The code is for reference and learning purposes only, use with caution in live trading.
+
+
+> Source (javascript)
+
 ``` javascript
-// API Interface Implementation
+// Implementation of exchange API calls
 // OKEX V3 Futures
 function funcConfigure_Futures_OKCoin(self) {
-    // Internal functions can be customized as needed
+    // Built-in functions can be freely written according to needs
     var formatSymbol = function(originalSymbol) {
         // originalSymbol : LINK-USD-210423
         var arr = originalSymbol.split("-")
@@ -12,7 +30,7 @@ function funcConfigure_Futures_OKCoin(self) {
     }
 
     self.interfaceGetTickers = function interfaceGetTickers() {
-        // Can identify the type of market data based on symbols subscribed by self.subscribeSymbols
+        // Can identify whether perpetual futures prices are needed based on symbols subscribed by self.subscribeSymbols
         var url = "https://www.okex.com/api/futures/v3/instruments/ticker"
         self.routineGetTicker = HttpQuery_Go(url)
     }
@@ -35,7 +53,7 @@ function funcConfigure_Futures_OKCoin(self) {
     }
 
     self.interfaceGetAcc = function interfaceGetAcc(symbol, updateTS) {
-        // Can recognize whether the symbol is for a futures contract based on the symbol
+        // Can recognize whether perpetual futures based on symbol
         var arr = formatSymbol(symbol)
         var url = "/api/futures/v3/accounts/" + arr[1].toLowerCase() + "-" + arr[2].toLowerCase()        
         self.routineGetAcc = self.e.Go("IO", "api", "GET", url)
@@ -44,9 +62,9 @@ function funcConfigure_Futures_OKCoin(self) {
     self.waitAcc = function waitAcc(symbol, updateTS) {
         var acc = null 
         var ret = self.routineGetAcc.wait()
-        // Check if it is a cross-margin account
+        // Check if it's a cross-margin account
         if (ret.margin_mode != "crossed") {
-            Log(self.name, "Position mode is not cross-margin!")
+            Log(self.name, "Account margin mode is not crossed!")
             return 
         }
         var balance = parseFloat(ret.equity) - parseFloat(ret.margin)
@@ -79,7 +97,7 @@ function funcConfigure_Futures_OKCoin(self) {
     }
 
     self.interfaceTrade = function interfaceTrade(symbol, type, price, amount) {
-        // Determine whether the contract is for delivery or perpetual futures
+        // Determine the type of futures contract (delivery or perpetual)
         var url = "/api/futures/v3/order"
         if (symbol.includes("SWAP")) {
             url = "/api/swap/v3/order"
@@ -115,15 +133,15 @@ function funcConfigure_Futures_OKCoin(self) {
     }
 
     self.calcAmount = function calcAmount(symbol, type, price, amount) {
-        // Process the order quantity
+        // Handle the trading volume
         var symbolInfo = self.getSymbolInfo(symbol)
         if (!symbolInfo) {
-            throw symbol + " trading pair information not found"
+            throw symbol + "，交易对信息查询不到"
         }
         var tradeAmount = _N(amount / symbolInfo.multiplier, 0)
-        // Check minimum order quantity
+        // Check minimum trading volume
         if (tradeAmount < parseFloat(symbolInfo.min)) {
-            Log(self.name, " tradeAmount:", tradeAmount, "is less than", parseFloat(symbolInfo.min))
+            Log(self.name, " tradeAmount:", tradeAmount, "小于", parseFloat(symbolInfo.min))
             return false 
         }
         return [tradeAmount, tradeAmount * symbolInfo.multiplier]
@@ -145,5 +163,5 @@ function funcConfigure_Futures_OKCoin(self) {
         	}
         } else {
             var ret  = self.e.IO("api", "GET", "/api/futures/v3/accounts/" + underlying + "/leverage")
-            // If it is not a perpetual contract, switch to cross-margin mode first. Ensure the account is in cross-margin mode before setting.
+            // If not a perpetual futures contract, switch to cross-margin mode first, and check if it's already in cross-margin mode
 ```
