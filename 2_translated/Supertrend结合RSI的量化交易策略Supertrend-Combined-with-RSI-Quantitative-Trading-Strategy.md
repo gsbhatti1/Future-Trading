@@ -1,6 +1,6 @@
 > Name
 
-Dual-drive Strategy
+Supertrend combined with RSI Quantitative Trading Strategy [Alose]
 
 > Author
 
@@ -12,115 +12,109 @@ ChaoZhang
 [trans]
 ### Overview
 
-This strategy is named "Dual-drive Strategy." The main idea is to combine the Supertrend and RSI, which are two powerful technical indicators, in order to leverage their respective advantages and achieve excellent quantitative trading performance.
+The strategy is named "Dual-drive Strategy." The main idea of this strategy is to combine Supertrend and RSI, two powerful technical indicators, to fully leverage their respective strengths for better quantitative trading performance.
 
-### Strategy Logic  
+### Strategy Logic
 
-The core of the strategy uses the `Change` function to determine the direction change of the Supertrend indicator to generate trading signals. A buy signal is generated when the Supertrend changes from up to down, and a sell signal is generated when Supertrend turns from down to up. 
+The core of the strategy uses the `Change` function to determine the direction change of the Supertrend indicator, thereby generating trading signals. A buy signal is generated when Supertrend changes from up to down, and a sell signal is generated when Supertrend turns from down to up.
 
-At the same time, the RSI indicator is introduced to help determine when to close positions. Long positions will be closed when the RSI breaks through the set overbought line; short positions will be closed when the RSI breaks below the set oversold line. This helps in determining reasonable stop loss points to lock in profits.
+At the same time, the RSI indicator is introduced to help determine when to close positions. When the RSI breaks through the set overbought line, long positions will be closed; when the RSI breaks through the set oversold line, short positions will be closed. This way, the RSI helps determine reasonable stop loss points to lock in profits.
 
-### Advantage Analysis  
+### Advantage Analysis
 
 The major advantages of this strategy are:
 
-1. Supertrend is good at identifying market trend changes for accurate long and short entries.
-2. RSI excels at locating overstretched turning points to assist with reasonable profit-taking and stop-loss.
-3. The two indicators complement each other, providing combined strengths for better opportunity capturing and more stable gains.
-4. The strategy logic is simple and clean, making it easy to understand and track even for less experienced investors.
-5. Robust implementation with controllable drawdowns and stable profitability.
+1. Supertrend is good at identifying market trend changes for precise long and short entries.
+2. RSI excels at locating overextended turning points to assist with profit taking and stop losses.
+3. The two indicators complement each other, making it easier to capture trading opportunities and achieve more stable gains.
+4. The strategy logic is simple and straightforward, easy to understand and track for investors of varying skill levels.
+5. Robust implementation with controlled drawdowns and stable profitability.
 
-### Risk Analysis  
+### Risk Analysis
 
-Despite having those merits, there are some risks with the Dual-drive Strategy:
+Despite its merits, the Dual-drive Strategy still has some risks that need attention:
 
 1. Wrong signals may occur with Supertrend and RSI leading to unnecessary losses. Parameters can be tuned or additional indicators introduced for verification.
-2. Two-way trading carries higher risks, calling for stricter money management rules and risk control.
-3. Stop loss may fail during abnormal price swings, requiring backup measures to control risks.
-4. Supertrend is sensitive to parameters and may require adjustments for different markets.
+2. Two-way trading carries higher risks, requiring stricter money management rules and risk control.
+3. Stop loss may fail during abnormal price swings; backups should be used to manage risks.
+4. Supertrend is sensitive to parameters and requires adjustments for different markets.
 
-### Optimization Directions  
+### Optimization Directions
 
 Considering the risks, optimizations can be made in the following aspects:
 
-1. Adding Volume and MACD indicators for additional signal filtering and more accurate entry points.
-2. Setting up dynamic stop loss to react to risk events.
-3. Optimizing Supertrend and RSI parameters for better fit with different markets.
-4. Introducing machine learning algorithms for parameter and indicator selection.
-5. Applying derivatives like futures and options for hedging risks.
-6. Varying position sizing rules to limit losses and drawdowns.
+1. Adding Volume and MACD indicators for additional signal filtering to achieve more accurate entries.
+2. Setting up dynamic stop loss mechanisms to react to risk events.
+3. Optimizing Supertrend and RSI parameters to better fit different markets.
+4. Introducing machine learning algorithms to assist with parameter selection and indicator performance evaluation.
+5. Using derivatives like futures and options for hedging risks.
+6. Varying position sizing rules to limit losses and maximum drawdowns.
 
-### Summary  
+### Summary
 
-The Dual-drive Strategy effectively combines Supertrend and RSI for efficient trend capturing and profit-taking. Compared to single indicator strategies, it provides more reliable signals, smaller drawdowns, and stable algorithmic trading performance. Further optimizations on parameter tuning, signal filtering, and risk management will lead to even better results.
+The Dual-drive Strategy effectively combines Supertrend and RSI for efficient trend capturing and profit taking. Compared to single-indicator strategies, it provides more reliable signals, smaller drawdowns, and stable algorithmic trading performance. Further optimizations on parameter tuning, signal filtering, and risk management will lead to even better results.
 
 ||
 
-### Overview   
+### Overview
 
-The strategy is named "Dual-drive Strategy." The main idea is to combine the Supertrend and RSI, which are two powerful technical indicators, in order to leverage their respective advantages and achieve excellent quantitative trading performance.
+The strategy is named "Dual-drive Strategy." The main idea of this strategy is to combine Supertrend and RSI, which are two powerful technical indicators, in order to give full play to their respective advantages for achieving excellent quantitative trading performance.
 
-### Strategy Logic  
+### Strategy Logic
 
-The core of the strategy uses the `Change` function to determine the direction change of the Supertrend indicator to generate trading signals. A buy signal is generated when the Supertrend changes from up to down, and a sell signal is generated when Supertrend turns from down to up.   
+The core of the strategy uses the `Change` function to determine the direction change of the Supertrend indicator, thereby generating trading signals. A buy signal is generated when Supertrend changes from up to down, and a sell signal is generated when Supertrend turns from down to up.
 
-At the same time, the RSI indicator is introduced to help determine when to close positions. Long positions will be closed when the RSI breaks through the set overbought line; short positions will be closed when the RSI breaks below the set oversold line. In this way, the RSI helps determine reasonable stop loss points to lock in profits.
+At the same time, the RSI indicator is introduced to help determine when to close positions. When the RSI breaks through the set overbought line, long positions will be closed; when the RSI breaks through the set oversold line, short positions will be closed. This way, the RSI helps determine reasonable stop loss points to lock in profits.
 
-### Advantage Analysis  
+### Advantage Analysis
 
-The major advantages of this strategy are:   
+The major advantages of this strategy are:
 
-1. Supertrend is good at identifying market trend changes for accurate long and short entries.
-2. RSI excels at locating overstretched turning points to assist with reasonable profit-taking and stop-loss.
-3. The two indicators complement each other, providing combined strengths for better opportunity capturing and more stable gains.
-4. The strategy logic is simple and clean for easy understanding and tracking even for less experienced investors.
-5. Robust implementation with controllable drawdowns and stable profitability.
+1. Supertrend is good at identifying market trend changes for precise long and short entries.
+2. RSI excels at locating overextended turning points to assist with profit taking and stop losses.
+3. The two indicators complement each other, making it easier to capture trading opportunities and achieve more stable gains.
+4. The strategy logic is simple and straightforward, easy to understand and track for investors of varying skill levels.
+5. Robust implementation with controlled drawdowns and stable profitability.
 
-### Risk Analysis  
+### Risk Analysis
 
-Despite having those merits, there are some risks with the Dual-drive Strategy:
+Despite its merits, the Dual-drive Strategy still has some risks that need attention:
 
 1. Wrong signals may occur with Supertrend and RSI leading to unnecessary losses. Parameters can be tuned or additional indicators introduced for verification.
-2. Two-way trading carries higher risks, calling for stricter money management rules and risk control.
-3. Stop loss may fail during abnormal price swings, requiring backup measures to control risks.
-4. Supertrend is sensitive to parameters and may require adjustments for different markets.
+2. Two-way trading carries higher risks, requiring stricter money management rules and risk control.
+3. Stop loss may fail during abnormal price swings; backups should be used to manage risks.
+4. Supertrend is sensitive to parameters and requires adjustments for different markets.
 
-### Optimization Directions  
+### Optimization Directions
 
-Considering the risks, optimizations can be made in the following aspects:  
+Considering the risks, optimizations can be made in the following aspects:
 
-1. Adding Volume, MACD for additional signal filtering and more accurate entry.
-2. Setting up dynamic stop loss to react to risk events.
-3. Optimizing parameters of Supertrend and RSI for better fit with different markets.
-4. Introducing machine learning for parameters and indicator selection.
-5. Applying derivatives like futures and options for hedging risks.
-6. Varying position sizing rules to limit losses and drawdowns.
+1. Adding Volume and MACD indicators for additional signal filtering to achieve more accurate entries.
+2. Setting up dynamic stop loss mechanisms to react to risk events.
+3. Optimizing Supertrend and RSI parameters to better fit different markets.
+4. Introducing machine learning algorithms to assist with parameter selection and indicator performance evaluation.
+5. Using derivatives like futures and options for hedging risks.
+6. Varying position sizing rules to limit losses and maximum drawdowns.
 
-### Summary  
+### Summary
 
-The Dual-drive Strategy effectively combines Supertrend and RSI for efficient trend capturing and profit-taking. Compared to single indicator strategies, it provides more reliable signals, smaller drawdowns, and stable algorithmic trading performance. Further optimizations on parameter tuning, signal filtering, and risk management will lead to even better results.
+The Dual-drive Strategy effectively combines Supertrend and RSI for efficient trend capturing and profit taking. Compared to single-indicator strategies, it provides more reliable signals, smaller drawdowns, and stable algorithmic trading performance. Further optimizations on parameter tuning, signal filtering, and risk management will lead to even better results.
 
-||
+| Argument | Default | Description |
+| --- | --- | --- |
+| v_input_1 | 10 | (Supertrend) ATR Length |
+| v_input_float_1 | 3 | Factor |
+| v_input_2_close | 0 | (RSI) Source: close/high/low/open/hl2/hlc3/hlcc4/ohlc4 |
+| v_input_int_1 | 14 | Length |
+| v_input_bool_1 | true | (Strategy) Long entries |
+| v_input_bool_2 | false | Short entries |
+| v_input_int_2 | 72 | Exit Long |
+| v_input_int_3 | 28 | Exit Short |
 
-> Strategy Arguments
-
-
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|10|(?Supertrend)ATR Length|
-|v_input_float_1|3|Factor|
-|v_input_2_close|0|(?RSI)Source: close|high|low|open|hl2|hlc3|hlcc4|ohlc4|
-|v_input_int_1|14|Length|
-|v_input_bool_1|true|(?Strategy)Long entries|
-|v_input_bool_2|false|Short entries|
-|v_input_int_2|72|Exit Long|
-|v_input_int_3|28|Exit Short|
-
-
-> Source (PineScript)
+### Source (PineScript)
 
 ```pinescript
-/*backtest
+/* backtest
 start: 2023-12-01 00:00:00
 end: 2023-12-31 23:59:59
 period: 1h
@@ -153,16 +147,23 @@ showShort = input.bool(false, title='Short entries', group=stratGroup)
 RSIoverbought = input.int(72, title='Exit Long', minval=1, group=stratGroup, tooltip='The trade will close when the RSI crosses up this point.')
 RSIoversold = input.int(28, title='Exit Short', minval=1, group=stratGroup, tooltip='The trade will close when the RSI crosses below this point.')
 
-// Trading Logic
-if (direction < 0 and showLong)
+// Entry and Exit Logic
+longCondition = direction < 0 and showLong
+shortCondition = direction > 0 and showShort
+
+if (longCondition)
     strategy.entry("Buy", strategy.long)
 
-if (direction > 0 and not showShort)
-    strategy.exit("Sell Long", "Buy")
+if (shortCondition)
+    strategy.entry("Sell", strategy.short)
 
 if (RSI > RSIoverbought)
-    strategy.close("Buy")
+    if (position.size > 0)
+        strategy.close("Buy")
 
 if (RSI < RSIoversold)
-    strategy.close("Sell")
+    if (position.size < 0)
+        strategy.close("Sell")
 ```
+
+This script defines the Dual-drive Strategy combining Supertrend and RSI to achieve better trading performance.
