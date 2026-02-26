@@ -1,4 +1,4 @@
-```pinescript
+``` pinescript
 /*backtest
 start: 2022-05-03 00:00:00
 end: 2022-05-09 23:59:00
@@ -7,8 +7,9 @@ basePeriod: 15m
 exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 */
 
-// Swing High/Low Indicator with MACD and Higher Timeframe EMA Confirmations by KaizenTraderB
+// Swing High/Low Indicator with MACD and EMA Confirmations by KaizenTraderB
 
+//
 // I designed this indicator to be used with a market structure break strategy.
 // It labels swing highs and lows that are confirmed by the MACD.  
 // It also displays a higher timeframe Fast and Slow EMA to determine directional bias.
@@ -29,8 +30,7 @@ slen = input(title="Slow EMA Length", type=input.integer, defval=50)
 showema = input(title="Show EMA's", type=input.bool, defval=true)
 showentry = input(title="Show Swing Break Entry Levels", type=input.bool, defval=true)
 
-// Higher Timeframe EMAs
-
+// HTF EMA's
 fema = ema(close, flen)
 sema = ema(close, slen)
 
@@ -51,10 +51,10 @@ uptrend = femaSmooth > semaSmooth
 swing_detection(index)=>
     swing_high = false
     swing_low = false
-    start = (index*2) - 1 // -1 so we have an even number of 
+    start = (index*2) - 1 // -1 so we have an even number of
     swing_point_high = high[index]
     swing_point_low = low[index]
-    
+
     // Swing Highs
     for i = 0 to start
         swing_high := true
@@ -62,13 +62,13 @@ swing_detection(index)=>
             if high[i] > swing_point_high 
                 swing_high := false
                 break
-        // Have to do checks before pivot and after seperately because we can get
+        // Have to do checks before pivot and after separately because we can get
         // two highs of the same value in a row. Notice the > and >= difference
         if i > index
             if high[i] >= swing_point_high 
                 swing_high := false
                 break
-        
+
     // Swing lows
     for i = 0 to start
         swing_low := true
@@ -76,7 +76,7 @@ swing_detection(index)=>
             if low[i] < swing_point_low 
                 swing_low := false
                 break  
-        // Have to do checks before pivot and after seperately because we can get
+        // Have to do checks before pivot and after separately because we can get
         // two lows of the same value in a row. Notice the > and >= difference
         if i > index
             if low[i] <= swing_point_low 
@@ -114,6 +114,5 @@ if swing_high and macpos and showsig
 
 if swing_low and macneg and showsig
     // label.new(bar_index[barsback], swing_low_price, SLPrice, xloc.bar_index, yloc.belowbar, color.green, label.style_arrowup, textcolor=color.green)
-    // SLLine = line.new(bar_index[barsback], swing_low_price, bar_index[barsback] + 20, swing_low_price, xloc.bar_index, extend.none, color.black, width=2)
-    // line.delete(SLLine[1])
+    // SLLine = line.new(bar_index[barsback], swing_low_price, bar_index[barsback] + 20, swing_low_price, xloc.bar_index, extend.none, color.black, wi
 ```
