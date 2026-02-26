@@ -20,25 +20,15 @@ Position exit is: bar change in opposite to position direction > difference is s
 
 Strategy Arguments
 
-
-| Argument | Default | Description |
-| --- | --- | --- |
-| v_input_1 | 21 | SR lookback length |
+|Argument|Default|Description|
+|---|---|---|
+|v_input_1|21|SR lookback length|
 
 Source (PineScript)
 
-
-```pinescript
-/*backtest
-start: 2022-04-30 00:00:00
-end: 2022-05-29 23:59:00
-period: 4h
-basePeriod: 15m
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
+``` pinescript
 //@version=4
-strategy("SR TREND STRATEGY", shorttitle="SR TREND", overlay=true, calc_on_order_fills=true)
+strategy("SR Trend Strategy", shorttitle="SR Trend", overlay=true, calc_on_order_fills=true)
 //based on by synapticEx SR indicator https://www.tradingview.com/script/O0F675Kv-Nebula-Advanced-Dynamic-Support-Resistance/
 length = input(title="SR lookback length", type=input.integer, defval=21)
 h = bar_index > 5 and high[5] < high[4] and high[4] < high[3] and high[3] > high[2] and high[2] > high[1] ? 1 : 0
