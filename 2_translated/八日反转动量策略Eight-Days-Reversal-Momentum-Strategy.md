@@ -16,22 +16,22 @@ ChaoZhang
 [trans]
 ## Overview
 
-This strategy primarily utilizes the reversal feature of prices after continuously closing above or below the 5-day simple moving average for 8 days to capture momentum effects in medium and short-term trading. It goes long when the closing price crosses above the 5-day line again after continuously closing below it for 8 days; it goes short when the closing price crosses below the 5-day line again after continuously closing above it for 8 days.
+This strategy mainly utilizes the reversal feature of prices after continuously closing above or below the 5-day simple moving average for 8 days to capture the momentum effect in medium and short term. It goes long when the closing price crosses above the 5-day line again after continuously closing below the 5-day line for 8 days; it goes short when the closing price crosses below the 5-day line again after continuously closing above the 5-day line for 8 days.
 
 ## Strategy Logic
 
 1. Calculate the 5-day simple moving average (SMA).
-2. Define an uptrend as the close being greater than or equal to the SMA, and a downtrend as the close being less than or equal to the SMA.
-3. Confirm trend reversal conditions: trigger a buy signal when the closing price closes below the SMA for 8 consecutive days, then crosses above the SMA on the next day; trigger a sell signal when the closing price closes above the SMA for 8 consecutive days, then crosses below the SMA on the next day.
-4. Entry: go long when the previous day's buy condition is triggered and the current trend is downtrend; go short when the previous day's sell condition is triggered and the current trend is uptrend.
-5. Exit: close long position when the closing price crosses below the SMA; close short position when the closing price crosses above the SMA.
+2. Define uptrend TrendUp as close greater than or equal to SMA, downtrend TrendDown as close less than or equal to SMA.
+3. Confirm the condition for trend reversal: trigger buy signal when closing price closes below SMA for consecutive 8 days and turns to uptrend (crosses above SMA) the next day; trigger sell signal when closing price closes above SMA for consecutive 8 days and turns to downtrend (crosses below SMA) the next day.
+4. Entry: long when the buy condition Buy is triggered yesterday and the current trend is downtrend; short when the sell condition Sell is triggered yesterday and the current trend is uptrend.
+5. Exit: close long position when closing price crosses below SMA; close short position when closing price crosses above SMA.
 
 ## Advantage Analysis
 
-1. Utilizes the reversal feature of prices to capture momentum effects in medium and short-term trading.
-2. High trading opportunities as continuous SMA breakout for 8 days happens frequently, increasing trade opportunities.
+1. Captures momentum by utilizing price reversal features, suitable for medium and short term trading.
+2. High trading opportunities as continuous SMA breakout for 8 days happens frequently.
 3. The 5-day SMA parameter performs well, avoiding too many false breakouts.
-4. Risk is controllable with a clear stop loss point.
+4. Controllable risk with clear stop loss points.
 
 ## Risk Analysis
 
@@ -39,11 +39,11 @@ This strategy primarily utilizes the reversal feature of prices after continuous
 2. May miss the best entry point if the breakout days are set too long.
 3. Hard to profit if there is a prolonged trend.
 
-Can optimize SMA parameters, improve entry criteria to prevent false breakouts, and combine with trend indicators to strengthen the strategy.
+Can optimize SMA parameters, improve entry criteria to prevent false breakouts, combine with trend indicators to strengthen the strategy.
 
 ## Optimization Directions
 
-1. Parameter optimization: test different periods of the SMA to find better parameters.
+1. Parameter optimization: test different periods of SMA to find better parameters.
 2. Entry optimization: add volume indicators to avoid false breakouts; or judge bull/bear candles to avoid whipsaws.
 3. Exit optimization: test fixed percentage trailing stop loss to give more room.
 4. Risk control: set maximum daily stop loss times to limit losses.
@@ -51,28 +51,28 @@ Can optimize SMA parameters, improve entry criteria to prevent false breakouts, 
 
 ## Conclusion
 
-The strategy captures the price movement from breakout to pullback by judging momentum and implements a trading logic of avoiding whipsaws and following trends. The keys are strict parameter settings and robust entry criteria to prevent noise; reasonable stop loss to limit losses. Combining with trend indicators can achieve better results. The strategy logic is simple and clean, making it worthwhile for further exploration and optimization.
+The strategy captures the price movement from breakout to pullback by judging the momentum, implements the trading logic of avoiding whipsaws and trend following. The keys are strict parameter settings and robust entry criteria to prevent noise; reasonable stop loss to limit losses. Combining with trend indicators can achieve better results. The strategy logic is simple and clean. It is worthwhile to explore further optimization.
 
 ||
 
 ## Overview
 
-This strategy mainly utilizes the reversal feature of prices after continuously closing above or below the 5-day simple moving average (SMA) for 8 days to capture momentum effects in medium and short-term trading. It goes long when the closing price crosses above the 5-day line again after continuously closing below it for 8 days; it goes short when the closing price crosses below the 5-day line again after continuously closing above it for 8 days.
+This strategy mainly utilizes the reversal feature of prices after continuously closing above or below the 5-day simple moving average for 8 days to capture the momentum effect in medium and short term. It goes long when the closing price crosses above the 5-day line again after continuously closing below the 5-day line for 8 days; it goes short when the closing price crosses below the 5-day line again after continuously closing above the 5-day line for 8 days.
 
 ## Strategy Logic
 
 1. Calculate the 5-day simple moving average (SMA).
-2. Define an uptrend as the close being greater than or equal to the SMA, and a downtrend as the close being less than or equal to the SMA.
-3. Confirm trend reversal conditions: trigger a buy signal when the closing price closes below the SMA for 8 consecutive days, then crosses above the SMA on the next day; trigger a sell signal when the closing price closes above the SMA for 8 consecutive days, then crosses below the SMA on the next day.
-4. Entry: go long when the previous day's buy condition is triggered and the current trend is downtrend; go short when the previous day's sell condition is triggered and the current trend is uptrend.
-5. Exit: close long position when the closing price crosses below the SMA; close short position when the closing price crosses above the SMA.
+2. Define uptrend TrendUp as close greater than or equal to SMA, downtrend TrendDown as close less than or equal to SMA.
+3. Confirm the condition for trend reversal: trigger buy signal when closing price closes below SMA for consecutive 8 days and turns to uptrend (crosses above SMA) the next day; trigger sell signal when closing price closes above SMA for consecutive 8 days and turns to downtrend (crosses below SMA) the next day.
+4. Entry: long when the buy condition Buy is triggered yesterday and the current trend is downtrend; short when the sell condition Sell is triggered yesterday and the current trend is uptrend.
+5. Exit: close long position when closing price crosses below SMA; close short position when closing price crosses above SMA.
 
 ## Advantage Analysis
 
-1. Captures momentum by utilizing the reversal features of prices, suitable for medium and short-term trading.
-2. High trading opportunities as continuous SMA breakout for 8 days happens frequently, increasing trade opportunities.
+1. Captures momentum by utilizing price reversal features, suitable for medium and short term trading.
+2. High trading opportunities as continuous SMA breakout for 8 days happens frequently.
 3. The 5-day SMA parameter performs well, avoiding too many false breakouts.
-4. Risk is controllable with a clear stop loss point.
+4. Controllable risk with clear stop loss points.
 
 ## Risk Analysis
 
@@ -80,11 +80,11 @@ This strategy mainly utilizes the reversal feature of prices after continuously 
 2. May miss the best entry point if the breakout days are set too long.
 3. Hard to profit if there is a prolonged trend.
 
-Can optimize SMA parameters, improve entry criteria to prevent false breakouts, and combine with trend indicators to strengthen the strategy.
+Can optimize SMA parameters, improve entry criteria to prevent false breakouts, combine with trend indicators to strengthen the strategy.
 
 ## Optimization Directions
 
-1. Parameter optimization: test different periods of the SMA to find better parameters.
+1. Parameter optimization: test different periods of SMA to find better parameters.
 2. Entry optimization: add volume indicators to avoid false breakouts; or judge bull/bear candles to avoid whipsaws.
 3. Exit optimization: test fixed percentage trailing stop loss to give more room.
 4. Risk control: set maximum daily stop loss times to limit losses.
@@ -92,9 +92,12 @@ Can optimize SMA parameters, improve entry criteria to prevent false breakouts, 
 
 ## Conclusion
 
-The strategy captures the price movement from breakout to pullback by judging momentum and implements a trading logic of avoiding whipsaws and following trends. The keys are strict parameter settings and robust entry criteria to prevent noise; reasonable stop loss to limit losses. Combining with trend indicators can achieve better results. The strategy logic is simple and clean, making it worthwhile for further exploration and optimization.
+The strategy captures the price movement from breakout to pullback by judging the momentum, implements the trading logic of avoiding whipsaws and trend following. The keys are strict parameter settings and robust entry criteria to prevent noise; reasonable stop loss to limit losses. Combining with trend indicators can achieve better results. The strategy logic is simple and clean. It is worthwhile to explore further optimization.
 
-## Source Code (PineScript)
+[/trans]
+
+
+> Source (PineScript)
 
 ```pinescript
 /*backtest
@@ -114,13 +117,16 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 
 strategy("8D Run", initial_capital = 50000, commission_value = 0.0004) 
 
-SMA = ta.sma(close, 5)
+
+SMA = ta.sma(close,5)
 
 TrendUp = close >= SMA
+
 TrendDown = close <= SMA
 
 
-// logic to go long
+// logic to long
+
 TriggerBuy = ta.barssince(close < SMA) >= 8
 
 Buy = TriggerBuy[1] and TrendDown 
@@ -129,11 +135,12 @@ strategy.entry("EL", strategy.long, when = Buy)
 strategy.close(id = "EL", when = close > SMA)
 
 // 1) color background when "run" begins and 2) change color when buy signal occurs
-bgcolor(TriggerBuy ? color.green : na, transp = 90)
+bgcolor(TriggerBuy? color.green : na, transp = 90)
 bgcolor(Buy ? color.green : na, transp = 70)
 
 
-// logic to go short 
+// logic to short 
+
 TriggerSell = ta.barssince(close > SMA) >= 8
 
 Sell = TriggerSell[1] and TrendUp
