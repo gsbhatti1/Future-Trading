@@ -1,24 +1,21 @@
 > Name
+
 Dynamic-Risk-Controlled-Supertrend-Engulfing-Pattern-Strategy
 
 > Author
+
 ianzeng123
 
-> Strategy Description
-![IMG](https://www.fmz.com/upload/asset/2d8e5f91456df57df36.png)
-![IMG](https://www.fmz.com/upload/asset/2d996e64e1bc9e388b1fa.png)
-
-
 #### Overview
-This is an advanced trading strategy that combines the Supertrend indicator with engulfing candlestick patterns. The strategy identifies engulfing patterns in the market and confirms them using the trend direction of the Supertrend indicator to achieve precise trade signal filtering. It also incorporates dynamic stop-loss and take-profit settings to effectively control risk while ensuring profit potential.
+This is an advanced trading strategy that combines the Supertrend indicator with engulfing candlestick patterns. The strategy identifies engulfing patterns in the market and confirms them with the Supertrend indicator's trend direction to achieve precise trade signal filtering. It also incorporates dynamic stop-loss and take-profit settings to effectively control risk while ensuring profit potential.
 
 #### Strategy Principles
 The strategy is based on the following core principles:
 1. Uses ATR (Average True Range) to calculate the Supertrend indicator for determining overall market trend.
 2. Filters effective engulfing patterns through Boring Candle Threshold and Engulfing Candle Threshold settings.
-3. Only enters trades when the Supertrend trend direction aligns with the engulfing pattern direction.
+3. Only enters trades when Supertrend trend direction aligns with engulfing pattern direction.
 4. Employs dynamic stop-loss and take-profit levels calculated proportionally from entry price.
-5. Implements position management to ensure only one trade direction at a time.
+5. Implements position management ensuring only one trade direction at a time.
 
 #### Strategy Advantages
 1. Strict signal quality control through dual confirmation (trend + pattern).
@@ -44,8 +41,10 @@ The strategy is based on the following core principles:
 #### Summary
 This is a well-designed strategy with clear logic that achieves good signal quality control through combined technical indicators and pattern analysis. The strategy features comprehensive risk management mechanisms and excellent visualization, making it suitable for live testing and optimization. Traders should pay attention to parameter optimization and market environment selection during practical application.
 
+---
 
 #### Source (PineScript)
+
 ```pinescript
 /*backtest
 start: 2024-02-21 00:00:00
