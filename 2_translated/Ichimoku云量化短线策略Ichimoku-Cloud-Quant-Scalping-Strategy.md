@@ -21,43 +21,41 @@ displacement = 26 //input(title='Displacement:', defval=26, minval=1)
 f_donchian(_len) => avg(lowest(_len), highest(_len))
 
 f_ichimoku_cloud(_conversion_periods, _base_periods, _lagging_span)=>
-    _conversion_line  = (high(_conversion_periods) + low(_conversion_periods)) / 2
-    _base_line        = (high(_base_periods) + low(_base_periods)) / 2
-    _leading_span_a   = (_conversion_line + _base_line) / 2
-    _leading_span_b   = (high(_laggingSpan2Periods) + low(_laggingSpan2Periods)) / 2
+    _conversion_line = (highest(n(_conversion_periods)) + lowest(n(_conversion_periods))) / 2
+    _base_line = (highest(n(_base_periods)) + lowest(n(_base_periods))) / 2
+    leadingSpanA = (_conversion_line + _base_line) / 2
+    leadingSpanB = (highest(n(_lagging_span)) + lowest(n(_lagging_span))) / 2
     
-    cloud = [_leading_span_a, _leading_span_b]
+    cloud_upper = max(leadingSpanA, leadingSpanB)
+    cloud_lower = min(leadingSpanA, leadingSpanB)
     
-    plot(cloud[0], title='Leading Span A', color=color.blue)
-    plot(cloud[1], title='Leading Span B', color=color.orange)
+    plot(cloud_upper, color=color.blue, title='Upper Cloud')
+    plot(cloud_lower, color=color.blue, title='Lower Cloud')
 
-    is_uptrend = close > cloud[0] and ta.adx(close) > 20
-    is_downtrend = close < cloud[0] and ta.adx(close) > 20
-    
-    // Trade Rules:
-    if (is_uptrend)
-        strategy.entry("Long", strategy.long)
-    
-    if (is_downtrend)
-        strategy.entry("Short", strategy.short)
+// ADX
+adx_length = input(title='Length', defval=14, minval=1)
+adx_threshold = 20
 
-    // Stop Loss and Take Profit
-    stop_loss = v_input_7 * pointsize
-    take_profit = v_input_8 * pointsize
-    
-    strategy.exit("Take Profit or Stop Loss", from_entry="Long", stop=stop_loss, limit=take_profit)
-    strategy.exit("Take Profit or Stop Loss", from_entry="Short", stop=-stop_loss, limit=-take_profit)
+// Trade rules:
+long_entry = crossover(_conversion_line, close) and adx >= adx_threshold
+short_entry = crossunder(_conversion_line, close) and adx >= adx_threshold
 
-// Strategy Arguments
-v_input_1 = 7
-v_input_2 = 14
-v_input_3 = 20
-v_input_4 = true
-v_input_5 = "04:00-15:00"
-v_input_6 = true
-v_input_7 = 150
-v_input_8 = 200
+if (long_entry or short_entry)
+    if (v_input_4)
+        // Trading session check
+        time_in_session = v_input_5
+        if not(time(timeframe.period, time.time(), timeformat.hour, timeformat.minute) in time_in_session)
+            strategy.entry('Long', strategy.long)
+            strategy.exit('Exit Long', 'Long', stop=_v_input_7, limit=_v_input_8)
+        else
+            strategy.close('Long')
+            
+    if (not v_input_4 or time_in_session.includes(time.time()))
+        strategy.entry('Long', strategy.long)
+        strategy.exit('Exit Long', 'Long', stop=_v_input_7, limit=_v_input_8)
 
-// Source (PineScript)
-f_ichimoku_cloud(v_input_1, basePeriods, laggingSpan2Periods)
+// Plotting
+plot(_conversion_line, color=color.red, title='Conversion Line')
+plot(_base_line, color=color.green, title='Base Line')
+
 ```
