@@ -1,25 +1,15 @@
-> Name
-
-3-Moving-Average-Swing-Interval-Reversal-Strategy
-
-> Author
-
-ChaoZhang
-
-> Strategy Description
-
-![IMG](https://www.fmz.com/upload/asset/161a13f61dad8bd5698.png)
-[trans]
+---
 ## Overview
-This strategy employs a 3-day fast moving average, a 10-day slow moving average, and a 16-day signal smoothing moving average to construct the MACD indicator. It is supplemented by the RSI indicator and volume characteristics, setting multidimensional K-line features to determine over-extension of the market trend, forming an interval swing trend, and establishing reversal entry signals for profit-taking.
 
-The strategy aims to capture quick price reversals from local overbought or oversold levels. It typically performs well for 0DTE SPY Options using a 15m timeframe.
+This strategy uses a 3-day fast moving average, 10-day slow moving average and 16-day signal smoothing moving average to construct the MACD indicator, supplemented by the RSI indicator and volume characteristics, and sets multidimensional K-line characteristics to determine over-extension of the market trend, forming a range swing trend and reversal long or short entries for profit taking.
+
+The strategy aims to capture quick price reversals from local overbought or oversold levels. It typically performs well for 0DTE SPY Options using 15m timeframe.
 
 ## Strategy Logic
 
-The code mainly uses the difference between the 3-day fast moving average and the 10-day slow moving average to form the MACD indicator, with the 16-day signal line for smoothing, constituting a standard MACD strategy. It also combines volume analysis of buying and selling volumes to determine momentum characteristics. The RSI indicator is introduced to determine overbought or oversold levels. Through the combination of multiple indicators, it judges market characteristics and detects changes in interval swing trends to construct entry signals.
+The strategy mainly uses the difference between 3-day fast moving average and 10-day slow moving average to form the MACD indicator, with a 16-day signal line for smoothing, constituting a standard MACD strategy. It also combines volume analysis of buying and selling volumes to determine momentum characteristics. The RSI indicator is introduced to determine overbought or oversold levels. Through the combination of multiple indicators, it judges market characteristics and detects changes in interval swing trends to construct entry signals.
 
-Specifically, by observing the relationship between the MACD line and signal line, as well as slope changes, it determines the ebb and flow of bullish and bearish forces to spot reversal opportunities. At the same time, changes in buying and selling volumes reflect shifts in bullish and bearish momentum. Combined with the changes in the RSI indicator to determine overbought and oversold conditions, these indicators allow us to ascertain localized market profile features and potential reversal timing.
+Specifically, by observing the relationship between the MACD line and signal line, as well as the slope changes, it determines the ebb and flow of bullish and bearish forces to spot reversal opportunities. At the same time, changes in buying and selling volumes reflect shifts in bullish and bearish momentum. Combined with the changes in the RSI indicator to determine overbought and oversold conditions, these indicators allow us to ascertain localized market profile features and potential reversal timing.
 
 The strategy sets up 3 entry signals in total:
 
@@ -27,7 +17,7 @@ The strategy sets up 3 entry signals in total:
 2. Long when buying volume is stronger than selling volume, RSI in the 45-55 range and rising, MACD and signal line moving up in unison;
 3. Short when MACD is above the threshold while rising.
 
-These three scenarios all reflect localized ranging swings in a directional over-expansion, judged as opportune reversal timing for counter-direction entries.
+These 3 scenarios all reflect localized ranging swings in a directional over-expansion, judged as opportune reversal timing for counter-direction entries. 
 
 Exits are set as Take profit (limit order) and Stop loss, to control drawdowns and realize profits.
 
@@ -37,7 +27,7 @@ The strategy combines multiple indicators to determine ranging and overbought/ov
 
 Specifically, advantages include:
 
-1. MACD as a volume-weighted momentum oscillator, avoiding simplistic technical analysis;
+1. MACD as volume-weighted momentum oscillator, avoids simplistic technical analysis;
 2. Volume conditions add to entry conviction;
 3. RSI assists in spotting potential reversals;
 4. Stop loss and take profit controls excessive drawdowns and locks in some profit.
@@ -65,4 +55,6 @@ These can be implemented through more systematic backtests. As parameter spaces 
 
 ## Conclusion
 
-This strategy combines MACD, RSI, and volume analysis to determine market ranging features, establishing entries at reversal zones to capture retracement moves. The logic is clear, balancing trend and reversals. With further optimization, it has strong profit potential as a robust quant strategy. Parameter tuning and model introduction will further enhance its performance.
+This strategy combines MACD, RSI, and volume analysis to determine market ranging features, establishing entries at reversal zones to capture retracement moves. The logic is clear, balancing trend and reversals. With further optimization, it has strong profit potential as a robust quant strategy. Parameter tuning and model introduction can enhance its efficiency and stability.
+
+---
