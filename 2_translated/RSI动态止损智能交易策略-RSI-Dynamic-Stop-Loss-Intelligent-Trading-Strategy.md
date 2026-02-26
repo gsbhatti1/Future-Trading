@@ -1,88 +1,3 @@
-> Name
-
-RSI Dynamic Stop Loss Intelligent Trading Strategy - RSI-Dynamic-Stop-Loss-Intelligent-Trading-Strategy
-
-> Author
-
-ChaoZhang
-
-> Strategy Description
-
-![IMG](https://www.fmz.com/upload/asset/100b6af3faa1fee8422.png)
-
-[trans]
-#### Overview
-This strategy is a dynamic stop-loss trading system based on the RSI indicator, combining SMA and ATR indicators to optimize trading decisions. It employs a multi-level take-profit approach with pyramid-style position closing to maximize returns while using ATR dynamic stop-loss for risk control. The strategy features high adaptability and automatically adjusts trading parameters based on market volatility.
-
-#### Strategy Principles
-The strategy primarily uses RSI oversold conditions (RSI<30) as entry signals while requiring price to be above the 200-day moving average to ensure an uptrend. It implements three take-profit targets (5%, 10%, 15%) combined with ATR dynamic stop-loss. Specifically:
-1. Entry conditions: RSI below 30 and price above SMA200
-2. Position management: 75% capital per trade
-3. Stop-loss setting: Dynamic stop based on 1.5x ATR value
-4. Take-profit strategy: Three levels at 5%, 10%, 15%, closing 33%, 66%, and 100% respectively
-
-#### Strategy Advantages
-1. Dynamic risk management: ATR adaptation to market volatility
-2. Staged profit-taking: Reduces emotional interference and improves profit probability
-3. Trend confirmation: Uses moving average to filter false signals
-4. Money management: Percentage-based position sizing for different account sizes
-5. Commission optimization: Considers trading costs for practical implementation
-
-#### Strategy Risks
-1. Moving average lag may delay entries
-2. RSI oversold doesn't guarantee reversal
-3. Large position sizes may lead to significant drawdowns
-4. Frequent partial exits may increase trading costs
-These risks can be managed through parameter adjustments and additional filters.
-
-#### Optimization Directions
-1. Add volume confirmation signals
-2. Incorporate trend strength indicators
-3. Optimize profit-taking ratios
-4. Add time-frame filters
-5. Consider volatility-adaptive position sizing
-
-#### Summary
-This strategy combines technical indicators with dynamic risk management to create a comprehensive trading system. Its strengths lie in adaptability and controlled risk, though parameter optimization based on market conditions is still necessary. The strategy is suitable for medium to long-term investors and serves as a solid foundation for systematic trading.
-
-|| 
-
-#### Overview
-This strategy is a dynamic stop-loss trading system based on the RSI indicator, combining SMA and ATR indicators to optimize trading decisions. It employs a multi-level take-profit approach with pyramid-style position closing to maximize returns while using ATR dynamic stop-loss for risk control. The strategy features high adaptability and automatically adjusts trading parameters based on market volatility.
-
-#### Strategy Principles
-The strategy primarily uses RSI oversold conditions (RSI<30) as entry signals while requiring price to be above the 200-day moving average to ensure an uptrend. It implements three take-profit targets (5%, 10%, 15%) combined with ATR dynamic stop-loss. Specifically:
-1. Entry conditions: RSI below 30 and price above SMA200
-2. Position management: 75% capital per trade
-3. Stop-loss setting: Dynamic stop based on 1.5x ATR value
-4. Take-profit strategy: Three levels at 5%, 10%, 15%, closing 33%, 66%, and 100% respectively
-
-#### Strategy Advantages
-1. Dynamic risk management: ATR adaptation to market volatility
-2. Staged profit-taking: Reduces emotional interference and improves profit probability
-3. Trend confirmation: Uses moving average to filter false signals
-4. Money management: Percentage-based position sizing for different account sizes
-5. Commission optimization: Considers trading costs for practical implementation
-
-#### Strategy Risks
-1. Moving average lag may delay entries
-2. RSI oversold doesn't guarantee reversal
-3. Large position sizes may lead to significant drawdowns
-4. Frequent partial exits may increase trading costs
-These risks can be managed through parameter adjustments and additional filters.
-
-#### Optimization Directions
-1. Add volume confirmation signals
-2. Incorporate trend strength indicators
-3. Optimize profit-taking ratios
-4. Add time-frame filters
-5. Consider volatility-adaptive position sizing
-
-#### Summary
-This strategy combines technical indicators with dynamic risk management to create a comprehensive trading system. Its strengths lie in adaptability and controlled risk, though parameter optimization based on market conditions is still necessary. The strategy is suitable for medium to long-term investors and serves as a solid foundation for systematic trading.
-
-|| 
-
 ```pinescript
 /*backtest
 start: 2019-12-23 08:00:00
@@ -96,7 +11,7 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // © wielkieef
 
 //@version=5
-strategy("Simple RSI Stock Strategy [1D]", overlay=true, pyramiding=1, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=75, calc_on_order_fills=false, slippage=0, commission_type=strategy.commission.percent, commission_value=0.03)
+strategy("Simple RSI stock Strategy [1D] ", overlay=true, pyramiding=1, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=75, calc_on_order_fills=false, slippage=0, commission_type=strategy.commission.percent, commission_value=0.03)
 
 // Rsi
 oversoldLevel = input(30, title="Oversold Level")
@@ -106,7 +21,7 @@ rsi_overbought = rsi > overboughtLevel
 rsi_oversold = rsi < oversoldLevel
 
 // Sma 200
-lenghtSMA = input(200, title = "SMA Length")
+lenghtSMA = input(200, title = "SMA length")
 sma200 = ta.sma(close, lenghtSMA)
 
 // ATR stop-loss
@@ -134,7 +49,7 @@ if long
     tp2_level := strategy.position_avg_price * (1 + tp_2 / 100)
     tp3_level := strategy.position_avg_price * (1 + tp_3 / 100)
 
-// basic SL - this code is from author RafaelZioni, modified by wielkieef
+// Basic SL - this code is from author RafaelZioni, modified by wielkieef
 sl = input.float(25.0, 'Basic Stop Loss %', step=0.1)
 per(procent) =>
     strategy.position_size != 0 ? math.round(procent / 100 * strategy.position_avg_price / syminfo.mintick) : float(na)
@@ -156,5 +71,5 @@ if (strategy.position_size > 0)
     if (not na(tp3_level) and close >= tp3_level)
         tp3_level := na
 
-plot(strategy.position_size > 0 and not na(tp1_level) ? tp1_level : na, color=color.gray, style=plot.style_line)
+plot(strategy.position_size > 0 and not na(tp1_level) ? tp1_level : na, color=color.gray, style=plot.style_dotted, linewidth=1, title="Take Profit Level 1")
 ```
