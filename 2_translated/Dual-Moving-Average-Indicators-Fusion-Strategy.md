@@ -1,3 +1,4 @@
+---
 > Name
 
 Dual-Moving-Average-Indicators-Fusion-Strategy
@@ -9,7 +10,38 @@ ChaoZhang
 > Strategy Description
 
 
-``` pinescript
+[trans]
+Double Moving Average Indicators Fusion Trading Strategy
+
+This strategy integrates the 2/20 MA indicator and the Absolute Price Oscillator (APO) to generate trading signals.
+
+First, it calculates a 20-period EMA, generating simple long/short signals when price breaks above or below the EMA. Second, it computes the APO indicator from fast and slow EMA differential to determine bullish/bearish momentum.
+
+Finally, the strategy combines both indicators: long/short entries are triggered when 2/20 MA and APO both give corresponding signals; exits occur when the two issue opposite signals.
+
+The advantage of this dual-indicator strategy is tapping into the technical strengths of each and verifying signals to improve performance. However, integration lag exists.
+
+In summary, the double moving average fusion strategy synergizes simple and complex indicators to filter noise trades, but proper parameter tuning is required, along with strictly following the suggested usage timeframe, otherwise live performance cannot be guaranteed.
+
+[/trans]
+
+> Strategy Arguments
+
+
+|Argument|Default|Description|
+|----|----|----|
+|v_input_int_1|14|(?●═════ 2/20 EMA ═════●)Length|
+|v_input_int_2|10|(?●═════ Absolute Price Oscillator APO ═════●)LengthShortEMA|
+|v_input_int_3|20|LengthLongEMA|
+|v_input_bool_1|false|(?●═════ MISC ═════●)Trade reverse|
+|v_input_int_4|true|(?●═════ Time Start ═════●)From Day|
+|v_input_int_5|true|From Month|
+|v_input_int_6|2005|From Year|
+
+
+> Source (PineScript)
+
+```pinescript
 /*backtest
 start: 2023-01-01 00:00:00
 end: 2023-03-23 00:00:00
@@ -44,7 +76,6 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // - For purpose educate only
 // - This script to change bars colors.
 ////////////////////////////////////////////////////////////
-
 EMA20(Length) =>
     pos = 0.0
     xPrice = close
@@ -66,10 +97,10 @@ APO(LengthShortEMA, LengthLongEMA) =>
     pos := xAPO > 0 ? 1 : iff_1
     pos
 
-strategy(title='Combo 2/20 EMA & Absolute Price Oscillator (APO) ', shorttitle='Combo', overlay=true)
+strategy(title='Combo 2/20 EMA & Absolute Price Oscillator (APO)', shorttitle='Combo', overlay=true)
 var I1 = '●═════ 2/20 EMA ═════●'
 Length = input.int(14, minval=1, group=I1)
-var I2 = '●═════ Absolute Price Oscillator (APO)  ═════●'
+var I2 = '●═════ Absolute Price Oscillator (APO) ═════●'
 LengthShortEMA = input.int(10, minval=1, group=I2)
 LengthLongEMA = input.int(20, minval=1, group=I2)
 var misc = '●═════ MISC ═════●'
