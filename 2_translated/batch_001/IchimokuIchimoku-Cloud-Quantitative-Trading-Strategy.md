@@ -13,85 +13,86 @@ ChaoZhang
 
 ### Overview
 
-This strategy integrates multiple indicators such as Ichimoku cloud, K-line, Hull Moving Average, and MACD to build a long-short decision-making mechanism for automated trading.
+This strategy combines multiple indicators such as Ichimoku cloud, K-line, Hull Moving Average, and MACD to build a long and short decision mechanism for automated trading.
 
 ### Strategy Logic
 
-It uses the conversion line and lagging line of the Ichimoku cloud to generate buy-sell signals. The trend direction is determined by the Hull Moving Average. The MACD indicator differentiates between longer and shorter cycles. Intraday K-line breakouts provide entry signals.
+It uses the conversion line and lagging line of the Ichimoku cloud to generate trading signals. The trend direction is determined by the Hull Moving Average. The MACD indicator differentiates between longer and shorter cycles. Intraday K-line breakout provides entry signals.
 
-The conversion line averages the mid-price over the last 9 days. The lagging line averages the mid-price over the last 26 days. Buy when the conversion line crosses above the lagging line, and sell when it crosses below.
+The conversion line averages the mid-price over the last 9 days. The lagging line averages the mid-price over the last 26 days. A long position is taken when the conversion line crosses above the lagging line, and a short position is taken when it crosses below.
 
-Hull Moving Average uses double moving average crossover to define trends. Uptrend when the fast line crosses above the slow line, and downtrend in reverse.
+Hull Moving Average uses double averaging lines crossover to define trends. An uptrend is identified when the fast line crosses above the slow line; conversely, a downtrend is defined when the slow line crosses above the fast line.
 
-MACD takes the difference between the 12- and 26-period exponential moving averages (EMAs). Crosses on the zero line and signal line indicate buy/sell signals.
+MACD takes the difference between 12 and 26-period Exponential Moving Averages (EMAs). Crosses on the zero line and signal line indicate long/short signals. 
 
 K-line penetration of the lagging line provides entry timing.
 
 ### Advantages
 
-1. Accurate trend detection with multiple indicators.
-2. Precise entry to avoid unnecessary trades.
+1. Accurate trend detection using multiple indicators.
+2. Precise entries to avoid unnecessary trades.
 3. Solid risk control with stop loss/take profit mechanisms.
 
 ### Risks
 
-1. Aggressive entry if parameter tuning is improper.
+1. Aggressive entry with improper parameter tuning.
 2. Increased complexity from multi-indicator usage.
-3. Drawdowns are inevitable for short-term trades.
+3. Drawdowns inevitable for short-term trades.
 
 ### Enhancement Opportunities
 
 1. Optimize parameters for more products and timeframes.
-2. Add machine learning modules for adaptive tuning.
-3. Improve entry momentum indicators to enhance win rate.
+2. Integrate machine learning for adaptive tuning.
+3. Improve entry momentum indicators to increase win rate.
 
 ### Summary
 
-This strategy combines Ichimoku cloud and other indicator signals into a complete quantitative system. A strict stop loss/take profit mechanism controls trading risks. With parameter adjustments and model optimization, it can be applied to more trading instruments with broad prospects.
+This strategy combines Ichimoku cloud and other indicator signals into a complete quantitative system. The strict stop loss/take profit mechanism controls trading risks. With parameter tuning and model optimization, it can be applied to more trading instruments with broad prospects.
 
 ||
 
 ### Overview
 
-This strategy integrates multiple indicators such as Ichimoku cloud, K-line, Hull Moving Average, and MACD to build a long-short decision-making mechanism for automated trading.
+This strategy combines multiple indicators such as Ichimoku cloud, K-line, Hull Moving Average, and MACD to build a long and short decision mechanism for automated trading.
 
-### Strategy Logic
+### Strategy Logic  
 
-It uses the conversion line and lagging line of the Ichimoku cloud to generate buy-sell signals. The trend direction is determined by the Hull Moving Average. The MACD indicator differentiates between longer and shorter cycles. Intraday K-line breakouts provide entry signals.
+It uses the conversion line and lagging line of the Ichimoku cloud to generate trading signals. The trend direction is determined by the Hull Moving Average. The MACD indicator differentiates between longer and shorter cycles. Intraday K-line breakout provides entry signals.
 
-The conversion line averages the mid-price over the last 9 days. The lagging line averages the mid-price over the last 26 days. Buy when the conversion line crosses above the lagging line, and sell when it crosses below.
+The conversion line averages the mid-price over the last 9 days. The lagging line averages the mid-price over the last 26 days. A long position is taken when the conversion line crosses above the lagging line, and a short position is taken when it crosses below.
 
-Hull Moving Average uses double moving average crossover to define trends. Uptrend when the fast line crosses above the slow line, and downtrend in reverse.
+Hull Moving Average uses double averaging lines crossover to define trends. An uptrend is identified when the fast line crosses above the slow line; conversely, a downtrend is defined when the slow line crosses above the fast line.
 
-MACD takes the difference between the 12- and 26-period exponential moving averages (EMAs). Crosses on the zero line and signal line indicate buy/sell signals.
+MACD takes the difference between 12 and 26-period Exponential Moving Averages (EMAs). Crosses on the zero line and signal line indicate long/short signals. 
 
 K-line penetration of the lagging line provides entry timing.
 
-### Advantages
+### Advantages  
 
-1. Accurate trend detection with multiple indicators.
-2. Precise entry to avoid unnecessary trades.
+1. Accurate trend detection using multiple indicators.
+2. Precise entries to avoid unnecessary trades.
 3. Solid risk control with stop loss/take profit mechanisms.
 
 ### Risks
 
-1. Aggressive entry if parameter tuning is improper.
+1. Aggressive entry with improper parameter tuning.
 2. Increased complexity from multi-indicator usage.
-3. Drawdowns are inevitable for short-term trades.
+3. Drawdowns inevitable for short-term trades.
 
-### Enhancement Opportunities
+### Enhancement Opportunities  
 
 1. Optimize parameters for more products and timeframes.
-2. Add machine learning modules for adaptive tuning.
-3. Improve entry momentum indicators to enhance win rate.
+2. Integrate machine learning for adaptive tuning.
+3. Improve entry momentum indicators to increase win rate.
 
 ### Summary
 
-This strategy combines Ichimoku cloud and other indicator signals into a complete quantitative system. A strict stop loss/take profit mechanism controls trading risks. With parameter adjustments and model optimization, it can be applied to more trading instruments with broad prospects.
+This strategy combines Ichimoku cloud and other indicator signals into a complete quantitative system. The strict stop loss/take profit mechanism controls trading risks. With parameter tuning and model optimization, it can be applied to more trading instruments with broad prospects.
 
 ||
 
 > Strategy Arguments
+
 
 
 |Argument|Default|Description|
@@ -108,13 +109,22 @@ This strategy combines Ichimoku cloud and other indicator signals into a complet
 |v_input_10|12|MACD_fastLength|
 |v_input_11|26|MACD_slowLength|
 
+
 > Source (PineScript)
 
-```pinescript
+``` pinescript
+/*backtest
+start: 2022-12-29 00:00:00
+end: 2024-01-04 00:00:00
+period: 1d
+basePeriod: 1h
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
+
 //@version=2
 // Any timeFrame ok but good on 15 minute & 60 minute, Ichimoku + Daily-Candle_cross(DT) + HULL-MA_cross + MacD combination 420 special blend
-strategy("Ichimoku + Daily-Candle_X + HULL-MA_X + MacD", shorttitle="٩(̾●̮̮̃̾•̃̾)۶", overlay=true, default_qty_type=strategy.percent_of_equity, max_bars_back=720, default_qty_value=100, calc_on_order_fills=true, calc_on_every_tick=true, pyramiding=0)
-keh=input(title="Double HullMA", defval=14, minval=1)
+strategy("Ichimoku + Daily-Candle_X + HULL-MA_X + MacD", shorttitle="٩(̾●̮̮̃̾•̃̾)۶", overlay=true, default_qty_type=strategy.percent_of_equity, max_bars_back=720, default_qty_value=100, calc_on_order_fills= true, calc_on_every_tick=true, pyramiding=0)
+keh=input(title="Double HullMA",defval=14, minval=1)
 dt = input(defval=0.0010, title="Decision Threshold (0.001)", type=float, step=0.0001)
 SL = input(defval=-500.00, title="Stop Loss in $", type=float, step=1)
 TP = input(defval=25000.00, title="Target Point in $", type=float, step=1)
@@ -159,5 +169,5 @@ if (longCondition)
     strategy.entry("Long",strategy.long)
 shortCondition = n1<n2 and strategy.opentrades<ot and confidence<dt and close<n2 and leadLine1<leadLine2 and open>LS and MACD<aMACD
 if (shortCondition)
-    strategy.entry("Short")
+    strategy.entry("Short",strategy.short)
 ```

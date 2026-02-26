@@ -1,19 +1,31 @@
-```markdown
+> Name
+
+MACDEMA Multi-Timeframe Breakout Strategy
+
+> Author
+
+ChaoZhang
+
+> Strategy Description
+
+![IMG](https://www.fmz.com/upload/asset/1eee16fe385df3387e5.png)
+[trans]
+
 ## Overview
 
 This strategy combines the MACD indicator and multiple EMA lines to capture strong market trends from two timeframes - weekly and intraday. It uses the MACD indicator on the weekly chart to determine the overall trend direction, and three EMA lines (5-day, 15-day, 30-day) on the intraday chart to confirm the trend and make trades at breakout points. The main idea is to follow strong trends and ride the big waves, entering trades when the short-term EMA breaks above the long-term EMA, and exiting when the EMAs pull back or stop-loss conditions are triggered.
 
 ## Strategy Principle
 
-1. **Weekly MACD determines overall trend**: Calculate the weekly MACD indicator and compare the difference between the current week's and previous week's MACD histogram values. A positive difference indicates an uptrend, while a negative difference indicates a downtrend. Update the trend direction every Monday at market open.
+1. Weekly MACD determines overall trend: Calculate the weekly MACD indicator and compare the difference between the current week's and previous week's MACD histogram values. A positive difference indicates an uptrend, while a negative difference indicates a downtrend. Update the trend direction every Monday at market open.
 
-2. **Multiple EMA lines confirm trend**: Plot the 5-day, 15-day, and 30-day EMA lines on the intraday chart. When the short-term EMA runs above and away from the long-term EMA, the trend is up; conversely, the trend is down.
+2. Multiple EMA lines confirm trend: Plot the 5-day, 15-day, and 30-day EMA lines on the intraday chart. When the short-term EMA runs above and away from the long-term EMA, the trend is up; conversely, the trend is down.
 
-3. **Trade at EMA crossover points**:
-   - **Long entry**: When the weekly MACD trend is up and the intraday close crosses above the 15-day EMA, go long. Set the stop-loss at a fixed point below the entry price, or exit when the 5-day EMA crosses below the 15-day EMA.
-   - **Short entry**: When the weekly MACD trend is down and the 5-day EMA crosses below the 30-day EMA, go short. Set the stop-loss at a fixed point above the entry price, or exit when the 5-day EMA crosses above the 15-day EMA.
+3. Trade at EMA crossover points:
+   - Long entry: When the weekly MACD trend is up and the intraday close crosses above the 15-day EMA, go long. Set the stop-loss at a fixed point below the entry price, or exit when the 5-day EMA crosses below the 15-day EMA.
+   - Short entry: When the weekly MACD trend is down and the 5-day EMA crosses below the 30-day EMA, go short. Set the stop-loss at a fixed point above the entry price, or exit when the 5-day EMA crosses above the 15-day EMA.
 
-4. **Adding positions**: No additional entry conditions set for now.
+4. Adding positions: No additional entry conditions set for now.
 
 ## Advantage Analysis
 
@@ -48,4 +60,3 @@ This strategy combines the MACD indicator and multiple EMA lines to capture stro
 ## Summary
 
 The MACD+EMA Multi-Timeframe Breakout Strategy is a trend-following strategy with a scientific basis for both trend determination and confirmation. It can effectively capture the main market trends and generate stable returns. Meanwhile, the strategy is quite complete in risk control, effectively limiting drawdowns through reasonable stop-loss and exit rules. However, there are also some shortcomings, such as lagging trend signals and lack of scaling rules, which can be further optimized and improved.
-```

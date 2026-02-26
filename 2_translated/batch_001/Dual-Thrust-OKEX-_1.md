@@ -17,12 +17,15 @@ Basic Principles
 
 Strategy Arguments
 
+
+
 |Argument|Default|Description|
-|----|----|----|
+|---|---|---|
 |NPeriod|4|Calculation period|
 |Ks|0.5|Upper track coefficient|
 |Kx|0.5|Lower rail coefficient|
 |AmountOP|true|Number of open contracts|
+
 
 Source (javascript)
 
@@ -31,10 +34,10 @@ var STATE_IDLE = 0
 var STATE_LONG = 1
 var STATE_SHORT = 2
 var State = STATE_IDLE
-varLastBarTime = 0
-varUpTrack = 0
-varDownTrack = 0
-varInitAccount = null
+var LastBarTime = 0
+var UpTrack = 0
+var DownTrack = 0
+var InitAccount = null
 
 function GetPosition(posType) {
     var positions = exchange.GetPosition()
@@ -82,7 +85,7 @@ function Trade(currentState, nextState) {
             Log("Average position price", pos[0], "Quantity:", pos[1])
             break
         }
-        pfn(nextState === STATE_LONG ? _C(exchange.GetTicker).Sell * 1.001 : _C(exchange.GetTicker).Buy * 0.999, AmountOP - pos[1])
+        pfn(nextState === STATE_LONG ? _C(exchange.GetTicker).Sell * 1.001 : _C(exchange.GetTicker).Buy * 0.999, AmountOP-pos[1])
         Sleep(500)
         CancelPendingOrders()
     }
@@ -122,7 +125,7 @@ function onTick() {
 
     if (State === STATE_IDLE || State === STATE_LONG) {
         if (Bar.Close <= DownTrack) {
-            msg = 'Short trigger price: ' + Bar.Close + ' Lower track:' + DownTrack
+            msg = 'Short trigger price: ' + Bar.Close + 'Lower track:' + DownTrack
             Log(msg)
             Trade(State, STATE_SHORT)
             $.PlotFlag(Bar.Time, msg, 'empty', 'circlepin', 'green')

@@ -1,6 +1,6 @@
 > Name
 
-A Dual-Moving-Average-Crossover-Strategy
+Dual-Moving-Average-Crossover-Strategy
 
 > Author
 
@@ -8,56 +8,145 @@ ChaoZhang
 
 > Strategy Description
 
-![IMG](https://www.fmz.com/upload/asset/1b99cd77d51eddebdf5.png)
+![IMG](https://www.fmz.com/upload/asset/1148a4aa63b71da3062.png)
+
 [trans]
 
-This strategy uses the crossover of fast and slow moving averages as buy and sell signals. When the fast moving average crosses above the slow moving average from bottom to top, a buy signal is generated; when the fast moving average crosses below the slow moving average from top to bottom, a sell signal is generated.
+## Overview
 
-## Strategy Principle
+The Dual Moving Average Crossover strategy is a typical trend-following strategy. It uses two different-period EMA lines, going long when the short-term EMA crosses above the long-term EMA and going short when the opposite crossover happens to capture price trend reversals.
 
-The Dual Moving Average strategy utilizes two moving averages with different parameter settings to generate trading signals. One is a fast moving average, which has a smaller parameter setting and can quickly capture price changes; the other is a slow moving average, which has a larger parameter setting as an indicator of long-term trends. When short-term prices are higher than long-term trends (i.e., the fast moving average crosses above the slow one), it generates a buy signal. Conversely, when short-term prices are lower than long-term trends (i.e., the fast moving average crosses below the slow one), a sell signal is generated.
+## Principles  
 
-Specifically, this strategy takes two moving average parameters as input and calculates both the fast and slow moving averages. Then, it plots these moving averages on the price chart with the fast line in blue and the slow line in red. When the fast blue line crosses above the red line from bottom to top, a buy signal is generated; when the fast blue line crosses below the red line from top to bottom, a sell signal is generated. After the trading signal is generated, corresponding long or short entry orders are executed. Finally, stop loss and take profit logic are set for the long trades.
+The core indicators of this strategy are two EMA lines, one with a 30-period length and another with a 60-period length. The two EMAs are calculated by custom functions in the code:   
 
-## Advantage Analysis
+```
+emaLen1 = emaFuncOne(close, lenMA1)
+emaLen2 = emaFuncTwo(close, lenMA2)  
+```
 
-The Dual Moving Average strategy has the following advantages:
+The trading signals are generated from the crossovers of these EMA lines:  
 
-1. Simple to understand and implement.
-2. Maximizes the benefits of moving averages by catching both major trends and short-term opportunities.
-3. Flexible parameter tuning that can adapt to different market environments.
-4. Applicable across various timeframes and instruments.
-5. Optimizable with additional indicators such as volume, Stochastic, etc.
+```  
+currentState = if emaLen2 > emaLen1
+    0
+else 
+    1
 
-## Risk Analysis
+previousState = if emaLastLen2 > emaLastLen1 
+    0
+else
+    1
 
-The Dual Moving Average strategy also has the following risks:
+convergence = if currentState != previousState
+    1  
+else
+    0
+```
+  
+When the short-term EMA crosses above the long-term EMA, `currentState` is not equal to `previousState`, a crossover signal is triggered, and you go long. 
+When the short-term EMA crosses below the long-term EMA, `currentState` is not equal to `previousState`, a crossover signal is triggered, and you go short.
 
-1. Crossovers may fail to effectively filter out choppy consolidation trends, leading to a high number of false signals.
-2. Frequent crosses near the moving averages when prices oscillate can trigger over-trading.
-3. Incorrect parameter settings can negatively impact the performance of the strategy.
+## Advantage Analysis  
 
-To address these risks, the following optimization methods can be employed:
+The advantages of this strategy are:  
 
-1. Add distance filters to ignore crossovers that are too close to the moving averages.
-2. Incorporate additional filters such as volume spikes and Stochastic indicators to avoid ineffective trades in range-bound zones.
-3. Test different combinations of moving average parameters to find the optimal settings.
+1. The logic is simple and intuitive, making it easy to understand and implement  
+2. Utilizes the smoothing property of EMAs to filter out market noise  
+3. Automatically follows trends, reducing the risk of missing trades
+
+## Risk Analysis   
+
+There are also some risks with this strategy:  
+
+1. Crossover signals may lag and fail to capture reversals in a timely manner
+2. Whipsaw signals may occur frequently during ranging markets  
+3. Poor parameter tuning may cause oversensitivity or delays
+
+Optimization can be done by adjusting EMA periods or adding filters.
 
 ## Optimization Directions
 
-The Dual Moving Average strategy can be further optimized through the following methods:
+This strategy can be optimized from the following aspects:  
 
-1. Add a volume filter to generate signals only when there is a significant volume spike accompanying the price crossover.
-2. Combine with Stochastic Oscillator and other indicators to avoid false signals in overbought/oversold zones.
-3. Test optimal moving average parameters across different products and timeframes.
-4. Incorporate machine learning models to judge trend direction.
-5. Build adaptive trading systems using deep learning and decision trees.
+1. Test different combinations of EMA periods  
+2. Add volume or volatility filters to reduce false signals
+3. Incorporate other indicators like MACD to confirm trends
+4. Optimize money management with stop loss and take profit
 
-## Conclusion
+## Conclusion  
 
-In summary, the Dual Moving Average strategy is very classic and practical. It combines both trend following and short-term mean reversion, enabling it to follow major trends while capturing reversal opportunities. By properly optimizing models and tuning parameters, more reliable trading signals can be generated while maintaining simplicity and intuitiveness, leading to better overall performance. Different traders can customize the details of this strategy based on their preferences and market conditions.
+The Dual Moving Average Crossover strategy is overall a simple and practical trend-following system. It is straightforward, easy to implement, and can automatically track trends. However, some risks such as lagging and false signals exist. With parameter tuning and adding filters, it can be further improved to become one of the fundamental algorithmic trading strategies.
 
-[/trans]
+||
+
+## Overview   
+
+The Dual Moving Average Crossover strategy is a typical trend-following strategy. It uses two different-period EMA lines and goes long when the short-term EMA crosses above the long-term EMA and goes short when the opposite crossover happens to capture price trend reversals.
+
+## Principles  
+
+The core indicators of this strategy are two EMA lines, one with a 30-period length and another with a 60-period length. The two EMAs are calculated by custom functions in the code:   
+
+```
+emaLen1 = emaFuncOne(close, lenMA1)
+emaLen2 = emaFuncTwo(close, lenMA2)  
+```
+
+The trading signals are generated from the crossovers of these EMA lines:  
+
+```  
+currentState = if emaLen2 > emaLen1
+    0
+else 
+    1
+
+previousState = if emaLastLen2 > emaLastLen1 
+    0
+else
+    1
+
+convergence = if currentState != previousState
+    1  
+else
+    0
+```
+  
+When the short-term EMA crosses above the long-term EMA, `currentState` is not equal to `previousState`, a crossover signal is triggered, and you go long. 
+When the short-term EMA crosses below the long-term EMA, `currentState` is not equal to `previousState`, a crossover signal is triggered, and you go short.
+
+## Advantage Analysis  
+
+The advantages of this strategy are:  
+
+1. The logic is simple and intuitive, making it easy to understand and implement  
+2. Utilizes the smoothing property of EMAs to filter out market noise  
+3. Automatically follows trends, reducing the risk of missing trades
+
+## Risk Analysis   
+
+There are also some risks with this strategy:  
+
+1. Crossover signals may lag and fail to capture reversals in a timely manner
+2. Whipsaw signals may occur frequently during ranging markets  
+3. Poor parameter tuning may cause oversensitivity or delays
+
+Optimization can be done by adjusting EMA periods or adding filters.
+
+## Optimization Directions
+
+This strategy can be optimized from the following aspects:  
+
+1. Test different combinations of EMA periods  
+2. Add volume or volatility filters to reduce false signals
+3. Incorporate other indicators like MACD to confirm trends
+4. Optimize money management with stop loss and take profit
+
+## Conclusion  
+
+The Dual Moving Average Crossover strategy is overall a simple and practical trend-following system. It is straightforward, easy to implement, and can automatically track trends. However, some risks such as lagging and false signals exist. With parameter tuning and adding filters, it can be further improved to become one of the fundamental algorithmic trading strategies.
+
+||
 
 > Strategy Arguments
 
@@ -65,40 +154,80 @@ In summary, the Dual Moving Average strategy is very classic and practical. It c
 
 |Argument|Default|Description|
 |----|----|----|
-|v_input_1|10|Fast MA Length|
-|v_input_2|21|Slow MA Length|
-|v_input_3|true|Stop Loss Percentage|
-
+|v_input_1|30|Length 1|
+|v_input_2|60|Length 2|
 
 > Source (PineScript)
 
 ```pinescript
-//@version=5
-strategy("Moving Average Crossover Strategy", overlay=true)
+/*backtest
+start: 2024-01-10 00:00:00
+end: 2024-01-11 00:00:00
+period: 1m
+basePeriod: 1m
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
 
-// Input parameters
-fastLength = input(10, title="Fast MA Length")
-slowLength = input(21, title="Slow MA Length")
-stopLossPercent = input(1, title="Stop Loss Percentage")
+//@version=2
+strategy("ParkerMAStrat", overlay=true)
 
-// Calculate moving averages
-emaFast = ta.ema(close, fastLength)
-emaSlow = ta.ema(close, slowLength)
+lenMA1=input(title="Length 1", defval=30)
+lenMA2=input(title="Length 2",  defval=60)
 
-// Plot the moving averages on the price chart
-plot(emaFast, color=color.blue, title="Fast MA")
-plot(emaSlow, color=color.red, title="Slow MA")
+x = 0
 
-// Generate trading signals based on crossover
-if (ta.crossover(emaFast, emaSlow))
-    strategy.entry("Buy", strategy.long)
-else if (ta.crossunder(emaFast, emaSlow))
-    strategy.close("Buy")
+checkLines(current, last) =>
+    if current > last
+        x := 1
+    else
+        x := 0
+    x
+    
+//plot ema based on len1
+emaFuncOne(src, time_period) =>
+    alpha = 2 / (time_period + 1)
+    // we have defined the alpha function above
+    ema = 0.0
+    // this is the initial declaration of ema, since we dont know the first ema we will declare it to 0.0 [as a decimal]
+    ema := alpha * src + (1 - alpha) * nz(ema[1])
+    // this returns the computed ema at the current time
+    // notice the use of : (colon) symbol before =, it symbolises that we are changing the value of ema,
+    // since the ema was previously declared to 0
+    // this is called mutable variable declaration in pine script
+    ema
 
-// Set stop loss and take profit for long trades
-strategy.exit("Sell", "Buy", stop=true, trailPercent=stopLossPercent)
+emaLen1 = emaFuncOne(close, lenMA1)
 
-// Add labels for the signals
-label.new(x=bar_index, y=high * 0.95, text="Buy Signal", color=color.green, style=label.style_label_down)
-label.new(x=bar_index, y=low * 1.05, text="Sell Signal", color=color.red, style=label.style_label_up)
+plot(emaLen1, color=green, transp=0, linewidth=2)
+// now we plot the _30_period_ema
+
+//plot ema based on len2
+emaFuncTwo(src, time_period) =>
+    alpha = 2 / (time_period + 1)
+    // we have defined the alpha function above
+    ema = 0.0
+    // this is the initial declaration of ema, since we dont know the first ema we will declare it to 0.0 [as a decimal]
+    ema := alpha * src + (1 - alpha) * nz(ema[1])
+    // this returns the computed ema at the current time
+    // notice the use of : (colon) symbol before =, it symbolises that we are changing the value of ema,
+    // since the ema was previously declared to 0
+    // this is called mutable variable declaration in pine script
+    ema
+
+//plot ema based on len2
+emaFuncOneLast(src, time_period) =>
+    alpha = 2 / (time_period + 1)
+    // we have defined the alpha function above
+    ema = 0.0
+    // this is the initial declaration of ema, since we dont know the first ema we will declare it to 0.0 [as a decimal]
+    ema := alpha * src + (1 - alpha) * nz(ema[1])
+    // this returns the computed ema at the current time
+    // notice the use of : (colon) symbol before =, it symbolises that we are changing the value of ema,
+    // since the ema was previously declared to 0
+    // this is called mutable variable declaration in pine script
+    ema
+
+emaLen2 = emaFuncOneLast(close, lenMA2)
+plot(emaLen2, color=red, transp=0, linewidth=2)
+// now we plot the _60_period_ema
 ```

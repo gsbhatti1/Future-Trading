@@ -1,3 +1,4 @@
+```markdown
 Name
 
 buy-hold - buy and hold
@@ -13,7 +14,7 @@ Buy and hold strategy
 
 Source (javascript)
 
-``` javascript
+```
 /*
 Strategy source: rqalpha
 Strategy name: buy-hold buy and hold
@@ -24,7 +25,7 @@ Brainless index type
 */
 
 LoopInterval = 60 // Polling interval (seconds)
-SlidePrice = 0.3 // Sliding price (yuan)
+SlidePrice = 0.3 // sliding price (yuan)
 minMoney = 100; // If the funds are less than this value, no purchase will be made
 
 function adjustFloat(v) {
@@ -38,7 +39,7 @@ while (!(orders = exchange.GetOrders())) {
 Sleep(Interval);
 }
 
-if (orders.length == 0) {
+if (orders. length == 0) {
 return;
 }
 
@@ -99,3 +100,4 @@ https://www.fmz.com/strategy/41786
 Last Modified
 
 2017-06-02 22:18:11
+```

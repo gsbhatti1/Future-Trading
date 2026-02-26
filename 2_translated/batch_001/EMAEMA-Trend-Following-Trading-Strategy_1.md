@@ -1,9 +1,7 @@
-```markdown
 ---
-
 ## Overview 
 
-This strategy is a typical EMA trend following strategy. It uses the golden cross of a fast EMA and slow EMA to determine uptrends, and the death cross to determine downtrends, for long and short trades accordingly. The strategy reliably tracks medium- to long-term trends and is suitable for swing trading.
+This strategy is a typical EMA trend following strategy. It uses the golden cross of a fast EMA and slow EMA to determine uptrends, and the death cross to determine downtrends for long and short trades accordingly. The strategy reliably tracks medium- to long-term trends and is suitable for swing trading.
 
 ## Strategy Logic 
 
@@ -59,9 +57,10 @@ The strategy can be enhanced in areas like:
 
 The EMA trend following strategy is a simple and practical way to track medium- to long-term trends. It uses fast and slow EMA crosses for entry timing. Easy to implement, it can also be extended in multiple dimensions for greater adaptability. A great fit for swing trading trending markets.
 
-|| 
+---
 
-## Strategy Arguments
+> Strategy Arguments
+
 
 |Argument|Default|Description|
 |----|----|----|
@@ -69,23 +68,12 @@ The EMA trend following strategy is a simple and practical way to track medium- 
 |v_input_1|timestamp(1 Jan 2021)|Start Date|
 |v_input_2|timestamp(1 Jan 2022)|End Date|
 
-## Source (PineScript)
+
+> Source (PineScript)
 
 ```pinescript
-/*backtest
-start: 2023-09-11 00:00:00
-end: 2023-09-18 00:00:00
-period: 10m
-basePeriod: 1m
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
-// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
-// © HomoDeus666
-
 //@version=5
-
-strategy("EMA12/26 with date backtest range (BTCpair)", overlay=true,initial_capital = 1,commission_type = strategy.commission.percent,currency = currency.BTC)
+strategy("EMA12/26 with date backtest range (BTCpair)", overlay=true, initial_capital = 1, commission_type = strategy.commission.percent, currency = currency.BTC)
 
 //input date and time
 useDateFilter = input.bool(true, title="Filter Date Range of Backtest",
@@ -122,7 +110,6 @@ if not inTradeWindow and inTradeWindow[1]
     strategy.close_all(comment="Date Range Exit")
 ```
 
-## Detail
+> Detail
 
 https://www.fmz.com/strategy/4
-```
