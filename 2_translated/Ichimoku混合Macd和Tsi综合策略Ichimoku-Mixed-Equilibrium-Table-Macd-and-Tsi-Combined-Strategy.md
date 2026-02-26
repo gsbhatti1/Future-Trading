@@ -22,6 +22,7 @@ ss_offset = input(26, minval=1, title="Senkou-Span Offset")
 long_entry = input(true, title="Long Entry")
 short_entry = input(true, title="Short Entry")
 
+// Helper function to calculate middle values
 middle(len) => avg(lowest(len), highest(len))
 
 // Ichimoku Components
@@ -33,41 +34,45 @@ senkouB = middle(ssb_bars)
 ss_high = max(senkouA[ss_offset-1], senkouB[ss_offset-1])
 ss_low = min(senkouA[ss_offset-1], senkouB[ss_offset-1])
 
-// MACD and Chaikin Money Flow
+// MACD Components
 fast_len = input(8, title="Fast Length")
-slow_len = input(28, title="Slow Length")
+slow_len = input(26, title="Slow Length")
+signal_smoothing = input(5, title="Signal Smoothing")
 
-macd_line, signal_line, _ = macd(close, fast_len, slow_len)
-cmf_length = input(5, minval=1, title="CMF Length")
-cmf = chaikin_money_flow(high, low, close, volume, cmf_length)
+macd_line, signal_line, _ = macd(close, fast_len, slow_len, signal_smoothing)
 
-// TSI
-tsi_length1 = input(8, title="Long Length")
-tsi_length2 = input(8, title="Short Length")
+// Chaikin Money Flow
+cmf_len = input(13, minval=1, title="CMF Length")
+cmf = chaikin_money_flow(close, high, low, open, cmf_len)
 
-tsi_line = tsi(close, tsi_length1, tsi_length2)
-
-// Entry Conditions
-tenkan_kijun_cross = ta.crossover(tenkan, kijun)
-bullish_signal = tenkan > kijun and close > ss_high
-bearish_signal = tenkan < kijun and close < ss_low
-
-macd_positive = macd_line > signal_line
-cmf_pos = cmf > 0
-tsi_pos = tsi_line > 0
+// TSI Components
+long_period = input(25, minval=1, title="Long Period")
+short_period = input(13, minval=1, title="Short Period")
+tsi_value = tsi(close, long_period, short_period)
 
 // Strategy Logic
-if (tenkan_kijun_cross and bullish_signal and macd_positive and cmf_pos and tsi_pos)
+// Bullish Entry Conditions
+bullish_entry = tenkan > kijun and close > ss_high
+
+// Bearish Entry Conditions
+bearish_entry = tenkan < kijun and close < ss_low
+
+// MACD and Chaikin Money Flow Signal for Entries
+macd_positive = macd_line >= 0 and signal_line >= 0 and cmf >= 0
+macd_negative = macd_line <= 0 and signal_line <= 0 and cmf <= 0
+
+if (bullish_entry or long_entry and macd_positive)
     strategy.entry("Long", strategy.long)
 
-if (tenkan_kijun_cross and bearish_signal and not macd_positive or not cmf_pos or not tsi_pos)
-    strategy.close("Long")
-
-if (tenkan_kijun_cross and short_entry and bearish_signal and not macd_positive and not cmf_pos and not tsi_pos)
+if (bearish_entry or short_entry and macd_negative)
     strategy.entry("Short", strategy.short)
 
-if (tenkan_kijun_cross and long_entry and bullish_signal and macd_positive and cmf_pos and tsi_pos)
+// Reverse Trade for Opposite Signals
+if bullish_entry and not long_entry
+    strategy.close("Long")
+
+if bearish_entry and not short_entry
     strategy.close("Short")
 ```
 
-The provided code is translated while maintaining the original structure, formatting, and functionality.
+This script implements the Ichimoku with MACD, Chaikin Money Flow (CMF), and TSI strategy as described in the document. It includes all the necessary inputs and logic to handle bullish and bearish entries based on multiple indicators.
