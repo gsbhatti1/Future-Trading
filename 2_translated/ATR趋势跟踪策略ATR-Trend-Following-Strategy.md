@@ -12,41 +12,41 @@ ChaoZhang
 
 ## Overview
 
-This strategy uses average true range (ATR) to capture price trends, and uses ATR to set stop loss levels to achieve trend tracking.
+This strategy uses average true range (ATR) to capture price trends and sets stops based on ATR for trend following.
 
-## Strategy Principle
+## How it Works
 
 1. Calculate the ATR value.
 2. Determine the stop loss level based on the ATR value.
-3. When the price breaks through the stop loss line, go long and short.
-4. Lock in profits by dynamically adjusting stop loss levels.
+3. Enter long or short when the price breaks through the stop level.
+4. Lock in profits by adjusting stops dynamically.
 
-## Strategic Advantages
+## Advantages
 
-- Use ATR to automatically adjust stop loss without manual intervention
-- The strategy is simple, intuitive and easy to implement
-- Avoid being trapped and stop losses in time
-- Can take advantage of trends to make profits
-- Trading frequency can be controlled by adjusting ATR parameters
+- ATR automatically adjusts stops without manual intervention
+- Simple and intuitive logic, easy to implement
+- Helps avoid being trapped, timely stop loss
+- Profits from riding trends
+- Trade frequency can be controlled via ATR parameters
 
-## Strategy Risk
+## Risks
 
-- Improper setting of ATR parameters may result in too loose or tight stops
+- Poorly set ATR parameters may result in too loose or tight stops
 - Inability to effectively identify the end of a trend
-- There is a certain time lag
-- May lose some profits due to reversals
+- Some time lag exists
+- Reversals may cut profits
 
-## Optimization Direction
+## Optimization Directions
 
-- Optimize ATR cycle parameters
-- Test different ATR multiples as stop loss distances
-- Combine with other indicators to identify trend reversals
-- Try machine learning parameter optimization
-- Consider additional take-profit strategies
+- Optimize ATR period parameters
+- Test different ATR multiples as stop distances
+- Add filters to detect trend reversals
+- Explore machine learning for parameter optimization
+- Consider additional profit taking mechanisms
 
 ## Summary
 
-This strategy uses ATR to effectively capture the trend and dynamically adjust the stop loss to lock in profits. Optimizing parameter settings can improve strategy performance. However, the ATR lag problem cannot be completely avoided. Overall, this strategy is a simple and practical trend following solution.
+This strategy effectively captures trends using ATR and locks in profits with dynamic stops. Fine-tuning parameter settings can improve performance. However, the ATR lag problem cannot be completely eliminated. Overall, this is a simple and practical trend following solution.
 
 ||
 
@@ -56,9 +56,9 @@ This strategy uses Average True Range (ATR) to capture price trends and sets sto
 
 ## How it Works
 
-1. Calculate ATR value.
-2. Determine stop loss level based on ATR.
-3. Enter long/short when price breaks stop level.
+1. Calculate the ATR value.
+2. Determine the stop loss level based on the ATR value.
+3. Enter long or short when the price breaks through the stop level.
 4. Lock in profits by adjusting stops dynamically.
 
 ## Advantages
@@ -71,8 +71,8 @@ This strategy uses Average True Range (ATR) to capture price trends and sets sto
 
 ## Risks
 
-- Poor ATR parameters can cause stops to be too Loose or Tight
-- Unable to effectively identify trend end
+- Poorly set ATR parameters can cause stops to be too loose or tight
+- Unable to effectively identify the end of a trend
 - Some time lag exists
 - Reversals may cut profits
 
@@ -86,11 +86,12 @@ This strategy uses Average True Range (ATR) to capture price trends and sets sto
 
 ## Conclusion
 
-The strategy effectively catches trends using ATR and locks in profits with dynamic stops. Fine tuning parameters can improve performance. But ATR lag cannot be completely eliminated. Overall a simple and practical trend following solution.
+The strategy effectively captures trends using ATR and locks in profits with dynamic stops. Fine-tuning parameters can improve performance, but the ATR lag problem cannot be completely eliminated. Overall, it is a simple and practical trend following solution.
 
 [/trans]
 
 > Strategy Arguments
+
 
 
 |Argument|Default|Description|
