@@ -1,6 +1,6 @@
 > Name
 
-RSI Dynamic Breakout Retracement Trading Strategy - RSI-Dynamic-Breakout-Retracement-Trading-Strategy
+RSI Dynamic Breakout Retraction Trading Strategy - RSI-Dynamic-Breakout-Retracement-Trading-Strategy
 
 > Author
 
@@ -106,14 +106,14 @@ rsiLengthInput = input.int(14, minval=1, title="RSI Length")
 rsiSourceInput = input.source(close, title="RSI Source")
 rsiLevelOverbought = input(70, title="Overbought Level")
 rsiLevelOversold = input(30, title="Oversold Level")
-rsiLevelMiddle = input(50, title="Middle Level") // New entry for the 50 level
+rsiLevelMiddle = input(50, title="Middle Level") // New input for the level 50
 
 // Stop loss and take profit in PIPS configuration
 stopLossPips = input.int(15, title="Stop Loss (pips)")
 takeProfitPips = input.int(100, title="Take Profit (pips)")
 partialProfitPips = input.int(50, title="Partial Profit (pips)")
 
-// Trading hours configuration
+// Trading window setup
 startHour = input.int(8, title="Start Hour (GMT+2)", minval=0, maxval=23)
 startMinute = input.int(0, title="Start Minute (GMT+2)", minval=0, maxval=59)
 endHour = input.int(11, title="End Hour (GMT+2)", minval=0, maxval=23)
@@ -132,7 +132,7 @@ oversoldCondition = ta.crossunder(rsi, rsiLevelOversold)
 plot(rsi, "RSI", color=color.rgb(236, 222, 13))
 hline(rsiLevelOverbought, "Overbought", color=color.rgb(6, 245, 6))
 hline(rsiLevelOversold, "Oversold", color=color.rgb(243, 32, 4))
-hline(rsiLevelMiddle, "Middle", color=color.blue) // New line for the 50 level
+hline(rsiLevelMiddle, "Middle", color=color.blue) // New line for the level 50
 
 // Plot shapes for conditions
 plotshape(series=overboughtCondition, title="Overbought", location=location.top, color=color.rgb(26, 241, 6), style=shape.labeldown, text="B")
