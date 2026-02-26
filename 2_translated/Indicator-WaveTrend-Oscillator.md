@@ -1,14 +1,14 @@
-> Name
+Name
 
 Indicator-WaveTrend-Oscillator
 
-> Author
+Author
 
 ChaoZhang
 
-> Strategy Description
+Strategy Description
 
-WaveTrend Oscillator is a port of a famous TS /MT indicator.
+WaveTrend Oscillator is a port of a famous TS/MT indicator.
 When the oscillator is above the overbought band (red lines) and crosses down the signal (dotted line), it is usually a good SELL signal. Similarly, when the oscillator crosses above the signal when below the oversold band (green lines), it is a good BUY signal.
 
 I have marked some cross-overs in the above chart. As you can see, they are *not* the only useful signals WT generates. Try it on your instrument and let me know what you think.
@@ -16,7 +16,7 @@ I have marked some cross-overs in the above chart. As you can see, they are *not
 **Backtest**
 ![IMG](https://www.fmz.com/upload/asset/1e6ca21012dec675df4.png)
 
-> Strategy Arguments
+Strategy Arguments
 
 
 
@@ -30,13 +30,13 @@ I have marked some cross-overs in the above chart. As you can see, they are *not
 |v_input_6|-53|Over Sold Level 2|
 
 
-> Source (PineScript)
+Source (PineScript)
 
 ```pinescript
 /*backtest
 start: 2021-05-05 00:00:00
 end: 2022-05-04 23:59:00
-period: 1h
+Period: 1h
 basePeriod: 15m
 exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 args: [["v_input_3",40]]
@@ -73,16 +73,17 @@ plot(osLevel2, color=color.green, style=3)
 plot(wt1, color=color.green)
 plot(wt2, color=color.red, style=3)
 plot(wt1-wt2, color=color.blue, transp=80)
-if wt1 > obLevel1
+if wt1 >obLevel1
     strategy.entry("entry short", strategy.short)
 else if wt1 < osLevel1
     strategy.entry("entry long", strategy.long)
+
 ```
 
-> Detail
+Detail
 
 https://www.fmz.com/strategy/361521
 
-> Last Modified
+Last Modified
 
 2022-05-08 11:16:55
