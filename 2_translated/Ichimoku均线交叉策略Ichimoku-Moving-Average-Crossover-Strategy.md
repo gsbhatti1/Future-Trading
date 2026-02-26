@@ -1,6 +1,6 @@
 > Name
 
-Ichimoku Moving Average Crossover Strategy Ichimoku-Moving-Average-Crossover-Strategy
+Ichimoku均线交叉策略 Ichimoku-Moving-Average-Crossover-Strategy
 
 > Author
 
@@ -15,29 +15,48 @@ ChaoZhang
 
 The Ichimoku moving average crossover strategy identifies long and short signals by calculating a set of moving averages and detecting price crosses. This strategy combines multiple technical indicators, providing solid and reliable trading for middle-to-long term operations.
 
-## Strategy Logic
+## Strategy Logic  
 
-The Ichimoku strategy utilizes a specialized system consisting of 5 moving average lines: the conversion line, base line, leading span 1, leading span 2, and lagging span. Specifically, the conversion line depicts recent price momentum, the base line shows medium to long-term trends, the leading lines combine the conversion and base lines to predict future moves, and the lagging span displays past prices for reference. Trading signals are generated when the price breaks through the base line. The strategy also incorporates body filters and candlestick colors to avoid false breaks.
+The Ichimoku strategy utilizes a specialized system consisting of 5 moving average lines: the conversion line, base line, leading span 1, leading span 2, and lagging span. Specifically, the conversion line depicts recent price momentum; the base line shows medium-to-long-term trends; the leading lines combine the conversion and base to predict future moves; and the lagging span displays past prices for reference. Trading signals are generated when the price breaks through the base line. The strategy also incorporates body filters and candlestick colors to avoid false breaks.
 
-## Advantages
+## Advantages  
 
 The Ichimoku strategy amalgamates the strengths of various technical indicators into one system. It fuses concepts of moving averages, price channels, volume confirmation, etc., forming a systematic methodology. This ensures accuracy and directionality of trading signals. Compared to single-indicator strategies, it greatly reduces false signals and increases profit factors.
 
-## Risks
+## Risks  
 
-As a trend-following system, the Ichimoku strategy has relatively long trading intervals. This means short-term price oscillations cannot be captured. Additionally, moving averages may fail when prices fluctuate violently. Such situations can lead to incorrect signals and losses. It is advisable to use stop-losses to control risks.
+As a trend-following system, the Ichimoku strategy has relatively long trading intervals. This means short-term price oscillations cannot be captured. Additionally, moving averages can fail during periods of violent price fluctuations. Such situations can lead to incorrect signals and losses. It is advisable to use stop-losses to control risks.
 
-## Enhancement Opportunities
+## Enhancement Opportunities  
 
-The Ichimoku strategy can be improved in areas like: 1) Adjusting average parameters for different periods and products; 2) Incorporating volume indicators to confirm price-volume relationships; 3) Introducing machine learning models to refine signal determination; 4) Adding more filters to reduce the probability of incorrect trades.
+The Ichimoku strategy can be improved in areas like: 1) Adjusting average parameters for different time frames and assets; 2) Incorporating volume indicators to confirm price-volume relationships; 3) Introducing machine learning models to refine signal determination; 4) Adding more filters to reduce the probability of incorrect trades.
 
-## Conclusion
+## Conclusion  
 
-The stable and reliable Ichimoku moving average crossover strategy is suitable as a core strategy combined with other algorithms. Its clear trend guidance, and flexibility due to parameter tuning and multi-indicator optimization make it worthwhile for in-depth research and long-term application by quantitative traders.
+The stable and reliable Ichimoku moving average crossover strategy is suitable as a core strategy combined with other algorithms. Its clear trend guidance, coupled with parameter tuning and multi-indicator optimization, makes it worth in-depth research and long-term application by quantitative traders.
 
-||
+[/trans]
 
-## Source (PineScript)
+> Strategy Arguments
+
+
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|true|Long|
+|v_input_2|true|Short|
+|v_input_3|9|Conversion Periods|
+|v_input_4|26|Base Periods|
+|v_input_5|52|Lagging Span|
+|v_input_6|true|Use body filter|
+|v_input_7|true|Use color filter|
+|v_input_8|1900|From Year|
+|v_input_9|2100|To Year|
+|v_input_10|true|From Month|
+|v_input_11|12|To Month|
+|v_input_12|true|From day|
+|v_input_13|31|To day|
+
+> Source (PineScript)
 
 ```pinescript
 /*backtest
@@ -79,9 +98,9 @@ leadLine2 = donchian(laggingSpan2Periods)
 // Lines
 plot(conversionLine, color=red, title="Conversion Line")
 plot(baseLine, color=blue, title="Base Line")
-plot(close, offset=-basePeriods, color=green, title="Lagging Span")
-p1 = plot(leadLine1, offset=basePeriods, color=green, title="Lead 1")
-p2 = plot(leadLine2, offset=basePeriods, color=red, title="Lead 2")
+plot(close, offset = -basePeriods, color=green, title="Lagging Span")
+p1 = plot(leadLine1, offset = basePeriods, color=green, title="Lead 1")
+p2 = plot(leadLine2, offset = basePeriods, color=red, title="Lead 2")
 fill(p1, p2)
 
 // Body Filter
