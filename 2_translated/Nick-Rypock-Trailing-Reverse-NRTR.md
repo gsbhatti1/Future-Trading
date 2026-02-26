@@ -17,23 +17,36 @@ The idea of the indicator is similar to the Chandelier Exit, but doesn't involve
 
 A dynamic price channel is used to calculate the NRTR. The calculations involve only those prices that are included in the current trend and exclude the extremes related to the previous trend. The indicator is always at the same distance (in percent) from the extremes reached by prices (below the maximum peak for the current uptrend, above the minimum bottom for the current downtrend).
 
-**Backtest**
 
-![](https://www.fmz.com/upload/asset/105233670b8ab608dba.png)
+**backtest**
 
-Strategy Arguments
+![IMG](https://www.fmz.com/upload/asset/105233670b8ab608dba.png)
 
-| Argument  | Default  | Description                                      |
-|-----------|----------|--------------------------------------------------|
-| v_input_1 | 2        | Coefficient of Correction, %                    |
-| v_input_2 | true     | Show Buy/Sell Labels ?                          |
-| v_input_3 | true     | Apply Ribbon ?                                  |
 
-Source (PineScript)
+> Strategy Arguments
+
+
+| Argument | Default | Description |
+| ---- | ---- | ---- |
+| v_input_1 | 2 | Coefficient of Correction, % |
+| v_input_2 | true | Show Buy/Sell Labels ? |
+| v_input_3 | true | Apply Ribbon ? |
+
+
+> Source (PineScript)
+
 
 ```pinescript
-// Copyright (c) 2021-present, Alex Orekhov (everget)
+/*backtest
+start: 2022-04-24 00:00:00
+end: 2022-05-23 23:59:00
+period: 2h
+basePeriod: 15m
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
+
 //@version=4
+// Copyright (c) 2021-present, Alex Orekhov (everget)
 study("Nick Rypock Trailing Reverse", shorttitle="NRTR", overlay=true)
 
 k = input(title="Coefficient of Correction, %", type=input.float, minval=0, maxval=100, step=0.1, defval=2)
@@ -94,17 +107,19 @@ alertcondition(changeCond, title="Alert: NRTR Direction Change", message="NRTR h
 alertcondition(buySignal, title="Alert: NRTR Buy", message="NRTR Buy!")
 alertcondition(sellSignal, title="Alert: NRTR Sell", message="NRTR Sell!")
 
+
 if buySignal
     strategy.entry("Enter Long", strategy.long)
 else if sellSignal
     strategy.entry("Enter Short", strategy.short)
 ```
 
-Detail
+
+> Detail
 
 https://www.fmz.com/strategy/365713
 
-Last Modified
+> Last Modified
 
 2022-05-25 18:14:32
 ```
