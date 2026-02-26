@@ -1,8 +1,50 @@
-``` javascript
+> Name
+
+Dual-Thrust-OKCoin-Futures
+
+> Author
+
+Zero
+
+> Strategy Description
+
+> Basic Principle
+
+- At the end of the day, calculate two values: the difference between the highest price and closing price, and the difference between the closing price and lowest price. Then take the larger value and multiply it by k to get the trigger value.
+- On the next morning's opening, record the opening price. If the price exceeds (opening + trigger value), immediately buy; if the price is lower than (opening - trigger value), immediately short sell.
+- This system is a reversal system with no separate stop-loss mechanism. That means a reverse signal is also a close-out signal.
+
+> Diagram
+
+![](https://dn-filebox.qbox.me/ab06814528c0ae8c54c6bebaea4438325968fbe5.jpg)
+
+`Dual Thrust strategy includes complete chart display, dynamic updating of charts, template references, etc., and can be used as a learning template.`
+
+For more detailed strategy information: [http://xueqiu.com/5256769224/32429363](http://xueqiu.com/5256769224/32429363)
+
+> Strategy Arguments
+
+
+|Argument|Default|Description|
+|----|----|----|
+|ContractTypeIdx|0|Contract Type: Current Week|Next Week|Quarter|
+|MarginLevelIdx|0|Margin Level: 10|20|
+|NPeriod|4|Calculation Period|
+|Ks|0.5|Upper Track Coefficient|
+|Kx|0.5|Lower Track Coefficient|
+|AmountOP|true|Contract Number for Opening Position|
+|Interval|2000|Retry Interval (milliseconds)|
+|LoopInterval|3|Polling Interval (seconds)|
+|PeriodShow|500|Maximum K-line Columns to Display on Chart|
+
+
+> Source Code (JavaScript)
+
+```javascript
 var ChartCfg = {
     __isStock: true,
     title: {
-        text: 'Dual Thrust 上下轨图'
+        text: 'Dual Thrust Upper and Lower Track'
     },
     yAxis: {
         plotLines: [{
@@ -10,7 +52,7 @@ var ChartCfg = {
             color: 'red',
             width: 2,
             label: {
-                text: '上轨',
+                text: 'Upper Track',
                 align: 'center'
             },
         }, {
@@ -18,14 +60,14 @@ var ChartCfg = {
             color: 'green',
             width: 2,
             label: {
-                text: '下轨',
+                text: 'Lower Track',
                 align: 'center'
             },
         }]
     },
     series: [{
         type: 'candlestick',
-        name: '当前周期',
+        name: 'Current Period',
         id: 'primary',
         data: []
     }, {
@@ -100,17 +142,17 @@ function Trade(currentState, nextState) {
             Counter.l++;
         }
 
-        LogProfit(_N(account.Stocks - InitAccount.Stocks), "收益率:", _N((account.Stocks - InitAccount.Stocks) * 100 / InitAccount.Stocks) + '%');
+        LogProfit(_N(account.Stocks - InitAccount.Stocks), "Return Rate:", _N((account.Stocks - InitAccount.Stocks) * 100 / InitAccount.Stocks) + '%');
         LastAccount = account;
     }
     exchange.SetDirection(nextState === STATE_LONG ? "buy" : "sell");
     while (true) {
         var pos = GetPosition(nextState === STATE_LONG ? PD_LONG : PD_SHORT);
         if (pos[1] >= AmountOP) {
-            Log("持仓均价", pos[0], "数量:", pos[1]);
+            Log("Average Price", pos[0], "Quantity:", pos[1]);
             break;
         }
-        // pfn(AmountOP-pos[1]);
+        // pfn(AmountOP - pos[1]);
         pfn(nextState === STATE_LONG ? _C(exchange.GetTicker).Sell * 1.001 : _C(exchange.GetTicker).Buy * 0.999, AmountOP - pos[1]);
         Sleep(Interval);
         CancelPendingOrders();
@@ -146,7 +188,7 @@ function onTick(exchange) {
         ChartCfg.yAxis.plotLines[0].value = UpTrack;
         ChartCfg.yAxis.plotLines[1].value = DownTrack;
         ChartCfg.subtitle = {
-            text: '上轨: ' + UpTrack + '  下轨: ' + DownTrack
+            text: 'Upper Track: ' + UpTrack + '  Lower Track: ' + DownTrack
         };
         chart.update(ChartCfg);
         chart.reset(PeriodShow);
@@ -160,22 +202,13 @@ function onTick(exchange) {
     var msg;
     if (State === STATE_IDLE || State === STATE_SHORT) {
         if (Bar.Close >= UpTrack) {
-            msg  = '做多 触发价: ' + Bar.Close + ' 上轨:' + UpTrack;
+            msg = 'Long Triggered at: ' + Bar.Close + ' Upper Track:' + UpTrack;
             Log(msg);
             Trade(State, STATE_LONG);
             State = STATE_LONG;
-            chart.add(1, {x:Bar.Time, color: 'red', shape: 'flag', title: '多', text: msg});
+            chart.add(1, {x: Bar.Time, color: 'red', shape: 'flag', title: 'Long', text: msg});
         }
     }
 
     if (State === STATE_IDLE || State === STATE_LONG) {
-        if (Bar.Close < DownTrack) {
-            msg = '做空 触发价: ' + Bar.Close + ' 下轨:' + DownTrack;
-            Log(msg);
-            Trade(State, STATE_SHORT);
-            State = STATE_SHORT;
-            chart.add(1, {x:Bar.Time, color: 'green', shape: 'flag', title: '空', text: msg});
-        }
-    }
-}
-```
+        if (Bar.Close 
