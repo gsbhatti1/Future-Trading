@@ -1,6 +1,6 @@
 > Name
 
-Dynamic-Support-Resistance-Price-Action-Trading-System- Dynamic Support-Resistance Price Action Trading System
+Dynamic-Support-Resistance-Price-Action-Trading-System-Dynamic Support/Resistance Price Action Trading System
 
 > Author
 
@@ -10,7 +10,6 @@ ChaoZhang
 
 ![IMG](https://www.fmz.com/upload/asset/b347b8db5b73db3d44.png)
 
-[trans]
 #### Overview
 This strategy is a trading system based on price action and dynamic support/resistance levels, executing trades near key price levels when specific candlestick patterns emerge. The system utilizes a 16-period dynamic support/resistance calculation method, combined with four classic reversal candlestick patterns - Hammer, Shooting Star, Doji, and Pin Bar to capture potential market reversals. The strategy employs fixed percentage take-profit and stop-loss levels for risk management and uses a sensitivity parameter to control entry signal strictness.
 
@@ -18,30 +17,28 @@ This strategy is a trading system based on price action and dynamic support/resi
 The core of the strategy lies in dynamically calculating support and resistance levels to establish price movement boundaries. When price approaches these key levels, the system looks for specific candlestick patterns as reversal signals. Entry conditions require pattern formation within 1.8% (default sensitivity) of support/resistance levels. The system implements a 35% equity management rule with 16% stop-loss and 9.5% take-profit, effectively controlling risk at around 5.6% of total equity per trade. The strategy is implemented in Pine Script with complete trade management functionality and visualization.
 
 #### Strategy Advantages
-1. Combines two most reliable elements of technical analysis: price patterns and support/resistance, enhancing signal reliability
-2. Uses dynamically calculated support/resistance levels, adapting to changing market conditions
-3. Implements strict money management and risk control measures to prevent significant drawdowns
-4. Clear strategy logic with adjustable parameters, facilitating optimization for different market conditions
-5. Clear entry signals without subjective judgment, suitable for automated trading
+1. Combines two most reliable elements of technical analysis: price patterns and support/resistance, enhancing signal reliability.
+2. Uses dynamically calculated support/resistance levels, adapting to changing market conditions.
+3. Implements strict money management and risk control measures to prevent significant drawdowns.
+4. Clear strategy logic with adjustable parameters, facilitating optimization for different market conditions.
+5. Clear entry signals without subjective judgment, suitable for automated trading.
 
 #### Strategy Risks
-1. Support/resistance effectiveness may decrease in highly volatile markets
-2. Relatively wide stop-loss (16%) may lead to significant losses in volatile conditions
-3. Sensitivity parameter settings significantly impact trading frequency and accuracy
-4. Relying solely on price patterns may miss other important market signals
-5. Need to consider trading costs' impact on strategy returns
+1. Support/resistance effectiveness may decrease in highly volatile markets.
+2. Relatively wide stop-loss (16%) may lead to significant losses in volatile conditions.
+3. Sensitivity parameter settings significantly impact trading frequency and accuracy.
+4. Relying solely on price patterns may miss other important market signals.
+5. Need to consider trading costs' impact on strategy returns.
 
 #### Optimization Directions
-1. Introduce volume as a confirmation indicator to improve signal reliability
-2. Develop adaptive sensitivity parameters that adjust dynamically based on market volatility
-3. Optimize stop-loss settings, consider implementing trailing stops or stepped stop-loss plans
-4. Add trend filters to avoid reversal trades during strong trends
-5. Develop dynamic position sizing system adjusting trade size based on market conditions
+1. Introduce volume as a confirmation indicator to improve signal reliability.
+2. Develop adaptive sensitivity parameters that adjust dynamically based on market volatility.
+3. Optimize stop-loss settings, consider implementing trailing stops or stepped stop-loss plans.
+4. Add trend filters to avoid reversal trades during strong trends.
+5. Develop dynamic position sizing system adjusting trade size based on market conditions.
 
 #### Summary
-This price action-based trading strategy provides traders with a systematic trading approach by combining dynamic support/resistance levels with classic reversal patterns. The strategy's strengths lie in its clear logic and controllable risk, though continuous optimization based on actual trading results is necessary. Traders are advised to conduct thorough backtesting and parameter optimization before live trading, and customize the strategy based on market experience.[/trans]
-
-> Source (PineScript)
+This price action-based trading strategy provides traders with a systematic trading approach by combining dynamic support/resistance levels with classic reversal patterns. The strategy's strengths lie in its clear logic and controllable risk, though continuous optimization based on actual trading results is necessary. Traders are advised to conduct thorough backtesting and parameter optimization before live trading, and customize the strategy based on market experience.
 
 ``` pinescript
 /*backtest
@@ -95,3 +92,4 @@ isPinBar() =>
     lower_shadow = open - low
     upper_shadow = high - close
     (upper_shadow > body * 2 and lower_shadow < body * 0.5) or
+```
