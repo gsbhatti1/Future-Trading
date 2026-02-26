@@ -5,18 +5,20 @@ if(exchange.GetName() != 'Futures_FMex'){
 }
 
 var account = null
-var records = null 
+var depth = null 
 var pos = {direction: 'empty', price: 0, amount: 0, unrealised_profit: 0}
 
-
+// Official mining efficiency factors, can be customized according to needs, such as setting larger values for positions farther from the order book to reduce transaction risk.
+var factors = [1/4, 1/40, 1/40,1/40,1/40,1/50,1/50,1/50,1/50,1/50,1/100,1/100,1/100,1/100,1/100]
 var total_efficiency = 0 // Total efficiency
-var my_efficiency = 0
+var avg_efficiency = 0
+var avg_num = 0
 
-var ordersInfo = {buyId: 0, buyPrice: 0, sellId: 0, sellPrice: 0}
-var coverInfo = {buyId: 0, buyPrice: 0, sellId: 0, sellPrice: 0}
-var depthInfo = {asks: [], bids: []}
-var lastProfitTime = 0 // Control profit print time
-var lastRestTime = Date.now()   // Reset strategy timing
+var ordersInfo = {buy:[],sell:[]}// id:0, price:0, amount:0}
+var coverInfo = {buyId:0, buyPrice:0, sellId:0, sellPrice:0}
+var depthInfo = []
+var lastProfitTime = 0 // Control print profit time
+var lastRestTime = Date.now()   // Timed reset of the strategy
 var lastLogStatusTime = 0
 var lastPeriod = 0
 var today = _D().slice(8,11)
@@ -31,19 +33,19 @@ if(_G('total_back')){
 }
 var init_value = 0
 if(_G('init_value')){
-    init_value = _G('init_value')
+    init_value  = _G('init_value')
 }else{
     init_value = _N(account.Info.data.BTC[0] + account.Info.data.BTC[1] + account.Info.data.BTC[2], 6)
-    Log('First time starting the strategy, initial total value: ', init_value)
+    Log('First time starting the strategy, initial total value is: ', init_value)
     _G('init_value', init_value)
 }
 
-function updateRecords(){
-    var data = exchange.GetRecords(60)
+function updateDepth(){
+    var data = exchange.GetDepth()
     if(data){
-        records = data
+        depth = data
     }else{
-        Log('Failed to get market data')
+        Log('Failed to get market depth')
     }
 }
 
@@ -61,95 +63,93 @@ function updatePosition(){
     if(data){
         if(data.length > 0){
             if(data[0].Info.direction != pos.direction || data[0].Info.quantity != pos.amount){
-                Log('Position changed: ', pos.direction + ' ' + pos.amount + ' -> ' + data[0].Info.direction + ' ' + data[0].Info.quantity)
+                Log('Position change: ', pos.direction + ' ' + pos.amount + ' -> ' + data[0].Info.direction + ' ' + data[0].Info.quantity)
             }
-            pos = {direction: data[0].Info.direction, price: data[0].Info.entry_price, amount: data[0].Info.quantity, unrealised_profit: data[0].Info.unrealized_pnl}
+            pos = {direction:data[0].Info.direction, price:data[0].Info.entry_price, amount:data[0].Info.quantity, unrealised_profit:data[0].Info.unrealized_pnl}
         }else{
             if(pos.amount){
-                Log('Position changed: ', pos.direction + ' ' + pos.amount + ' -> ' + 'empty')
+                Log('Position change: ', pos.direction + ' ' + pos.amount + ' -> ' + 'empty')
             }
-            pos = {direction: 'empty', price: 0, amount: 0, unrealised_profit: 0}
+            pos = {direction:'empty',price:0,amount:0,unrealised_profit:0}
         }
     }else{
         Log('Failed to get position information')
     }
 }
 
-function calcEfficiency(){
+function calcDepth(){ 
+    depthInfo = [] // price amount efficiency ratio  
+    var ask_price = depth.Asks[0].Price
+    var bid_price = depth.Bids[0].Price
     total_efficiency = 0
-    for(var i=0;i<records.length;i++){
-        total_efficiency += 1000000 * (Amount / (records[i].Volume + Amount)) * 0.3 * 0.5 / 2880
-    }
-    if(_D().slice(17) > 57){
-        my_efficiency = 1000000 * (Amount / (records[records.length - 1].Volume + Amount)) * 0.3 * 0.5 / 2880
-    }
-}
-
-function logStatus(){
-    if(Date.now() - lastLogStatusTime < 4000){
-        return
-    }
-    lastLogStatusTime = Date.now()
-    var leverage = pos.amount / (account.Info.data.BTC[0] * (depthInfo.Asks[0].Price + depthInfo.Bids[0].Price) / 2)
-    var table1 = {type: 'table', title: 'Account Information', 
-             cols: ['Available Margin', 'Frozen Margin', 'Held Margin', 'Direction', 'Position Size', 'Entry Price', 'Unrealized Profit', 'Leverage Used', 'Initial Value', 'Profit', 'Buy Price', 'Sell Price', 'Average Efficiency', 'My Efficiency'],
-             rows: [[_N(account.Info.data.BTC[0], 6), _N(account.Info.data.BTC[1], 6), _N(account.Info.data.BTC[2], 6),
-                     pos.direction, pos.amount, _N(pos.price, 2), _N(pos.unrealised_profit, 5), _N(leverage, 2),
-                     _N(init_value, 6), _N(account.Info.data.BTC[0] - init_value, 6), ordersInfo.buyPrice, ordersInfo.sellPrice,
-                     _N(total_efficiency / records.length, 2), _N(my_efficiency, 2)
-                    ]]
-                 }
-    var table2 = {type: 'table', title: 'Order Information', cols: ['Position', 'Buy Price', 'Buy Amount', 'Efficiency', 'Sell Price', 'Sell Amount', 'Efficiency'], rows: []}
     for(var i=0;i<15;i++){
-        //Log(i+1,depthInfo.bids[i][1],depthInfo.bids[i][2],depthInfo.bids[i][3],depthInfo.asks[i][1],depthInfo.asks[i][2],depthInfo.asks[i][3])
-        table2.rows.push([i+1, depthInfo.bids[i][1], depthInfo.bids[i][2], depthInfo.bids[i][3], depthInfo.asks[i][1], depthInfo.asks[i][2], depthInfo.asks[i][3]])
-    }
-    if(_D().slice(8, 11) != today){
-        today = _D().slice(8, 11)
-        Log('Total unlocked amount per million yesterday: ', total_back).toFixed(4)
-        Log('Today, the statistics will be reset')
-        total_back = 0
-    }
-    var logString = 'Current mining period: ' + _D().slice(11, 14) + nowPeriod*5 + ' - ' + _D().slice(11, 14) + (nowPeriod*5+5) + ' Total unlocked amount per million obtained today is ' + total_back.toFixed(4) + '\n'
-    LogStatus(logString + '`' + JSON.stringify(table1) + '`\n' + '`' + JSON.stringify(table2) + '`')
-    if(Date.now() - lastProfitTime > ProfitTime * 1000){
-        updateAccount()
-        lastProfitTime = Date.now()
-        LogProfit(_N(account.Info.data.BTC[0] + account.Info.data.BTC[1] + account.Info.data.BTC[2], 6))
-    }
-}
-
-function cancelAll(){ // Reset the strategy to prevent some orders from getting stuck, which may affect other running strategies
-    var orders = exchange.GetOrders()
-    if(orders){
-        for(var i=0;i<orders.length;i++){
-            exchange.CancelOrder(orders[i].Id)
+        var factor = factors[i]
+        total_efficiency += 1000000*(Amount*2/(depth.Asks[i].Amount+depth.Bids[i].Amount))*factor*0.5/288
+        while(ask_price <= depth.Asks[i].Price){ // Considering unoccupied market depth positions
+            var my_ask_amount = _.findWhere(ordersInfo.sell, {price:ask_price}) ? _.findWhere(ordersInfo.sell, {price:ask_price}).amount : 0 // Excluding the interference of your own orders
+            var ask_amount = ask_price == depth.Asks[i].Price ? Math.max(depth.Asks[i].Amount-my_ask_amount,0) : 0
+            depthInfo.push({side:'sell', pos:i+1, price:ask_price, amount:ask_amount, factor:factor, my_amount:0, e:0, r:0})
+            ask_price += 0.5
         }
-        ordersInfo = {buyId: 0, buyPrice: 0, sellId: 0, sellPrice: 0}
+        
+    }
+    for(var i=0;i<15;i++){
+        var factor = factors[i]
+        total_efficiency += 1000000*(Amount*2/(depth.Asks[i].Amount+depth.Bids[i].Amount))*factor*0.5/288
+        while(bid_price >= depth.Bids[i].Price){
+            var my_bid_amount = _.findWhere(ordersInfo.buy, {price:bid_price}) ? _.findWhere(ordersInfo.buy, {price:bid_price}).amount : 0 
+            var bid_amount = bid_price == depth.Bids[i].Price ? Math.max(depth.Bids[i].Amount-my_bid_amount,0) : 0
+            depthInfo.push({side:'buy', pos:i+1, price:bid_price, amount:bid_amount, factor:factor, my_amount:0, e:0, r:0})
+            bid_price -= 0.5
+        }
     }
 }
 
-function coverPosition(){
-    if(pos.amount > 0){
-        if(pos.direction == 'long'){ // Close long position by taking the bid at market price, which incurs a fee. Can be changed to placing an order at the ask side, but it increases holding risk.
-            var sellPrice = _N(pos.price, 0) + _N(CoverCost, 0)
-            if(sellPrice != coverInfo.sellPrice){
-                if(coverInfo.sellId){
-                    exchange.CancelOrder(coverInfo.sellId)
-                    coverInfo.sellId = 0
+function calcAmount(){
+    var total_amount = Amount
+    var per_amount = _N(Amount/100,0)
+    var max_id = 0
+    while(total_amount >= per_amount){
+        var max_e = 0
+        for(var i=0;i<30;i++){
+            if(depthInfo[i].amount == 0){
+                depthInfo[i].my_amount = per_amount
+            }else{
+                depthInfo[i].e = depthInfo[i].factor*depthInfo[i].amount/Math.pow(depthInfo[i].my_amount+per_amount+depthInfo[i].amount,2)
+                max_id = depthInfo[i].e > max_e ? i : max_id 
+                max_e = depthInfo[i].e > max_e ? depthInfo[i].e : max_e
+            }
+        }
+        depthInfo[max_id].my_amount += per_amount     
+        total_amount -= per_amount
+    }
+}
+
+function makeOrders(){
+    var e = 0
+    var new_orders = {buy:[],sell:[]}
+    for(var i=0;i<30;i++){
+        if(depthInfo[i].my_amount > 0){
+            var find = _.findWhere(ordersInfo[depthInfo[i].side], {price:depthInfo[i].price})
+            // Log(find)
+            var now_amount = find ? find.amount : 0
+            var now_id =  find ? find.id : 0
+            if(Math.abs(now_amount - depthInfo[i].my_amount) > 2.1*Amount/100 || depthInfo[i].amount == 0){ // Need to place a new order
+                if(now_id){
+                    exchange.CancelOrder(now_id,find)
+                    find.id = 0
                 }
-                exchange.SetDirection('sell')
-                var sellId = exchange.Sell(sellPrice, pos.amount, 'Close long position')
-                coverInfo.sellPrice = sellPrice
-                if(sellId){
-                     coverInfo.sellId = sellId
-                }else{
-                     coverInfo.sellId = 0
+                if(depthInfo[i].my_amount > 0){
+                    exchange.SetDirection(depthInfo[i].side)
+                    
+                    var id = exchange[depthInfo[i].side == 'buy' ? 'Buy' : 'Sell'](depthInfo[i].price, depthInfo[i].my_amount)
+                    if(id){ 
+                        new_orders[depthInfo[i].side].push({price:depthInfo[i].price,amount:depthInfo[i].my_amount,id:id})
+                    }
                 }
-            }        
-        }else{
-            var buyPrice = _N(pos.price, 0) - _N(CoverCost, 0)
-            if(buyPrice != coverInfo.buyPrice){
-                if(coverInfo.buyId){
-                    exchange.
+           }else{
+               now_id =  find ? find.id : 0
+               if(now_id){
+                   new_orders[depthInfo[i].side].push(find)
+               }
 ```

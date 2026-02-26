@@ -1,59 +1,212 @@
-```pinescript
-/* backtest
-start: 2021-05-08 00:00:00
-end: 2022-05-07 23:59:00
-period: 4h
-basePeriod: 15m
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+``` javascript
+/*backtest
+start: 2019-08-01 00:00:00
+end: 2020-03-11 00:00:00
+period: 15m
+basePeriod: 5m
+exchanges: [{"eid":"Futures_OKCoin","currency":"BTC_USD"}]
 */
-//@version=4
-study("Supertrend", overlay=true, format=format.price, precision=2, resolution="")
 
-Periods = input(title="ATR Period", type=input.integer, defval=10)
-src = input(hl2, title="Source")
-Multiplier = input(title="ATR Multiplier", type=input.float, step=0.1, defval=3.0)
-changeATR= input(title="Change ATR Calculation Method ?", type=input.bool, defval=true)
-showsignals = input(title="Show Buy/Sell Signals ?", type=input.bool, defval=true)
-highlighting = input(title="Highlighter On/Off ?", type=input.bool, defval=true)
-atr2 = sma(tr, Periods)
-atr= changeATR ? atr(Periods) : atr2
-up=src-(Multiplier*atr)
-up1 = nz(up[1],up)
-up := close[1] > up1 ? max(up,up1) : up
-dn=src+(Multiplier*atr)
-dn1 = nz(dn[1], dn)
-dn := close[1] < dn1 ? min(dn, dn1) : dn
-trend = 1
-trend := nz(trend[1], trend)
-trend := trend == -1 and close > dn1 ? 1 : trend == 1 and close < up1 ? -1 : trend
-upPlot = plot(trend == 1 ? up : na, title="Up Trend", style=plot.style_linebr, linewidth=2, color=color.green)
-buySignal = trend == 1 and trend[1] == -1
-plotshape(buySignal ? up : na, title="UpTrend Begins", location=location.absolute, style=shape.circle, size=size.tiny, color=color.green, transp=0)
-plotshape(buySignal and showsignals ? up : na, title="Buy", text="Buy", location=location.absolute, style=shape.labelup, size=size.tiny, color=color.green, textcolor=color.white, transp=0)
-dnPlot = plot(trend == 1 ? na : dn, title="Down Trend", style=plot.style_linebr, linewidth=2, color=color.red)
-sellSignal = trend == -1 and trend[1] == 1
-plotshape(sellSignal ? dn : na, title="DownTrend Begins", location=location.absolute, style=shape.circle, size=size.tiny, color=color.red, transp=0)
-plotshape(sellSignal and showsignals ? dn : na, title="Sell", text="Sell", location=location.absolute, style=shape.labeldown, size=size.tiny, color=color.red, textcolor=color.white, transp=0)
-mPlot = plot(ohlc4, title="", style=plot.style_circles, linewidth=0)
-longFillColor = highlighting ? (trend == 1 ? color.green : color.white) : color.white
-shortFillColor = highlighting ? (trend == -1 ? color.red : color.white) : color.white
-fill(mPlot, upPlot, title="UpTrend Highligter", color=longFillColor)
-fill(mPlot, dnPlot, title="DownTrend Highligter", color=shortFillColor)
-alertcondition(buySignal, title="SuperTrend Buy", message="SuperTrend Buy!")
-alertcondition(sellSignal, title="SuperTrend Sell", message="SuperTrend Sell!")
-changeCond = trend != trend[1]
-alertcondition(changeCond, title="SuperTrend Direction Change", message="SuperTrend has changed direction!")
-if buySignal 
-   strategy.entry("buy", strategy.long)
-else if sellSignal
-    strategy.entry("sell", strategy.short) 
+// Global Variables
+var OpenAmount = 0                                                  // Amount of positions opened after the initial open position
+var KeepAmount = 0                                                  // Kept position amount
+var IDLE = 0
+var LONG = 1
+var SHORT = 2
+var COVERLONG = 3
+var COVERSHORT = 4
+var COVERLONG_PART = 5
+var COVERSHORT_PART = 6
+var OPENLONG = 7
+var OPENSHORT = 8
+
+var State = IDLE
+
+// Trading Logic Part
+function GetPosition(posType) {
+    var positions = _C(exchange.GetPosition)
+    /*
+    if(positions.length > 1){
+        throw "positions error:" + JSON.stringify(positions)
+    }
+    */
+    var count = 0
+    for(var j = 0; j < positions.length; j++){
+        if(positions[j].ContractType == Symbol){
+            count++
+        }
+    }
+
+    if(count > 1){
+        throw "positions error:" + JSON.stringify(positions)
+    }
+
+    for (var i = 0; i < positions.length; i++) {
+        if (positions[i].ContractType == Symbol && positions[i].Type === posType) {
+            return [positions[i].Price, positions[i].Amount];
+        }
+    }
+    
+    Sleep(TradeInterval);
+    return [0, 0]
+}
+
+function CancelPendingOrders() {
+    while (true) {
+        var orders = _C(exchange.GetOrders)
+        for (var i = 0; i < orders.length; i++) {
+            exchange.CancelOrder(orders[i].Id);
+            Sleep(TradeInterval);
+        }
+        if (orders.length === 0) {
+            break;
+        }
+    }
+}
+
+function Trade(Type, Price, Amount, CurrPos, OnePriceTick){    // Handle trading
+    if(Type == OPENLONG || Type == OPENSHORT){              // Handle opening positions
+        exchange.SetDirection(Type == OPENLONG ? "buy" : "sell")
+        var pfnOpen = Type == OPENLONG ? exchange.Buy : exchange.Sell
+        var idOpen = pfnOpen(Price, Amount, CurrPos, OnePriceTick, Type)
+        Sleep(TradeInterval)
+        if(idOpen) {
+            exchange.CancelOrder(idOpen)
+        } else {
+            CancelPendingOrders()
+        }
+    } else if(Type == COVERLONG || Type == COVERSHORT){     // Handle closing positions
+        exchange.SetDirection(Type == COVERLONG ? "closebuy" : "closesell")
+        var pfnCover = Type == COVERLONG ? exchange.Sell : exchange.Buy
+        var idCover = pfnCover(Price, Amount, CurrPos, OnePriceTick, Type)
+        Sleep(TradeInterval)
+        if(idCover){
+            exchange.CancelOrder(idCover)
+        } else {
+            CancelPendingOrders()
+        }
+    } else {
+        throw "Type error:" + Type
+    }
+}
+
+function SuperTrend(r, period, multiplier) {
+    // ATR Calculation
+    var atr = talib.ATR(r, period)
+
+    // baseUp and baseDown Calculation
+    var baseUp = []
+    var baseDown = []
+    for (var i = 0; i < r.length; i++) {
+        if (isNaN(atr[i])) {
+            baseUp.push(NaN)
+            baseDown.push(NaN)
+            continue
+        }
+        baseUp.push((r[i].High + r[i].Low) / 2 + multiplier * atr[i])
+        baseDown.push((r[i].High + r[i].Low) / 2 - multiplier * atr[i])
+    }
+
+    // fiUp and fiDown Calculation
+    var fiUp = []
+    var fiDown = []
+    var prevFiUp = 0
+    var prevFiDown = 0
+    for (var i = 0; i < r.length; i++) {
+        if (isNaN(baseUp[i])) {
+            fiUp.push(NaN)
+        } else {
+            fiUp.push(baseUp[i] < prevFiUp || r[i - 1].Close > prevFiUp ? baseUp[i] : prevFiUp)
+            prevFiUp = fiUp[i]
+        }
+
+        if (isNaN(baseDown[i])) {
+            fiDown.push(NaN)
+        } else {
+            fiDown.push(baseDown[i] > prevFiDown || r[i - 1].Close < prevFiDown ? baseDown[i] : prevFiDown)
+            prevFiDown = fiDown[i]
+        }
+    }
+
+    var st = []
+    var prevSt = NaN
+    for (var i = 0; i < r.length; i++) {
+        if (i < period) {
+            st.push(NaN)
+            continue
+        }
+
+        var nowSt = 0
+        if (((isNaN(prevSt) && isNaN(fiUp[i - 1])) || prevSt == fiUp[i - 1]) && r[i].Close <= fiUp[i]) {
+            nowSt = fiUp[i]
+        } else if (((isNaN(prevSt) && isNaN(fiUp[i - 1])) || prevSt == fiUp[i - 1]) && r[i].Close > fiUp[i]) {
+            nowSt = fiDown[i]
+        } else if (((isNaN(prevSt) && isNaN(fiDown[i - 1])) || prevSt == fiDown[i - 1]) && r[i].Close >= fiDown[i]) {
+            nowSt = fiDown[i]
+        } else if (((isNaN(prevSt) && isNaN(fiDown[i - 1])) || prevSt == fiDown[i - 1]) && r[i].Close < fiDown[i]) {
+            nowSt = fiUp[i]
+        }
+
+        st.push(nowSt)
+        prevSt = st[i]
+    }
+
+    var up = []
+    var down = []
+    for (var i = 0; i < r.length; i++) {
+        if (isNaN(st[i])) {
+            up.push(st[i])
+            down.push(st[i])
+        }
+
+        if (r[i].Close < st[i]) {
+            down.push(st[i])
+            up.push(NaN)
+        } else {
+            down.push(NaN)
+            up.push(st[i])
+        }
+    }
+
+    return [up, down]
+}
+
+var preTime = 0
+function main() {
+    exchange.SetContractType(Symbol)
+    
+    while (1) {
+        var r = _C(exchange.GetRecords)
+        var currBar = r[r.length - 1]
+        if (r.length < pd) {
+            Sleep(5000)
+            continue    
+        }
+        
+        var st = SuperTrend(r, pd, factor)
+             
+        $.PlotRecords(r, "K")
+        $.PlotLine("L", st[0][st[0].length - 2], r[r.length - 2].Time)
+        $.PlotLine("S", st[1][st[1].length - 2], r[r.length - 2].Time)
+        
+        if(!isNaN(st[0][st[0].length - 2]) && isNaN(st[0][st[0].length - 3])){  
+            if (State == SHORT) {
+                State = COVERSHORT
+            } else if(State == IDLE) {
+                State = OPENLONG
+            }
+        }
+
+        if(!isNaN(st[1][st[1].length - 2]) && isNaN(st[1][st[1].length - 3])){  
+            if (State == LONG) {
+                State = COVERLONG
+            } else if(State == IDLE) {
+                State = OPENSHORT
+            }
+        }
+
+        Sleep(TradeInterval);
+    }
+}
 ```
-
-> Detail
-
-https://www.fmz.com/strategy/370653
-
-> Last Modified
-
-2022-06-25 09:39:34
 ```

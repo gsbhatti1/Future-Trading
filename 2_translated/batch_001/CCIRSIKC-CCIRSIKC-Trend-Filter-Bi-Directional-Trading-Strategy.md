@@ -12,82 +12,82 @@ ChaoZhang
 
 [trans]
 #### Overview
-This strategy employs CCI, RSI, and Keltner Channels (KC) indicators alongside a trend filter to conduct bi-directional trading on AUDNZD and GBPNZD currency pairs. It uses CCI and RSI to identify overbought/oversold conditions, with KC serving as a reference for stop-loss and take-profit levels. A moving average is used as a trend filter to enter trades in line with the prevailing trend. The strategy has been backtested on historical data spanning the past five years, yielding stable returns.
+This strategy combines CCI, RSI, and Keltner Channels (KC) technical indicators along with a trend filter to achieve bi-directional trading on AUDNZD and GBPNZD currency pairs. It uses CCI and RSI to determine overbought and oversold conditions, KC as a reference for stop-loss and take-profit, and a moving average as a trend filter to open positions in line with the trend. The strategy has been backtested on historical data over the past 5 years, achieving stable returns.
 
 #### Strategy Principles
-1. Calculate CCI, RSI, and KC indicators. The upper KC line is the midline plus ATR, while the lower line is the midline minus ATR.
+1. Calculate CCI, RSI, and KC indicators. The upper KC line is the midline plus ATR, and the lower line is the midline minus ATR.
 2. Select the moving average type (SMA, EMA, SMMA, CMA, or TMA) and trend filter method (OFF, Normal, or Reversed) based on input parameters.
-3. Long entry conditions: Allow long trades, CCI < oversold line, close < KC lower line, RSI < oversold line, volume > 50-period average volume * multiplier, no current long position.
-4. Short entry conditions: Allow short trades, CCI > overbought line, close > KC upper line, RSI > overbought line, volume > 50-period average volume * multiplier, no current short position.
+3. Long entry conditions: allow long, CCI < oversold line, close < KC lower line, RSI < oversold line, volume > 50-period average volume * multiplier, no current long position.
+4. Short entry conditions: allow short, CCI > overbought line, close > KC upper line, RSI > overbought line, volume > 50-period average volume * multiplier, no current short position.
 5. Long exit condition: CCI > 0. Short exit condition: CCI < 0.
 6. Send alerts when opening and closing positions.
 
 #### Strategy Advantages
 1. Combines multiple indicators for comprehensive analysis, improving signal accuracy.
-2. Utilizes trend filter methods to adapt flexibly based on market trends.
-3. Offers various moving average types that can be selected according to different market conditions.
+2. Uses trend filter methods, allowing flexible adjustments based on market trends.
+3. Offers multiple moving average types, adapting to different market characteristics.
 4. Validated through long-term historical data, demonstrating good stability and suitability for long-term use.
-5. Bi-directional trading allows adapting to various market conditions, providing more profit opportunities.
-6. Highly automated with minimal manual intervention required.
+5. Bi-directional trading, suitable for various market conditions, providing more profit opportunities.
+6. Highly automated, requiring no manual intervention, saving time and effort.
 
 #### Strategy Risks
-1. Lacks traditional stop-loss and take-profit mechanisms; may experience significant drawdowns during extreme market conditions.
-2. Frequent opening and closing of positions in volatile markets could increase trading costs.
-3. Shorter CCI periods may generate noise signals.
-4. Trend filters may be less effective when trends are unclear or market volatility increases.
-5. Fixed position sizing does not adapt to changes in market volatility.
+1. Lacks traditional stop-loss and take-profit, potentially leading to significant drawdowns in extreme market conditions.
+2. May experience frequent opening and closing of positions in choppy markets, increasing trading costs.
+3. Uses relatively short CCI periods, potentially generating noise signals.
+4. Trend filters may have limited effectiveness when trends are unclear or market volatility increases.
+5. Fixed position sizing, unable to adapt to changes in market volatility.
 
 #### Strategy Optimization Directions
 1. Consider adding trailing stops or fixed-point stop-losses to control single-trade risk.
 2. Further optimize RSI and CCI parameters to reduce noise signals.
-3. Introduce volatility indicators like ATR to adjust position sizing and stop-losses based on market volatility.
-4. Add more currency pairs and optimize parameters separately for each instrument.
-5. Explore the use of machine learning and other AI technologies for adaptive parameter optimization.
+3. Consider introducing volatility indicators like ATR to adjust position sizing and stop-losses based on market volatility.
+4. Add more currency pairs and optimize parameters individually based on each instrument's characteristics.
+5. Attempt to introduce machine learning and other AI technologies for adaptive parameter optimization.
 
 #### Summary
-The strategy incorporates multiple classic indicators, making it relatively easy to code and backtest using TradingView. Although the backtesting results are promising, risk management and parameter adjustments remain crucial in live trading. It is recommended to start with a small initial investment for testing purposes and gradually increase capital as experience is gained. With its high degree of automation, this strategy suits conservative investors interested in long-term use.
+This strategy employs multiple classic indicators, making it relatively easy to code and backtest on TradingView. While the backtesting results are good, risk control and parameter adjustments are still necessary for live trading. It is recommended to start with small funds for testing and gradually increase investment as experience accumulates. With a high degree of automation, it is suitable for conservative investors to use over the long term.
 
 ||
 
 #### Overview
-This strategy combines CCI, RSI, and Keltner Channels (KC) indicators along with a trend filter to conduct bi-directional trading on AUDNZD and GBPNZD currency pairs. It uses CCI and RSI to determine overbought/oversold conditions, KC as a reference for stop-loss and take-profit levels, and a moving average as a trend filter to open positions in line with the prevailing trend. The strategy has been backtested on historical data spanning the past five years, achieving stable returns.
+This strategy combines CCI, RSI, and Keltner Channels (KC) technical indicators along with a trend filter to achieve bi-directional trading on AUDNZD and GBPNZD currency pairs. It uses CCI and RSI to determine overbought and oversold conditions, KC as a reference for stop-loss and take-profit, and a moving average as a trend filter to open positions in line with the trend. The strategy has been backtested on historical data over the past 5 years, achieving stable returns.
 
 #### Strategy Principles
-1. Calculate CCI, RSI, and KC indicators. The upper KC line is the midline plus ATR, while the lower line is the midline minus ATR.
+1. Calculate CCI, RSI, and KC indicators. The upper KC line is the midline plus ATR, and the lower line is the midline minus ATR.
 2. Select the moving average type (SMA, EMA, SMMA, CMA, or TMA) and trend filter method (OFF, Normal, or Reversed) based on input parameters.
-3. Long entry conditions: Allow long trades, CCI < oversold line, close < KC lower line, RSI < oversold line, volume > 50-period average volume * multiplier, no current long position.
-4. Short entry conditions: Allow short trades, CCI > overbought line, close > KC upper line, RSI > overbought line, volume > 50-period average volume * multiplier, no current short position.
+3. Long entry conditions: allow long, CCI < oversold line, close < KC lower line, RSI < oversold line, volume > 50-period average volume * multiplier, no current long position.
+4. Short entry conditions: allow short, CCI > overbought line, close > KC upper line, RSI > overbought line, volume > 50-period average volume * multiplier, no current short position.
 5. Long exit condition: CCI > 0. Short exit condition: CCI < 0.
 6. Send alerts when opening and closing positions.
 
 #### Strategy Advantages
 1. Combines multiple indicators for comprehensive analysis, improving signal accuracy.
-2. Utilizes trend filter methods to adapt flexibly based on market trends.
-3. Offers various moving average types that can be selected according to different market conditions.
+2. Uses trend filter methods, allowing flexible adjustments based on market trends.
+3. Offers multiple moving average types, adapting to different market characteristics.
 4. Validated through long-term historical data, demonstrating good stability and suitability for long-term use.
-5. Bi-directional trading allows adapting to various market conditions, providing more profit opportunities.
-6. Highly automated with minimal manual intervention required.
+5. Bi-directional trading, suitable for various market conditions, providing more profit opportunities.
+6. Highly automated, requiring no manual intervention, saving time and effort.
 
 #### Strategy Risks
-1. Lacks traditional stop-loss and take-profit mechanisms; may experience significant drawdowns during extreme market conditions.
-2. Frequent opening and closing of positions in volatile markets could increase trading costs.
-3. Shorter CCI periods may generate noise signals.
-4. Trend filters may be less effective when trends are unclear or market volatility increases.
-5. Fixed position sizing does not adapt to changes in market volatility.
+1. Lacks traditional stop-loss and take-profit, potentially leading to significant drawdowns in extreme market conditions.
+2. May experience frequent opening and closing of positions in choppy markets, increasing trading costs.
+3. Uses relatively short CCI periods, potentially generating noise signals.
+4. Trend filters may have limited effectiveness when trends are unclear or market volatility increases.
+5. Fixed position sizing, unable to adapt to changes in market volatility.
 
 #### Strategy Optimization Directions
 1. Consider adding trailing stops or fixed-point stop-losses to control single-trade risk.
 2. Further optimize RSI and CCI parameters to reduce noise signals.
-3. Introduce volatility indicators like ATR to adjust position sizing and stop-losses based on market volatility.
-4. Add more currency pairs and optimize parameters separately for each instrument.
-5. Explore the use of machine learning and other AI technologies for adaptive parameter optimization.
+3. Consider introducing volatility indicators like ATR to adjust position sizing and stop-losses based on market volatility.
+4. Add more currency pairs and optimize parameters individually based on each instrument's characteristics.
+5. Attempt to introduce machine learning and other AI technologies for adaptive parameter optimization.
 
 #### Summary
-The strategy employs multiple classic indicators and is relatively easy to code and backtest using TradingView. While the backtesting results are good, risk control and parameter adjustments remain necessary in live trading. It is recommended to start with a small initial investment for testing purposes and gradually increase capital as experience accumulates. With its high degree of automation, it is suitable for conservative investors interested in long-term use.
+This strategy employs multiple classic indicators, making it relatively easy to code and backtest on TradingView. While the backtesting results are good, risk control and parameter adjustments are still necessary for live trading. It is recommended to start with small funds for testing and gradually increase investment as experience accumulates. With a high degree of automation, it is suitable for conservative investors to use over the long term.
 
 ||
 
-``` pinescript
+```pinescript
 /*backtest
 start: 2024-04-01 00:00:00
 end: 2024-04-30 23:59:59
@@ -119,4 +119,4 @@ lengthCCI = input(5, title='CCI Length')
 overboughtCCI = input(75, title='CCI Overbought Level')
 oversoldCCI = input(-75, title='CCI Oversold Level')
 rsiPeriod = input(30, title='RSI Period')
-rsi
+```

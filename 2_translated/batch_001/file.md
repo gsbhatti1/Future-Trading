@@ -1,131 +1,92 @@
 Name
 
-Price Fluctuation Alert
+Trading pair accuracy calibration
 
 Author
 
-Zero
+Spartan plays with quantification
 
-Strategy Description
-
-The program monitors the price fluctuation range within the specified period. If it exceeds the specified range, it will notify the designated mobile phone user by SMS. Using the SMS interface, it can be sent to multiple mobile phone numbers, separated by commas.
-Please select the K-line cycle for the cycle. If the K-line cycle is 1 minute, the data within one minute will be monitored.
-
-Strategy Arguments
-
-
-|Argument|Default|Description|
-|----|----|----|
-|MaxRatio|1.5|Value of fluctuation (percentage)|
-|LoopInterval|5|Collection interval (seconds)|
-|EnableSMS|true|Enable SMS notifications|
-|SMSUser|test|SMS Username|
-|SMSPass|test|SMS password MD5|
-|PhoneNum|111|Notification mobile number|
 
 
 Source (javascript)
 
 ``` javascript
-function _N(v) {
-return Math.floor(parseFloat(v.toFixed(10))*1000)/1000;
+/*
+-- After the strategy refers to the template, it directly calls this method using $.Test()
+-- The main function will not be triggered in the strategy and is only used as an entry point for template debugging.
+
+-- The precision calibration of the GetExPrecision function only supports single digits, and does not currently support the case where the trading pair precision is tens/hundreds/thousands of digits...
+-- [Warning] If the handicap depth is too low to accurately express the true accuracy, the function may lose accuracy.
+*/
+
+let gCache = {};
+
+let scientificToNumber = function(num) {
+if (/\d+\.?\d*e[\+\-]*\d+/i.test(num)) { // Regularly matches numbers in scientific notation
+    var zero = '0', //
+        parts = String(num).toLowerCase().split('e'), // Split into coefficients and indices
+        e = parts.pop(), // Storage index
+        l = Math.abs(e), // Take the absolute value, l-1 is the number of 0s
+        sign = e / l, // Judge positive or negative
+        coeff_array = parts[0].split('.'); // Split the coefficient according to decimal points
+    if (sign === -1) { // If it is a decimal
+        num = zero + '.' + new Array(l).join(zero) + coeff_array.join(''); // Splice strings, if it is a decimal, splice 0 and decimal point
+    } else {
+        var dec = coeff_array[1];
+        if (dec) l = l - dec.length; // If it is an integer, count the non-zero digits except the first digit in the integer and reduce the number of 0s accordingly.
+        num = coeff_array.join('') + new Array(l + 1).join(zero); // Join strings. If it is an integer, no decimal point is required.
+    }
+}
+return num;
 }
 
-var LastMsg = "";
-function SMSSend(msg) {
-if (msg == LastMsg) {
-return;
-}
-Log('SMS:', msg);
-LastMsg = msg;
-var ret = false;
-var phones = PhoneNum.split(',');
-for (var i = 0; i < phones.length; i++) {
-ret = HttpQuery("http://www.smsbao.com/sms?u=" + encodeURIComponent(SMSUser) + "&p=" + SMSPass.toUpperCase() + "&m=" + phones[i] + "&c=" + encodeURIComponent(msg)) == "0";
-if (ret) {
-Log("SMS notification", phones[i], "Success");
-} else {
-Log("SMS notification", phones[i], "Failure");
-}
-}
-return ret;
-}
-
-function formatDate(t) {
-var year = t.getFullYear();
-var month = t.getMonth() + 1;
-var day = t.getDate();
-var hour = t.getHours();
-var minute = t.getMinutes();
-var second = t.getSeconds();
-
-if (month < 10) {
-month = '0' + month;
-}
-if (day < 10) {
-day = '0' + day;
-}
-if (hour < 10) {
-hour = '0' + hour;
-}
-if (minute < 10) {
-minute = '0' + minute;
-}
-if (second < 10) {
-second = '0' + second;
+$.GetPrecision = function(depth) {
+    let maxLenAmt = 0;
+    let maxLenPrice = 0;
+    depth.Asks.forEach(function(ask) {
+        let price = scientificToNumber(ask["Price"]).toString();
+        if (price.indexOf('.') > -1) {
+            let priceP = price.split(".")[1].length;
+            if (priceP > maxLenPrice) {
+                maxLenPrice = priceP;
+            }
+        }
+        let amt = scientificToNumber(ask["Amount"]).toString();
+        if (amt.indexOf('.') > -1) {
+            let amtP = amt.split(".")[1].length;
+            if (amtP > maxLenAmt) {
+                maxLenAmt = amtP;
+            }
+        }
+    })
+    return [maxLenPrice, maxLenAmt];
 }
 
-return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+// Return array [precision of price, precision of quantity]
+$.GetExPrecision = function(ex, force) {
+    if (IsVirtual()) {
+        return null;
+    }
+    let key = ex.GetName() + '_ex_precision_' + ex.GetCurrency();
+    let cache = gCache[key];
+    if (!force && cache) {
+        return cache;
+    }
+    let r = $.GetPrecision(_C(ex.GetDepth));
+    gCache[key] = r;
+    Log("Cache precision information to local", key, r);
+    return r;
 }
 
 function main() {
-if (exchanges. length > 1) {
-throw "Only one exchange is supported";
-}
-LoopInterval = Math.max(1, LoopInterval);
-Log('The floating percentage will be displayed as profit, and an alarm will be issued after exceeding ' + MaxRatio + '%');
-if (EnableSMS && !SMSSend('Early warning strategy started successfully')) {
-throw "SMS interface test failed";
-}
-var preRatio = 0;
-var preKRatio = 0;
-while (true) {
-var records = exchange.GetRecords();
-if (records && records.length > 0) {
-var r = records[records.length-1];
-var n = _N(((r.High - r.Low) * 100) / r.High);
-
-if (records. length > 1) {
-var p = records[records.length-2];
-var pn = _N(((p.High - p.Low) * 100) / p.High);
-if (pn != preKRatio) {
-preKRatio = pn;
-if (pn != preRatio) {
-LogProfit(pn, 'Time:', formatDate(new Date(p.Time)), 'High:', p.High.toFixed(4), 'Low:', p.Low.toFixed(4));
-if (EnableSMS && n >= MaxRatio) {
-SMSSend('Current float ratio: ' + n + '%');
-}
-}
-}
-}
-if (n != preRatio) {
-LogProfit(n, 'Time:', formatDate(new Date(r.Time)), 'High:', r.High.toFixed(4), 'Low:', r.Low.toFixed(4));
-preRatio = n;
-if (EnableSMS && n >= MaxRatio) {
-SMSSend('Current float ratio: ' + n + '%');
-}
-}
-}
-Sleep(LoopInterval * 1000);
-}
+    $.GetExPrecision(exchange, false);
 }
 ```
 
-
 Detail
 
-https://www.fmz.com/strategy/885
+https://www.fmz.com/strategy/372101
 
 Last Modified
 
-2014-10-11 18:47:40
+2022-09-23 16:16:20

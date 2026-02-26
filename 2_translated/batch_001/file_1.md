@@ -1,116 +1,64 @@
 Name
 
-Interactive Template
+The first time placing orders for new coins on the exchange
 
 Author
 
-Inventor Quantification-Little Dream
+grass
 
 Strategy Description
 
-- Test Code
+Pending orders will be placed at fixed intervals, and will be used as a robot to place orders as soon as new coins are listed on the exchange. Not tested due to simple logic
 
-```
-// test code
-function main() {
-$.BindingFunc("test1", function(cmd, param){ // Bind the button with the control name test1, function(cmd, param){...} is the response function of the button, the first parameter of the response function is the name of the control that triggers the response function: test1
-var ticker = exchange.GetTicker() // The second param parameter is the parameter that comes when the control is clicked (numeric type, string type, Boolean type, and drop-down box all have parameters, but the button type does not have parameters)
-Log("Control:", cmd, "ticker:", ticker, "Parameter:", param)
-})
-$.BindingFunc("test3", function(cmd, param){ // Bind test3 ...
-var account = exchange.GetAccount()
-Log("account:", account, "cmd:", cmd, "param:", param)
-})
-$.BindingFunc("test5", function(){ // Bind test5 ...
-Log(exchange.GetName())
-})
-while(1){
-$.GetCommand() // Detect interactive commands in the main loop.
-Sleep(2000)
-}
-}
-```
+## Principle:
 
-- Interface Functions
+Start running after adding the trading pair, and try to obtain the market quotations without interruption. If the quotations can be obtained, it means that the transaction has started, and the strategy will place an order. If it cannot be obtained, it means that it is not open. Continue to try again and wait.
 
-- Control Response Function Binding
-$.BindingFunc(cmdControlName, function(cmd, param){...})
-
-- Interactive Command Detection Function
-Replaces Platform API GetCommand() function
-$.GetCommand()
-
-- Screenshot of the control configured by the test code
-![IMG](https://www.fmz.com/upload/asset/166da027c40813fe1311.png)
-
-- If you have any questions, please ask and leave a message.
+> Strategy Arguments
 
 
-Source (javascript)
+
+|Argument|Default|Description|
+|----|----|----|
+|Type|0|Order type: Buy order|Sell order|
+|Start_Price|7000|Start Price|
+|Spread|5|Interval|
+|N|5|Single number|
+|Amount|0.1|Pending order amount per order|
+|Amount_Step|false|Pending order increment amount|
+
+
+> Source (javascript)
 
 ``` javascript
-var _CmdMap = {}
 
-$.BindingFunc = function(cmdName, cmdFunc) {
-_CmdMap[cmdName] = cmdFunc
-}
-
-$.GetCommand = function() {
-var cmd = GetCommand()
-if(cmd) {
-strArr = cmd.split(":")
-func = _CmdMap[strArr[0]]
-if(strArr.length == 1) {
-//Call the response function corresponding to the command
-if(func) {
-func(strArr[0])
-}
-} else if(strArr.length == 2) {
-//Call the response function corresponding to the command
-if(func) {
-func(strArr[0], strArr[1])
-}
-} else {
-var param = strArr[1]
-for(var i = 2; i < strArr.length; i++) {
-param += (":" + strArr[i])
-}
-
-//Call the response function corresponding to the command
-if(func) {
-func(strArr[0], param)
-}
-}
-if(!func) {
-Log(strArr[0], "This command does not register a response function.", "#FF0000")
-}
-}
-}
-
-// test code
 function main() {
-$.BindingFunc("test1", function(cmd, param){ // Bind the button with the control name test1, function(cmd, param){...} is the response function of the button, the first parameter of the response function is the name of the control that triggers the response function: test1
-var ticker = exchange.GetTicker() // The second param parameter is the parameter that comes when the control is clicked (numeric type, string type, Boolean type, and drop-down box all have parameters, but the button type does not have parameters)
-Log("Control:", cmd, "ticker:", ticker, "Parameter:", param)
-})
-$.BindingFunc("test3", function(cmd, param){ // Bind test3 ...
-var account = exchange.GetAccount()
-Log("account:", account, "cmd:", cmd, "param:", param)
-})
-$.BindingFunc("test5", function(){ // Bind test5 ...
-Log(exchange.GetName())
-})
-while(1){
-$.GetCommand() // Detect interactive commands in the main loop.
-Sleep(2000)
+exchange.SetTimeout(500) //Guaranteed to return null quickly, continue to retry to obtain the market price
+while(true){
+var ticker = exchange.GetTicker()
+if(!ticker){
+continue
+}else{
+Log('Get the market price and start placing an order')
+for(var i=0;i<N;i++){
+if(Type == 0){
+exchange.Buy(Start_Price-i*Spread,Amount+i*Amount_Step)
+}else{
+exchange.Sell(Start_Price+i*Spread,Amount+i*Amount_Step)
 }
 }
+Log('Complete the pending order and exit the program')
+return
+}
+}
+}
+
 ```
 
-Detail
+> Detail
 
-https://www.fmz.com/strategy/137403
+https://www.fmz.com/strategy/194206
 
-Last Modified
+> Last Modified
 
-2019-02-15 11:49:52
+2020-10-16 10:20:29

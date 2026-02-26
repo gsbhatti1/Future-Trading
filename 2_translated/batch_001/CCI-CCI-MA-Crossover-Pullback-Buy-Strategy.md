@@ -1,6 +1,6 @@
 > Source (PineScript)
 
-```pinescript
+``` pinescript
 /*backtest
 start: 2024-04-01 00:00:00
 end: 2024-04-30 23:59:59
