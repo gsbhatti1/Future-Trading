@@ -1,4 +1,4 @@
-``` pinescript
+```pinescript
 /*backtest
 start: 2021-05-08 00:00:00
 end: 2022-05-07 23:59:00
@@ -12,7 +12,6 @@ exchanges: [{"eid":"Binance","currency":"BTC_USDT"}]
 
 //@version=4
 study(title = "SuperTREX", overlay = true)
-
 
 length = input(14)
 overSold = input(35)
@@ -33,14 +32,13 @@ var float last_open_short = na
 last_open_long := long ? close : nz(last_open_long[1])
 last_open_short := short ? close : nz(last_open_short[1])
 
-
 entry_value = last_open_long
 entry_value1 = last_open_short
 
 xy = (entry_value + entry_value1) / 2
 
 // INPUTS //
-st_mult   = input(4,   title = 'SuperTrend Multiplier', minval = 0, maxval = 100, step = 0.01)
+st_mult   = input(4, title = 'SuperTrend Multiplier', minval = 0, maxval = 100, step = 0.01)
 st_period = input(10, title = 'SuperTrend Period',     minval = 1)
 
 // CALCULATIONS //
@@ -61,26 +59,19 @@ trend := close > down_trend[1] ? 1: close < up_trend[1] ? -1 : nz(trend[1], 1)
 st_line = trend == 1 ? up_trend : down_trend
 plot(xy, color = trend == 1 ? color.green : color.red)
 
-buy = crossover( xy, st_line) 
-sell = crossunder(xy, st_line) 
+buy := crossover(xy, st_line) 
+sell := crossunder(xy, st_line) 
 
-plotshape(buy, title="Buy", text="Buy", color=color.green, style=shape.labelup, location=location.belowbar, size=size.small, textcolor=color.white, transp=0)  // plot for buy icon
-plotshape(sell, title="Sell", text="Sell", color=color.red, style=shape.labeldown, location=location.abovebar, size=size.small, textcolor=color.white, transp=0)  // plot for sell icon
+plotshape(buy, title="buy", text="Buy", color=color.green, style=shape.labelup, location=location.belowbar, size=size.small, textcolor=color.white, transp=0)  //plot for buy icon
+plotshape(sell, title="sell", text="Sell", color=color.red, style=shape.labeldown, location=location.abovebar, size=size.small, textcolor=color.white, transp=0)  //plot for sell icon
 
 /////// Alerts /////
-alertcondition(buy, title="Buy")
-alertcondition(sell, title="Sell")
+alertcondition(buy, title="buy")
+alertcondition(sell, title="sell")
+
 if buy
    strategy.entry("buy", strategy.long)
 else if sell
-    strategy.entry("sell", strategy.short)
+   strategy.entry("sell", strategy.short)
 
 ```
-
-> Detail
-
-https://www.fmz.com/strategy/366407
-
-> Last Modified
-
-2022-05-29 09:49:08
