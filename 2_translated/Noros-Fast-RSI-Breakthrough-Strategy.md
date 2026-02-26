@@ -1,8 +1,18 @@
+> Name
+
+Noros-Fast-RSI-Breakthrough-Strategy
+
+> Author
+
+ChaoZhang
+
+> Strategy Description
+
 This article will detail the logic behind Noro's Fast RSI Breakthrough Strategy, explain how trading signals are generated, and analyze the advantages and potential risks of this strategy.
 
 I. Strategy Overview
 
-This strategy mainly uses the RSI indicator to generate trading signals, combined with candlestick filtering and min/max breakthroughs as auxiliary judgments, forming a complete long/short decision system. The strategy name is "Noro's Fast RSI Breakthrough Strategy".
+This strategy mainly uses the RSI indicator to generate trading signals, combined with candlestick filtering and min/max breakthroughs as auxiliary judgements, forming a complete long/short decision system. The strategy name is "Noro's Fast RSI Breakthrough Strategy".
 
 II. Strategy Details 
 
@@ -48,47 +58,7 @@ This strategy integrates multiple technical indicators for robust trend followin
 
 ---
 
-Strategy Arguments
-
-| Argument | Default | Description |
-| --- | --- | --- |
-| v_input_1 | true | Long |
-| v_input_2 | true | Short |
-| v_input_3 | true | Use Fast RSI Strategy |
-| v_input_4 | true | Use Min/Max Strategy |
-| v_input_5 | true | Use BarColor Strategy |
-| v_input_6 | false | Use SMA Filter |
-| v_input_7 | 20 | SMA Filter Period |
-| v_input_8 | 7 | Fast RSI Period |
-| v_input_9 | 30 | RSI limit |
-| v_input_10_close | 0 | RSI Price: close/high/low/open/hl2/hlc3/hlcc4/ohlc4 |
-| v_input_11 | true | RSI Bars |
-| v_input_12 | true | Min/Max Bars |
-| v_input_13 | false | Show SMA Filter |
-| v_input_14 | false | Show Arrows |
-| v_input_15 | 2018 | From Year |
-| v_input_16 | 2100 | To Year |
-| v_input_17 | true | From Month |
-| v_input_18 | 12 | To Month |
-| v_input_19 | true | From day |
-| v_input_20 | 31 | To day |
-
----
-
-Source (PineScript)
-
 ```pinescript
-/*backtest
-start: 2022-09-11 00:00:00
-end: 2023-01-11 00:00:00
-period: 1d
-basePeriod: 1h
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
-//Noro
-//2018
-
 //@version=3
 strategy(title = "Noro's Fast RSI Strategy v1.6", shorttitle = "Fast RSI str 1.6", overlay = true, default_qty_type = strategy.percent_of_equity, default_qty_value = 100, pyramiding = 10)
 
@@ -109,10 +79,10 @@ showsma = input(false, defval = false, title = "Show SMA Filter")
 showarr = input(false, defval = false, title = "Show Arrows")
 fromyear = input(2018, defval = 2018, minval = 1900, maxval = 2100, title = "From Year")
 toyear = input(2100, defval = 2100, minval = 1900, maxval = 2100, title = "To Year")
-frommonth = input(01, defval = 01, minval = 01, maxval = 12, title = "From Month")
-tomonth = input(12, defval = 12, minval = 01, maxval = 12, title = "To Month")
-fromday = input(01, defval = 01, minval = 01, maxval = 31, title = "From day")
-today = input(31, defval = 31, minval = 01, maxval = 31, title = "To day")
+frommonth = input(1, defval = 1, minval = 1, maxval = 12, title = "From Month")
+tomonth = input(12, defval = 12, minval = 1, maxval = 12, title = "To Month")
+fromday = input(1, defval = 1, minval = 1, maxval = 31, title = "From day")
+today = input(31, defval = 31, minval = 1, maxval = 31, title = "To day")
 
 //Fast RSI
 fastup = rma(max(change(rsisrc), 0), fast)
