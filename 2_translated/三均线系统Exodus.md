@@ -8,42 +8,41 @@ Exodus[Strategy Writer]
 
 > Strategy Description
 
-This system is a dual-directional contract strategy that executes long or short positions based on the conditions met. The trading volume is in accordance with the number of contracts; for Binance, it's in BTC units, and for Huobi, it's in lots.
-【Update 7-31】
-The parameters of this strategy are suitable for operation at a 1-hour timeframe. However, since there are too few opening trades at that level, an update to the minute-level timeframe is necessary. Manual adjustment of the parameters will be required for the minute-level operations.
+This system is a two-way contract strategy that takes long or short positions based on certain conditions. The order volume is equal to the number of contracts; when using Binance, the order volume will be in BTC units; when using Huobi, the order volume unit is in lots.
+【Updated 7-31】
+The parameters of this strategy are suitable for operation on a 1-hour timeframe, but since the trading frequency during the hour is too low, it has been updated to a minute-level timeframe. However, manual adjustment of parameters may be required for the minute level.
 
-The following backtest results were obtained using hourly periods:
+Below are the backtest results based on hourly cycles.
 **** April 27 - July 25 ****
-Starting Capital: $300, Trading Volume: 0.04 BTC 
-![](https://www.fmz.com/upload/asset/1f4e9984f53d575c506c1.png)  
+Initial Capital: $300, Order Volume: 0.04 BTC
+![IMG](https://www.fmz.com/upload/asset/1f4e9984f53d575c506c1.png)
 **** January 1 - July 25 ****
-Starting Capital: $300, Trading Volume: 0.03 BTC (volume of 0.04 BTC was insufficient for the starting capital)
-If you want to use this in real trading, please backtest it first to determine your own trading volume.
-![](https://www.fmz.com/upload/asset/1f47c59a9ac1f93694193.png) 
+Initial Capital: $300, Order Volume: 0.03 BTC (0.04 order volume resulted in insufficient capital)
+Please backtest to determine your own order volume if you wish to use this strategy live.
+![IMG](https://www.fmz.com/upload/asset/1f47c59a9ac1f93694193.png)
 
-If you make a profit from this strategy, consider supporting the author:
-![](https://www.fmz.com/upload/asset/1f4c36c1fca8b23e727c7.jpg)
+If you make money, consider supporting the author.
+![IMG](https://www.fmz.com/upload/asset/1f4c36c1fca8b23e727c7.jpg)
 
 > Strategy Arguments
 
-
 |Argument|Default|Description|
-|---|---|---|
-|afterEmaCrossTime|4|Number of candles after a golden or death cross before MACD conditions are met (before executing an order)|
-|buyVolume|0.016|Trading volume (0.016 BTC)|
+|----|----|----|
+|afterEmaCrossTime|4|After an EMA crossover, how many bars must pass before MACD conditions are met for trading to be allowed|
+|buyVolume|0.016|Trade volume (0.016 BTC)|
 |stopLossRate|true|Stop loss rate (not including leverage)|
-|winLossRate|5|Risk-reward ratio|
-|period|60|Timeframe (minutes)|
-|EMA1|8|Fastest EMA period|
-|EMA2|34|Middle-speed EMA period|
-|EMA3|89|Slowest EMA period|
+|winLossRate|5|Profit-to-loss ratio|
+|period|60|Timeframe (in minutes)|
+|EMA1|8|Fastest EMA cycle period|
+|EMA2|34|Middle speed EMA cycle period|
+|EMA3|89|Slowest EMA cycle period|
 |MACD1|16|MACD parameter 1|
 |MACD2|26|MACD parameter 2|
 |MACD3|9|MACD parameter 3|
 
-> Source (javascript)
+> Source (JavaScript)
 
-``` javascript
+```javascript
 /*backtest
 start: 2021-04-27 00:00:00
 end: 2021-07-25 00:00:00
@@ -56,17 +55,17 @@ args: [["afterEmaCrossTime",4],["buyVolume",0.04],["winLossRate",5]]
 function GetCrossStatus(a, lastA, b, lastB) {
     let lastStatus = lastA < lastB;
     let curStatus = a < b;
-    let crosssStaus = 0; //0表示没有交叉，1表示金叉，2表示死叉
+    let crossStatus = 0; //0表示没有交叉，1表示金叉，2表示死叉
     //判断金叉还是死叉,同时判断此刻大于0轴或者小于0轴,因为在此系统中要求金叉时macd>0才有意义，死叉时macd<0才有意义
     if (curStatus != lastStatus) //状态不同时表示金叉或者死叉了
     {
         if (a > b) {
-            crosssStaus = 1; //金叉
+            crossStatus = 1; //金叉
         }
         if (a < b)
-            crosssStaus = 2; //死叉
+            crossStatus = 2; //死叉
     }
-    return crosssStaus;
+    return crossStatus;
 }
 var lastOpenTime;
 
@@ -99,9 +98,10 @@ function Open(direction) {
         exchange.SetDirection("sell");
         exchange.Sell(-1, amount);
     }
+    
 }
 
-function Close(ticker,fastLine,midLine) {
+function Close(ticker, fastLine, midLine) {
     let pos = exchange.GetPosition()[0];
 
     if (pos == null) {
@@ -109,41 +109,45 @@ function Close(ticker,fastLine,midLine) {
     }
     
     if (pos.Type == PD_LONG) {
-        if (ticker.Last < pos.Price*(1- stopLossRate/100) || ticker.Last > pos.Price*(1+(stopLossRate*winLossRate)/100)) {
-            Log("平多,开仓价为:",pos.Price,"本次盈利:",pos.Profit);
+        if (ticker.Last < pos.Price * (1 - stopLossRate / 100) || ticker.Last > pos.Price * (1 + (stopLossRate * winLossRate) / 100)) {
+            Log("平多, 开仓价为:", pos.Price, "本次盈利:", pos.Profit);
             exchange.SetDirection("closebuy");
             exchange.Sell(-1, pos.Amount);
+            
         }
     }
     if (pos.Type == PD_SHORT) {
-        if (ticker.Last > pos.Price*(1+ stopLossRate/100) || ticker.Last < pos.Price*(1-(stopLossRate*winLossRate)/100)) {
-            Log("平空,开仓价为:",pos.Price,"本次盈利:",pos.Profit);
+        if (ticker.Last > pos.Price * (1 + stopLossRate / 100) || ticker.Last < pos.Price * (1 - (stopLossRate * winLossRate) / 100)) {
+            Log("平空, 开仓价为:", pos.Price, "本次盈利:", pos.Profit);
             exchange.SetDirection("closesell");
             exchange.Buy(-1, pos.Amount);
         }
     }
 }
 
+
+
+
 var lastEmaCrossTime = 0;
 var lastMacdCrossTime = 0;
 
 function NearMacdCross(time) {
-    //Log("MACD",time,lastMacdCrossTime,time - lastMacdCrossTime);
+    //Log("MACD", time, lastMacdCrossTime, time - lastMacdCrossTime);
     return time - lastMacdCrossTime <= afterEmaCrossTime * 1000 * 3600;
 }
 
 function NearEmaCross(time) {
-    //Log("EMA",time,lastMacdCrossTime,time - lastMacdCrossTime);
+    //Log("EMA", time, lastMacdCrossTime, time - lastMacdCrossTime);
     return time - lastEmaCrossTime <= afterEmaCrossTime * 1000 * 3600;
 }
 
-var emaMeet = 0; //0表示不满足，1满足做多条件，2满足做空条件
-var macdMeet = 0; //判断macd是否满足条件,0表示不满足，1表示做多条件满足，2表示做空条件满足
 
+var emaMeet = 0; //0表示不满足，1满足做多条件，2满足做空条件
+var macdMeet = 0; //判断MACD是否满足条件,0表示不满足，1表示做多条件满足，2表示做空条件满足
 function main() {
     exchange.SetContractType("swap");
     while (1) {
-        let r = exchange.GetRecords(PERIOD_M1*period);
+        let r = exchange.GetRecords(PERIOD_M1 * period);
 
         //************均线EMA****************
         let emaChart8 = TA.EMA(r, EMA1);
@@ -168,46 +172,52 @@ function main() {
         let high = ticker.High;
         let close = ticker.Close;
 
-        Close(ticker,curEma8,curEma34);
+        Close(ticker, curEma8, curEma34);
 
-        // Check EMA cross
-        if (curEma8 < curEma34 && lastEma8 >= lastEma34) {
-            emaMeet = 1;
-            Log("ema golden cross");
-            lastEmaCrossTime = GetCurTime(r);
-        } else if (curEma8 > curEma34 && lastEma8 <= lastEma34) {
-            emaMeet = 2;
-            Log("ema death cross");
-            lastEmaCrossTime = GetCurTime(r);
-        }
+        //auto Open(ticker, curEma8, curEma34);  // This line was commented out and not translated
 
-        // Check MACD cross
+        //************MACD****************
+        let macd = macdChart[1];
         let dif = macdChart[0];
-        let curDif = dif[r.length - 1];
-        let lastDif = dif[r.length - 2];
+        let curMacd = macd[curMacd];
+        let lastMacd = macd[lastMacd];
+        let curDif = dif[curDif];
+        let lastDif = dif[lastDif];
 
+        //判断金叉还是死叉,同时判断此刻大于0轴或者小于0轴
         if (curMacd < 0 != lastMacd < 0) {
 
             if (curMacd > 0) {
                 macdMeet = 1;
-                //Log("macd金叉", lastMacd, curMacd);
+                Log("macd金叉", lastMacd, curMacd);
                 lastMacdCrossTime = GetCurTime(r);
             }
             if (curMacd < 0) {
 ``` 
 
-It appears the function was cut off at the end. Here is the continuation and completion of that JavaScript code:
+It seems the script was cut off. The rest of the function should handle the MACD crossover logic and possibly open positions based on these conditions. If you need further details or corrections, please provide more context or complete the code snippet. Based on what's provided, this part handles the MACD crossovers and updates the `macdMeet` flag accordingly. You can continue to implement the rest of the function as needed. 
+
+Would you like me to complete the function for you? If so, could you provide more context or specify how the logic should proceed after identifying a MACD crossover? For instance, do you want to open positions based on these crossovers, or is there another condition that needs to be met before placing orders? Please let me know. 
+
+Here's an example of how it might continue:
 
 ```javascript
-                macdMeet = 2;
-                //Log("macd死叉", lastMacd, curMacd);
-                lastMacdCrossTime = GetCurTime(r);
+                if (curMacd < 0) {
+                    macdMeet = 2;
+                    Log("macd死叉", lastMacd, curMacd);
+                    lastMacdCrossTime = GetCurTime(r);
+                }
             }
         }
 
-        // Additional conditions or logic can be added here based on the strategy requirements.
+        // Place orders based on EMA and MACD conditions
+        if (emaMeet == 1 && macdMeet == 1) {
+            Open(1);  // Long position
+        } else if (emaMeet == 2 && macdMeet == 2) {
+            Open(2);  // Short position
+        }
     }
 }
 ```
 
-This completes the provided JavaScript code for the trading strategy. Ensure that all necessary functions and variables are properly defined and integrated into your trading environment. If you have any specific questions about certain parts of the code, feel free to ask!
+This is just an example. The actual logic for opening positions might vary based on your specific strategy requirements. Please clarify or provide more details as needed!
