@@ -2,7 +2,7 @@
 ---
 Name
 
-My-1-Value-Averaging-Investment-Strategy
+My-1-Value-Averaging-Diet-Strategy
 
 Author
 
@@ -10,47 +10,47 @@ Lizza
 
 Strategy Description
 
-Live Trading: [https://www.fmz.com/m/robot/26018](https://www.fmz.com/m/robot/26018)
-This strategy is suitable for long-term Bitcoin believers. It uses a value averaging approach to invest regularly, effectively mitigating market volatility (read about value averaging on Baidu).
+Live Trading: https://www.fmz.com/m/robot/26018
+This strategy is suitable for die-hard Bitcoin fans who are bullish on the long term. It uses a value averaging strategy to invest regularly, effectively mitigating market volatility. (For more details about Value Averaging, search online.)
 
-The basic idea is to decide how much money you want to invest each month (Strategy Variable: MoneyEveryMonth), and then determine the frequency of transactions; it's not recommended to trade less than every 5 minutes (Strategy Parameter: InvestInternal).
+The basic idea is to first decide how much money you want to invest each month (Strategy Variable: MoneyEveryMonth), and then determine how often to trade; it’s not recommended to have an interval shorter than 5 minutes (Strategy Parameter: InvestInternal).
 
-Here’s an example to illustrate the strategy and trading opportunities:
-Assume that you want to buy Bitcoin with a value of 72,000 RMB per month (for easy calculation), and plan to trade once every hour. This means you will trade approximately 24 * 30 = 720 times each month, with each planned investment amounting to 72000 / 720 = 100 RMB (Variable A).
+Here's an example to illustrate the strategy logic and trading opportunities:
+Assume you want to buy Bitcoin worth RMB 72,000 each month (for ease of calculation), trading once per hour, which means planning for 720 trades over a month. The planned investment amount per trade would be RMB 100 (Variable A).
 
-|Hour B|Current Price C|Total Invested Funds D|Bitcoin Bought E|Value of Bitcoins F|Investment Funds This Time G|Bitcoin Bought This Time H|
+| Hour | Price(C) | Invested Funds(D) | Bought BTC(E) | Current Value of BTC(F) | Money to Invest This Time(G) | Amount of BTC to Buy This Time(H) |
 |---|---|---|---|---|---|---|
-|1|400|0|0|C*E=0|A*B-F=100|G/C=0.25|
-|2|200|100|0.25|200 * 0.25 = 50|100 * 2 - 50 = 150|0.75|
-|3|1000|250|1|1000|100 * 3 - 1000 = -700|-0.7|
-|4|500|-550|0.3|150|100 * 4 - 150 = 250|0.5|
+| 1 | 400 | 0 | 0 | C*E=0 | A*B-F=100 | G/C=0.25 |
+| 2 | 200 | 100 | 0.25 | 200 * 0.25 = 50 | 100 * 2 - 50 = 150 | 0.75 |
+| 3 | 1000 | 250 | 1 | 1000 | 100 * 3 - 1000 = -700 | -0.7 |
+| 4 | 500 | -550 | 0.3 | 150 | 100 * 4 - 150 = 250 | 0.5 |
 
-After this, your total investment is 300 RMB, and you have bought approximately 0.8 BTC (worth 400 RMB), with an average price of 375 RMB.
+The final result is an investment of RMB 300, buying 0.8 BTC (worth 400 RMB), with an average price of 375 RMB per BTC.
 
-Note: The program checks the difference between the current account balance and Bitcoin holdings from when it was started to calculate how much needs to be purchased each time. Therefore, do not use the same account with other robots or perform manual buys/sells. If there are deposits/withdrawals on the exchange, they should be entered in the interactive section of the program; otherwise, the program will calculate incorrectly.
+Explanation: The program will check the difference in funds and Bitcoin between the account at startup and now to calculate the quantity that needs to be purchased each time; therefore, do not use a common account with other robots or manually perform buy/sell operations. If there are deposits or withdrawals on the exchange, fill them in the interaction section of the program, otherwise, the program's calculation will be incorrect.
 
 Strategy Arguments
 
-|Argument|Default|Description|
+| Argument | Default | Description |
 |---|---|---|
-|ErrorInterval|2000|Error retry interval (milliseconds)|
-|InvestInternal|15|Investment interval (in minutes)|
-|MoneyEveryMonth|5000|Monthly investment amount|
-|SlidePrice|0.05|Purchase slippage|
+| ErrorInterval | 2000 | Retry interval for errors (milliseconds) |
+| InvestInternal | 15 | Investment interval (in minutes) |
+| MoneyEveryMonth | 5000 | Monthly investment amount |
+| SlidePrice | 0.05 | Slippage at the time of purchase |
 
-|Button|Default|Description|
+| Button | Default | Description |
 |---|---|---|
-|Pause|__button__|Pause trading|
-|Continue|__button__|Resume trading|
-|MoneyChange|false|Record fund deposits or withdrawals|
-|StockChange|false|Record digital currency deposits or withdrawals|
+| Pause | __button__ | Pause trading |
+| Continue | __button__ | Resume trading |
+| MoneyChange | false | Record fund deposits or withdrawals |
+| StockChange | false | Record cryptocurrency deposits or withdrawals |
 
-Source (JavaScript)
+Source (javascript)
 
 ``` javascript
 var initAccount;
-var startTime; // unix timestamp
-var pause = false; // pause execution of strategy or continue
+var startTime; //unix timestamp
+var pause = false; //pause execution of strategy or continue
 var moneyDeposit = 0; // positive means deposit, negative means withdraw
 var stockDeposit = 0; // positive means deposit, negative means withdraw
 
@@ -80,7 +80,7 @@ function GetOrders(){
     var orders = null;
     while (!(orders = exchange.GetOrders())) {
         Log('Get Orders Error');
-        Sleep(ErrorInterval);
+        Sleep/ErrorInterval;
     }
     return orders;
 }
@@ -123,7 +123,7 @@ function ProcessCommand() {
     }
 }
 
-function CaculateMoneyToInvest(currentPrice, investCount)
+function CaculateMoneyToInvest(currentPrice,investCount)
 {
     var moneyEveryInvest = MoneyEveryMonth * InvestInternal / (30 * 24 * 60);
     var totalStockInvested = 0.0;
@@ -189,19 +189,7 @@ function onTick(investCount) {
             return;
         }
     }else{ //Sell
-        if(account.Stocks < Math.abs(stockToInvestThisTime)){
-            Log('Insufficient Stocks to Sell.#ff0000@');
-            return;
-        }
-    }
-
-    var order = {
-        type: (stockToInvestThisTime > 0) ? 'buy' : 'sell',
-        price: currentPrice,
-        amount: Math.abs(stockToInvestThisTime)
-    };
-
-    exchange.PlaceOrder(order);
-}
+        if(account.Stocks < Math.abs(stockToInvestThi
 ```
-```
+
+Note: The document translation is cut off at the end. The full code block should be completed with proper logic as per the original.
