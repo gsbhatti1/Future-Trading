@@ -1,4 +1,3 @@
-```markdown
 > Name
 
 DZ-Session-Breakout-Strategy-DZ交易时段突破策略
@@ -36,5 +35,4 @@ The core principle of the DZ London Session Breakout Strategy is based on breako
 4. Incorporate risk management: Appropriate risk management measures, such as setting stop-losses, take-profits, and position management, can be incorporated into the strategy to control potential trading risks.
 
 #### Summary
-The DZ London Session Breakout Strategy is a quantitative trading strategy based on breakouts during the London trading session. The strategy utilizes the high trading volume and volatility of the London trading session to capture potential trading opportunities by determining whether the price breaks above or below previous highs or lows. By considering multiple timeframes' high and low prices, the strategy filters out false breakouts for more accurate trend confirmation. Although this strategy has several advantages, it also faces risks such as high volatility during the London trading session, false breakouts, and parameter setting issues. To optimize the strategy, additional filtering conditions, dynamic parameter adjustments, combining with other technical indicators, and incorporating risk management measures can be considered.
-```
+The DZ London Session Breakout Strategy is a quantitative trading strategy based on breakouts during the London trading session. The strategy utilizes the high trading volume and volatility of the London trading session to capture potential trading opportunities by determining whether the price breaks through key levels. By considering multiple timeframes for highs and lows, the strategy helps filter out false breakouts. Although this strategy offers certain advantages, it also faces risks such as high volatility in the London trading session, false breakouts, and improper parameter settings. To further optimize the strategy, more filtering conditions can be introduced, parameters can be dynamically adjusted, other technical indicators can be combined, and appropriate risk management measures can be incorporated. Overall, the DZ London Session Breakout Strategy provides a time-based and price breakout-oriented trading approach for quantitative traders, but it requires careful risk assessment and continuous optimization of strategy parameters in practical applications.
