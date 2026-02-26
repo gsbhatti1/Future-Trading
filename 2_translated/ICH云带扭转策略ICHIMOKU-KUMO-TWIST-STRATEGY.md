@@ -84,63 +84,44 @@ ichiLaggingSpan2Periods(presets) =>
             60
         else
             if presets == "Standard Doubled"
-                96
+                104
             else
-                48
+                52
 
-plotshape(series=chiKumo, title="Buy Signal", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
-plotshape(series=crossKumo, title="Sell Signal", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
+# Define the strategy based on the Ichimoku Kumo Twist logic
+plotshape(series=cross(lead2, conv), location=location.abovebar, color=color.green, style=shape.triangleup, title="Buy Signal")
+plotshape(series=cross(conv, lead2), location=location.belowbar, color=color.red, style=shape.triangledown, title="Sell Signal")
 
-ichimoku = ichiConversionPeriods(v_input_2) < 10 ? true : false
+# Calculate the Ichimoku Cloud
+conv = (high + low) / 2
+base = (xhighest(high, ichiBasePeriods(presets)) + xlowest(low, ichiBasePeriods(presets))) / 2
 
-if ichimoku
-    conversionLine = xhighest(high, ichiConversionPeriods(v_input_2))
-    baseLine = xlowest(low, ichiBasePeriods(v_input_2))
-    laggingSpan1 = (conversionLine + baseLine) / 2
-    laggingSpan2 = xhighest(low, ichiLaggingSpan2Periods(v_input_2))
+laggingSpan1 = (conv + base) / 2
+lead1 = (high[9] + low[9]) / 2
+lead2 = (high[52] + low[52]) / 2
 
-    buySignal = crossover(laggingSpan1, laggingSpan2)
-    sellSignal = crossunder(laggingSpan1, laggingSpan2)
+# Plot the Ichimoku Cloud
+plot(series=base, title="Baseline", color=color.blue)
+plot(series=laggingSpan1, title="Leading Span 1", color=color.orange)
+plot(series=lead1, title="Leading Span 1", color=color.green, style=plot.style_linebr)
+plot(series=lead2, title="Leading Span 2", color=color.red, style=plot.style_linebr)
 
-    if v_input_4
-        plotchiKumo(conversionLine)
-        plotchiKumo(baseLine)
-        plotchiKumo(laggingSpan1)
-        plotchiKumo(laggingSpan2)
-    
-    strategy.entry("Buy", strategy.long, when=buySignal)
-    if (v_input_5 and buySignal)
-        strategy.exit("Stop Loss", "Buy", stop=laggingSpan2)
+# Optional cloud display
+if v_input_4
+    plot(series=base, title="Baseline", color=color.blue)
+    plot(series=laggingSpan1, title="Leading Span 1", color=color.orange)
+    plot(series=lead1, title="Leading Span 1", color=color.green, style=plot.style_linebr)
+    plot(series=lead2, title="Leading Span 2", color=color.red, style=plot.style_linebr)
 
-else
-    conversionLine = xhighest(high, 9)
-    baseLine = xlowest(low, 26)
-    laggingSpan1 = (conversionLine + baseLine) / 2
-    laggingSpan2 = xhighest(low, 52)
+# Optional stop loss
+if v_input_5 and not na(high[1])
+    strategy.exit("Stop Loss", from_entry="Buy Signal")
+    strategy.exit("Stop Loss", from_entry="Sell Signal")
 
-    buySignal = crossover(laggingSpan1, laggingSpan2)
-    sellSignal = crossunder(laggingSpan1, laggingSpan2)
+# Drop N candles
+src := close
+src := dropn(src, input(v_input_3 ? v_input_3 : 0))
 
-    if v_input_4
-        plotchiKumo(conversionLine)
-        plotchiKumo(baseLine)
-        plotchiKumo(laggingSpan1)
-        plotchiKumo(laggingSpan2)
-    
-    strategy.entry("Buy", strategy.long, when=buySignal)
-    if (v_input_5 and buySignal)
-        strategy.exit("Stop Loss", "Buy", stop=laggingSpan2)
-
-plotchiKumo(conversionLine, title="Conversion Line")
-plotchiKumo(baseLine, title="Base Line")
-plotchiKumo(laggingSpan1, title="Lagging Span 1")
-plotchiKumo(laggingSpan2, title="Lagging Span 2")
-
-// Drop the first N candles
-if v_input_3
-    high := dropn(high, 9)
-    low := dropn(low, 9)
-
+// Plot the closing price
+plot(series=close, title="Close Price", color=color.black)
 ```
-
-Note: The code was carefully translated and formatted to preserve the original structure and functionality.
