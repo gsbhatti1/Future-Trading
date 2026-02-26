@@ -54,6 +54,7 @@ This strategy determines trend reversals using a combination of MAs of varying l
 ### Strategy Arguments
 
 
+
 |Argument|Default|Description|
 |----|----|----|
 |v_input_1|13|LLength|
@@ -63,6 +64,7 @@ This strategy determines trend reversals using a combination of MAs of varying l
 |v_input_5|5|MOffset|
 |v_input_6|3|SOffset|
 |v_input_7|false|Trade reverse|
+
 
 ### Source (PineScript)
 
