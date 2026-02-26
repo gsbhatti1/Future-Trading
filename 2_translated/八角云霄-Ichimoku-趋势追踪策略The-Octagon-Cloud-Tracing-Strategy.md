@@ -18,7 +18,7 @@ This is a quantitative trend-following strategy based on the Ichimoku indicator.
 
 ## Strategy Principle
 
-The core of this strategy is to build trading signals based on the Ichimoku indicator with certain parameter settings. The Ichimoku indicator consists of four lines: the conversion line, the base line, the leading span A and the lagging span B. The conversion line is commonly known as the Tenkan-sen and the base line is called the Kijun-sen. This strategy sets up different parameters for Tenkan-sen and Kijun-sen to generate golden cross and dead cross trading signals. In addition, it also incorporates cloud breakouts as an auxiliary condition to trigger entries.
+The core of this strategy is to build trading signals based on the Ichimoku indicator with certain parameter settings. The Ichimoku indicator consists of four lines: the conversion line, the base line, the leading span A and the lagging span B. The conversion line is commonly known as the Tenkan-sen, and the base line is called the Kijun-sen. This strategy sets up different parameters for Tenkan-sen and Kijun-sen to generate golden cross and dead cross trading signals. In addition, it also incorporates cloud breakouts as an auxiliary condition to trigger entries.
 
 Specifically, the strategy mainly follows these trading rules:
 
@@ -60,43 +60,30 @@ In general, this strategy leverages the strength of Ichimoku in catching trendin
 
 ||
 
-## Source (PineScript)
+## Source Code (Pine Script)
 
 ```pinescript
 //@version=3
-strategy(title="The-Octagon-Cloud-Tracing-Strategy", shorttitle="Octagon Cloud Strategy", overlay=true)
+strategy(title="Ichimoku Cloud Trend-Tracking Strategy", shorttitle="Ichimoku Trend-Tracking Strategy", overlay=true)
 ro = open
 rc = close
 
 tenkanSenPeriods = input(10, minval=1, title="Tenkan-sen")
 kijunSenPeriods = input(30, minval=1, title="Kijun-sen")
-senkouSpanBPeriods = input(60, minval=1, title="Senkou Span B")
+SenkouSpanBPeriods = input(60, minval=1, title="Senkou Span B")
 displacement = input(30, minval=1, title="Chikou Span (Displacement)")
 
 donchian(len) => avg(lowest(len), highest(len))
 
 tenkanSen = donchian(tenkanSenPeriods)
 kijunSen = donchian(kijunSenPeriods)
-senkouSpanA = avg(tenkanSen, kijunSen)
-senkouSpanB = donchian(senkouSpanBPeriods)
+SenkouSpanA = avg(tenkanSen, kijunSen)
+SenkouSpanB = donchian(SenkouSpanBPeriods)
 
 plot(tenkanSen, color=#0496ff, linewidth=2, title="Tenkan-sen")
 // plot(kijunSen, color=#991515, title="Kijun-sen")
 // plot(close, offset = -displacement, color=#459915, title="Chikou Span")
 
-p1 = plot(senkouSpanA, offset = displacement, color=green, title="Senkou Span A")
-p2 = plot(senkouSpanB, offset = displacement, color=red, title="Senkou Span B")
+p1 = plot(SenkouSpanA, offset = displacement, color=green, title="Senkou Span A")
+p2 = plot(SenkouSpanB, offset = displacement, color=red, title="Senkou Span B")
 ```
-
-[/trans]
-
-> Strategy Arguments
-
-
-
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|10|Tenkan-sen|
-|v_input_2|30|Kijun-sen|
-|v_input_3|60|Senkou Span B|
-|v_input_4|30|Chikou Span (Displacement)|
