@@ -8,10 +8,8 @@ The core indicator of this strategy is the 5-day SMA. Through extensive testing 
 
 Specifically, the strategy logic is designed as follows:
 
-1. Use the 5-day SMA to determine the price trend direction. When the price is above the 5-day SMA, the trend is up; when the price is below the 5-day SMA, the trend is down.
-2. Detect if the price can sustain above or below the 5-day SMA for over 8 days after breaking through it. 
-   - If it's an upward trend but the price breaks below the SMA and runs for over 8 days (TriggerBuy variable), go long when the price turns back up after the first pullback (Buy variable).
-   - If it's a downward trend but the price breaks above the SMA and runs for over 8 days (TriggerSell variable), go short when the price turns back down after the first pullback (Sell variable).
+1. Use the 5-day SMA to determine the price trend direction. When price is above 5-day SMA, the trend is up. When price is below 5-day SMA, the trend is down.
+2. Detect if price can sustain above/below the 5-day SMA for over 8 days after breaking through it. If it's an upward trend but price breaks below the SMA and runs for over 8 days (TriggerBuy variable), go long when price turns back up after the first pullback (Buy variable). If it's a downward trend but price breaks above the SMA and runs for over 8 days (TriggerSell variable), go short when price turns back down after the first pullback (Sell variable).
 3. Hold the position for 10 days after entering.
 
 By doing so, the strategy aims to capture longer-term price trends and achieve excess returns.
@@ -51,4 +49,4 @@ The strategy can be further optimized in the following aspects:
 
 ### Summary
 
-This strategy is inspired by famous trader Linda Raschke. It tracks the 5-day SMA indicator to determine price trends, and designs trade logic based on exceptional price runs to capture big trends. The advantages like solid indicator basis, clear signal generation, long holding periods, etc., make it suitable for catching longer-term price moves. Meanwhile, certain risks such as lagging trend judgment and prolonged losses need to be managed through optimization and strategy adjustments.
+This strategy is inspired by famous trader Linda Raschke, who tracks the 5-day SMA indicator to determine price trends and designs trade logic based on exceptional price runs to capture big trends. The advantages like solid indicator basis, clear signal generation, long holding periods, etc., make it suitable for catching longer-term price moves. Meanwhile, certain risks such as lagging in trend judgment and extended holding periods pose challenges. Future optimization can be done through testing additional indicators, parameter adjustments, stop loss settings, and profit-taking mechanisms to enhance the strategy's profitability.

@@ -1,19 +1,13 @@
 ---
-
 ### Overview
 
-This strategy uses three moving average lines with different parameter settings to determine and follow price trends. It goes long when the short period MA crosses over the medium period MA, and the medium period MA crosses over the long period MA; it goes short when the opposite crosses occur.
+This strategy uses three moving average lines with different parameter settings to determine and follow price trends. It goes long when the short period MA crosses over the medium period MA and the medium period MA crosses over the long period MA, and goes short when the opposite crosses occur.
 
 ### Principle 
 
-1. Calculate three smoothed moving average lines: 
-   - Long period of 13 bars with a displacement of 8 bars.
-   - Medium period of 8 bars with a displacement of 5 bars.
-   - Short period of 5 bars with a displacement of 3 bars. All use the median of close prices.
+1. Calculate three smoothed moving average lines: long period of 13 bars with displacement of 8 bars; medium period of 8 bars with displacement of 5 bars; short period of 5 bars with displacement of 3 bars. All use the median of close prices.
 
-2. Compare the relationship between the three lines: 
-   - Go long when short MA crosses over medium MA, and medium MA crosses over long MA; 
-   - Go short when the opposite crosses occur.
+2. Compare the relationship between the three lines: go long when short MA crosses over medium MA and medium MA crosses over long MA; go short when opposite crosses occur. 
 
 3. Option to trade in reverse direction.
 
@@ -22,32 +16,43 @@ This strategy uses three moving average lines with different parameter settings 
 ### Advantages
 
 1. Using three MAs provides multi-layer trend determination and improves signal reliability.
+
 2. Combination of different period lines considers both short-term momentum and mid-long term trends.
+
 3. Median price reduces false breakouts.
-4. Line displacements distinguish breakout strength and avoid whipsaws.
+
+4. Line displacements distinguish breakout strength and avoid whipsaws. 
+
 5. Option for reverse trading adapts to different market regimes.
 
 ### Risks
 
-1. Multiple MA combinations require parameter optimization; improper settings may degrade signal quality.
-2. Short MA crossovers do not certainly imply trend changes; further confirmation needed.
+1. Multiple MA combinations require parameter optimization, improper settings may degrade signal quality.
+
+2. Short MA crossovers do not certainly imply trend changes. Further confirmation needed.
+
 3. Crossover signals may lag, other indicators should assist in timing entry.
+
 4. Reverse trading requires caution on stop loss to limit risks.
 
 ### Optimization Directions
 
-1. Optimize moving average lengths and displacements to fit different period cycles.
-2. Add other indicators like volume for signal filtering and reliability.
+1. Optimize MA lengths and displacements to fit different period cycles.
+
+2. Add other indicators like volume for signal filtering and reliability. 
+
 3. Optimize stop loss strategies with proper positioning.
+
 4. Incorporate trendlines and support/resistance for additional context.
 
 ### Summary
 
-This strategy determines trend reversals using a combination of MAs of varying lengths and displacements. Using multiple MAs improves signal quality, while different period MAs incorporate short, medium, and long-term features. Parameter optimization, signal filtering, stop loss, and other enhancements can further improve robustness and real-world performance.
+This strategy determines trend reversals using a combination of MAs of varying lengths and displacements. Using multiple MAs improves signal quality, while different period MAs incorporate short, medium and long term features. Parameter optimization, signal filtering, stop loss and other enhancements can further improve robustness and real-world performance.
 
 ---
 
 ### Strategy Arguments
+
 
 |Argument|Default|Description|
 |----|----|----|
