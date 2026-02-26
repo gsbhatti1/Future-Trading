@@ -8,69 +8,30 @@ ChaoZhang
 
 > Strategy Description
 
-## Overview
-
-This strategy combines ATR and T3 moving average for trend determination and tracking. ATR forms price channels to judge the main trend direction. T3 moving average gives entry signals and stop-loss exit points. The strategy suits trend followers seeking steady profits.
-
-## Strategy Logic
-
-1. ATR forms price channels, channel direction determines the main trend.
-2. T3 moving average helps determine specific entry timing; buying when the price breaks above the T3 line.
-3. Price breaking below the lower band triggers a stop-loss exit; breaking above the upper band takes profit.
-4. Options for long-only or dual-directional trading.
-5. Parameter optimization combined with indicator nature to find optimal settings.
-
-## Advantage Analysis
-
-1. ATR channels provide clear trend identification and direction.
-2. Adjustable T3 parameters allow capturing trends at different levels.
-3. Consistent stop-loss and take-profit rules avoid arbitrary exits.
-4. Low trade frequency suits long-term holding strategies.
-
-## Risk Analysis
-
-1. Indicator divergence can cause wrong trades.
-2. Not considering individual stock volatility patterns risks overfitting.
-3. Low trade frequency risks missing opportunities and limited profit potential.
-4. Heavy position holding brings end-of-day slippage risks.
-
-## Optimization Directions
-
-1. Add other indicators to ensure trade validity.
-2. Parameter tuning for different products improves adaptability.
-3. Optimize position sizing to balance frequency and risk.
-4. Consider dynamic trailing stop-loss and profit-taking points to expand profit room.
-5. Add strategy-level filters to improve robustness.
-
-## Summary
-
-This strategy integrates ATR and T3 moving average for simple and effective trend tracking. However, further enhancements in indicator logic and parameter optimization can lower errors and make it more practical.
-
----
 
 ## Overview 
 
-This strategy combines ATR and T3 moving average for trend determination and tracking. ATR forms price channels to judge the overall trend direction. T3 moving average provides entry signals and stop-loss exit points. The strategy suits trend followers seeking steady profits.
+This strategy combines ATR and T3 moving average for trend determination and tracking. ATR forms price channels to judge overall trend direction, while T3 moving average provides entry signals and stop loss exit points. The strategy suits trend followers seeking steady profits.
 
 ## Strategy Logic
 
-1. ATR forms price channels, with channel direction determining the main trend.
-2. T3 moving average helps determine specific entry timing; buying when the price breaks above the T3 line.
-3. Price breaking below the lower band triggers a stop-loss exit; breaking above the upper band takes profit.
-4. Options for long-only or dual-directional trading.
-5. Parameter optimization combined with indicator nature to find optimal settings.
+1. ATR forms price channels; the channel direction determines main trend.
+2. T3 moving average helps determine specific entry timing by buying when prices break above the T3 line.
+3. Prices breaking below the lower band trigger a stop loss exit, while breaking above the upper band takes profit.
+4. Options for long-only or dual directional trading are available.
+5. Parameter optimization is combined with indicator nature to find the best settings.
 
 ## Advantage Analysis
 
 1. ATR channels provide clear trend identification and direction.
-2. Adjustable T3 parameters allow capturing trends at different levels.
-3. Consistent stop-loss and take-profit rules avoid arbitrary exits.
+2. Adjustable T3 parameters enable capturing trends at different levels.
+3. Consistent stop loss and take profit rules avoid arbitrary exits.
 4. Low trade frequency suits long-term holding strategies.
 
 ## Risk Analysis
 
-1. Indicator divergence can cause wrong trades.
-2. Not considering individual stock volatility patterns risks overfitting.
+1. Indicator divergence can cause incorrect trades.
+2. Not considering individual stock volatility patterns poses a risk of overfitting.
 3. Low trade frequency risks missing opportunities and limited profit potential.
 4. Heavy position holding brings end-of-day slippage risks.
 
@@ -79,22 +40,17 @@ This strategy combines ATR and T3 moving average for trend determination and tra
 1. Add other indicators to ensure trade validity.
 2. Parameter tuning for different products improves adaptability.
 3. Optimize position sizing to balance frequency and risk.
-4. Consider dynamic trailing stop-loss and profit-taking points to expand profit room.
+4. Consider dynamic trailing stop loss and profit taking points to expand profit room.
 5. Add strategy-level filters to improve robustness.
 
-## Summary
+## Summary 
 
-The strategy integrates ATR and T3 moving average for simple and effective trend tracking. However, further enhancements in indicator logic and parameter optimization can lower errors and make it more practical.
-
----
-
-> Strategy Arguments
-
+The strategy integrates ATR and T3 moving average for simple and effective trend tracking. However, further enhancements in indicator logic and parameter optimization can reduce error rates and make it more practical for real-world conditions.
 
 |Argument|Default|Description|
-|---|---|---|
-|v_input_1|false|Short positions?|
-|v_input_2|5|Precantage|
+|----|----|----|
+|v_input_1|false|Should shorts be enabled?|
+|v_input_2|5|Percentage|
 |v_input_3|25|Length of T3|
 |v_input_4|0.72|Volume Factor of T3 with HA source|
 |v_input_5|5|Factor|
@@ -102,21 +58,17 @@ The strategy integrates ATR and T3 moving average for simple and effective trend
 |v_input_7|true|Factor1|
 |v_input_8|true|Pd1|
 
----
-
-> Source (PineScript)
-
 ```pinescript
 //@version=2
-// Author - CryptoJoncis
+//Author - CryptoJoncis
 strategy("ATR and T3 strategy", shorttitle="AT3S_CryptoJoncis", overlay=true)
 
-shorting = input(false, title="Short positions?")
-precentage_diff = input(5, title="Precantage") / 100
+shorting = input(false, title="Should shorts be enabled?")
+precentage_diff = input(5,title="Percentage")/100
 Lengthx = input(25, title="Length of T3")
 
 // For best results use 0.7 or 0.618
-Vfactx = input(0.72, minval=0.01, step=0.01, title="Volume Factor of T3 with HA source")
+Vfactx = input(0.72, minval=0.01,step=0.01, title="Volume Factor of T3 with HA source")
 
 Source_of_T3_Normal = close
 Source_of_T3 = Source_of_T3_Normal 
@@ -127,67 +79,71 @@ FourthEMAx = ema(ThirdEMAx, Lengthx)
 FifthEMAx = ema(FourthEMAx, Lengthx)
 SixthEMAx = ema(FifthEMAx, Lengthx)
 
-// Doing all the calculations which are from
-c1x = -Vfactx * Vfactx * Vfactx
-c2x = 3 * Vfactx * Vfactx + 3 * Vfactx * Vfactx * Vfactx
-c3x = -6 * Vfactx * Vfactx - 3 * Vfactx - 3 * Vfactx * Vfactx * Vfactx
-c4x = 1 + 3 * Vfactx + Vfactx * Vfactx * Vfactx + 3 * Vfactx * Vfactx
+//Doing all the calculations which are from 
+c1x = -Vfactx*Vfactx*Vfactx
+c2x = 3*Vfactx*Vfactx + 3*Vfactx*Vfactx*Vfactx
+c3x = -6*Vfactx*Vfactx -3*Vfactx -3*Vfactx*Vfactx*Vfactx
+c4x = 1 + 3*Vfactx + Vfactx*Vfactx*Vfactx + 3*Vfactx*Vfactx
 
-// Assigning EMAs to T3 Moving average
+//Assigning EMAs to T3 Moving average
 T3MAx = c1x * SixthEMAx + c2x * FifthEMAx + c3x * FourthEMAx + c4x * ThirdEMAx
 
 color_of_Tilson_Moving_Average = T3MAx > T3MAx[1] ? lime : red
-plot(T3MAx, title="Tilson Moving Average (ema)", color=color_of_Tilson_Moving_Average)
+plot(T3MAx, title="Tilson Moving Average(ema)", color=color_of_Tilson_Moving_Average)
 
 t_up = T3MAx + (T3MAx * precentage_diff)
 t_dn = T3MAx - (T3MAx * precentage_diff)
 
-x = plot(t_up, color=color_of_Tilson_Moving_Average)
-z = plot(t_dn, color=color_of_Tilson_Moving_Average)
-fill(x, z, color=T3MAx[1] < T3MAx ? lime : gray)
+x=plot(t_up, color=color_of_Tilson_Moving_Average)
+z=plot(t_dn, color=color_of_Tilson_Moving_Average)
+fill(x,z, color= T3MAx[1] < T3MAx ? lime : gray)
 
-Factor = input(5, minval=1)
-Pd = input(5, minval=1)
+Factor=input(5, minval=1)
+Pd=input(5, minval=1)
+//
 
-Up = hl2 - (Factor * atr(Pd))
-Dn = hl2 + (Factor * atr(Pd))
+Up=hl2-(Factor*atr(Pd))
+Dn=hl2+(Factor*atr(Pd))
 
-TrendUp = close[1] > TrendUp[1] ? max(Up, TrendUp[1]) : Up
-TrendDown = close[1] < TrendDown[1] ? min(Dn, TrendDown[1]) : Dn
 
-Trend = close > TrendDown[1] ? 1 : close < TrendUp[1] ? -1 : nz(Trend[1], 1)
-Tsl = Trend == 1 ? TrendUp : TrendDown
+TrendUp=close[1]>TrendUp[1]? max(Up,TrendUp[1]) : Up
+TrendDown=close[1]<TrendDown[1]? min(Dn,TrendDown[1]) : Dn
+
+Trend = close > TrendDown[1] ? 1: close< TrendUp[1]? -1: nz(Trend[1],1)
+Tsl = Trend==1? TrendUp: TrendDown
 
 linecolor = Trend == 1 ? green : red
-b = plot(Tsl, color=linecolor, style=line, linewidth=2, title="")
+//
+b=plot(Tsl, color = linecolor , style = line , linewidth = 2,title = "")
 
-Factor1 = input(1, minval=1)
-Pd1 = input(1, minval=1)
+Factor1=input(1, minval=1)
+Pd1=input(1, minval=1)
+//
 
-Up1 = hl2 - (Factor1 * atr(Pd1))
-Dn1 = hl2 + (Factor1 * atr(Pd1))
+Up1=hl2-(Factor1*atr(Pd1))
+Dn1=hl2+(Factor1*atr(Pd1))
 
-TrendUp1 = close[1] > TrendUp1[1] ? max(Up1, TrendUp1[1]) : Up1
-TrendDown1 = close[1] < TrendDown1[1] ? min(Dn1, TrendDown1[1]) : Dn1
 
-Trend1 = close > TrendDown1[1] ? 1 : close < TrendUp1[1] ? -1 : nz(Trend1[1], 1)
-Tsl1 = Trend1 == 1 ? TrendUp1 : TrendDown1
+TrendUp1=close[1]>TrendUp1[1]? max(Up1,TrendUp1[1]) : Up1
+TrendDown1=close[1]<TrendDown1[1]? min(Dn1,TrendDown1[1]) : Dn1
+
+Trend1 = close > TrendDown1[1] ? 1: close< TrendUp1[1]? -1: nz(Trend1[1],1)
+Tsl1 = Trend1==1? TrendUp1: TrendDown1
 
 linecolor1 = Trend1 == 1 ? green : red
-a = plot(Tsl1, color=linecolor1, style=line, linewidth=2, title="")
+//
+a=plot(Tsl1, color = linecolor1 , style = line , linewidth = 2,title = "")
 
 long = (close > Tsl and close > Tsl1 and close > T3MAx)
 
 short = (close < Tsl and close < Tsl1 and close < T3MAx)
 
-if(shorting == true)
+if(shorting==true)
     strategy.entry("MacdSE", strategy.short, comment="Open Short", when=short)
     strategy.entry("MacdLE", strategy.long, comment="Open Long", when=long)
     strategy.close("MacdLE", when=hl2 < t_dn)
     strategy.close("MacdSE", when=hl2 > t_up)
-if(shorting == false)
+if(shorting==false)
     strategy.entry("MacdLE", strategy.long, comment="Open Long", when=long)
     strategy.close("MacdLE", when=hl2 <
-``` 
-
-Note that the last line of the script was cut off. The complete script should include closing conditions for short positions as well. If you have any additional details or need further adjustments, feel free to let me know!
+```
