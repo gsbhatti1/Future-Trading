@@ -30,7 +30,7 @@ There are also some risks to note for this strategy:
 4. It cannot predict the actual trend continuation after breaking the price channel, leading to amplified losses.
 5. It cannot adapt to black swan events with sudden market impacts, resulting in huge losses.
 
-## Enhancement Opportunities
+## Enhancement Opportunities 
 
 Some major opportunities to enhance the strategy include:
 
@@ -43,4 +43,4 @@ Some major opportunities to enhance the strategy include:
 
 ## Conclusion
 
-Overall, Noro's Price Channel Strategy v1.1 is a simple and practical trend following strategy. It incorporates multiple indicators to identify mid-to-long term trends and sets relatively cautious rules for position establishment. There is room for further improvement in optimizing stop loss mechanisms and adjusting parameters dynamically. However, the overall approach is straightforward and easy to apply in practice, making it an excellent choice as an entry-level quantitative trading strategy. With proper parameter tuning and mechanism optimization, this strategy can become a stable and reliable quantitative system.
+Overall, Noro's Price Channel Strategy v1.1 is a simple and practical trend following strategy. It incorporates multiple indicators to identify mid-to-long term trends and sets relatively cautious entry rules. There are opportunities for further improvement in optimizing stop loss mechanisms and adjusting parameters dynamically. However, the overall approach of this strategy is straightforward and easy to implement, making it an excellent starting point for quantitative trading strategies. As parameter adjustments and mechanism optimizations continue, this strategy can evolve into a stable and reliable quantified system.
