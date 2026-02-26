@@ -3,100 +3,72 @@
 
 
 |Argument|Default|Description|
-|----|----|----|
-|v_input_1|true|Long position|
-|v_input_2|true|Short position|
-|v_input_3|false|Use Martingale strategy|
-|v_input_4|100|Capital percentage|
-|v_input_5|true|Use CRSI strategy|
-|v_input_6|true|Use FRSI strategy|
-|v_input_7|true|CRSI+FRSI mode|
-|v_input_8|25|RSI limit value|
-|v_input_9|true|Use body filter|
-|v_input_10|true|Use color filter|
-|v_input_11|1900|Start year|
-|v_input_12|2100|End year|
-|v_input_13|true|Start month|
-|v_input_14|12|End month|
-|v_input_15|true|Start day|
-|v_input_16|31|End day|
+|---|---|---|
+|v_input_1|true|Long|
+|v_input_2|true|Short|
+|v_input_3|false|Use Martingale|
+|v_input_4|100|Capital, %|
+|v_input_5|true|Use CRSI Strategy|
+|v_input_6|true|Use FRSI Strategy|
+|v_input_7|true|CRSI+FRSI Mode|
+|v_input_8|25|RSI limit|
+|v_input_9|true|Use Body-filter|
+|v_input_10|true|Use Color-filter|
+|v_input_11|1900|From Year|
+|v_input_12|2100|To Year|
+|v_input_13|true|From Month|
+|v_input_14|12|To Month|
+|v_input_15|true|From day|
+|v_input_16|31|To day|
 
 
 > Source (PineScript)
 
 ```pinescript
-// backtest
-start: 2023-10-07 00:00:00
-end: 2023-11-06 00:00:00
-period: 1h
-basePeriod: 15m
-exchanges:
+// Strategy Arguments
+strategy("RSI Momentum Reversal Strategy", overlay=false, default_qty_type=strategy.percent_of_equity, default_qty_value=100, initial_capital=10000, pyramiding=0)
 
-// strategy description
-strategy("RSI Momentum Reversal Strategy", overlay=false, initial_capital=100)
+v_input_1 = input(true, title="Long")
+v_input_2 = input(true, title="Short")
+v_input_3 = input(false, title="Use Martingale")
+v_input_4 = input(100, title="Capital, %")
+v_input_5 = input(true, title="Use CRSI Strategy")
+v_input_6 = input(true, title="Use FRSI Strategy")
+v_input_7 = input(true, title="CRSI+FRSI Mode")
+v_input_8 = input(25, title="RSI limit")
+v_input_9 = input(true, title="Use Body-filter")
+v_input_10 = input(true, title="Use Color-filter")
+v_input_11 = input(1900, title="From Year")
+v_input_12 = input(2100, title="To Year")
+v_input_13 = input(true, title="From Month")
+v_input_14 = input(12, title="To Month")
+v_input_15 = input(true, title="From day")
+v_input_16 = input(31, title="To day")
 
-// input arguments
-var bool long_position = v_input_1
-var bool short_position = v_input_2
-var bool use_martingale = v_input_3
-var float capital_percentage = v_input_4 / 100
-var bool use_crsi_strategy = v_input_5
-var bool use_frsi_strategy = v_input_6
-var bool crsi_plus_frsi_mode = v_input_7
-var int rsi_limit = v_input_8
-var bool use_body_filter = v_input_9
-var bool use_color_filter = v_input_10
-var int start_year = v_input_11
-var int end_year = v_input_12
-var bool start_month = v_input_13
-var int end_month = v_input_14
-var bool start_day = v_input_15
-var int end_day = v_input_16
+// Connors RSI
+connors_rsi = rsi(close, 14)
+rsi_win_ratio = (high - low) / volume
+rsi_parisian = ((close[2] - open[2]) + (close[1] - open[1])) > 0 ? 1 : 0
+crsi = (connors_rsi + rsi_win_ratio + rsi_parisian) / 3
 
-// strategy parameters
-rsi_length = 14
-crsi_win_ratio_length = 10
-crsi_parisian_length = 28
-frsi_k_period = 14
-frsi_d_smoothing = 3
+// Fast RSI
+frsi = rsi(close, v_input_8)
 
-// RSI calculations
-c_rsi = ta.rsi(close, rsi_length)
-c_crsi = (ta.ccrsi(c_rsi, crsi_win_ratio_length) + ta.ccrsi(c_rsi, crsi_parisian_length)) / 2
-c_frsi = ta.frsi(close, frsi_k_period, frsi_d_smoothing)
+// Candlestick body filter
+body_filter = close > open and v_input_9 == true
 
-// body and color filters
-body_filter = na(body_close) ? false : (close > open)
-color_filter = close < open ? "red" : "green"
+// Color filter
+color_filter = color.red if close < open else color.green
 
-// long condition
-long_condition = c_crsi < 20 and c_frsi < rsi_limit and body_filter and use_body_filter
-
-// short condition
-short_condition = c_crsi > 80 and c_frsi > (rsi_limit + 5) and not(body_filter) and use_body_filter
-
-// trade execution
-if long_condition
+// Strategy conditions
+if (crsi < 20 and frsi < v_input_8 and body_filter)
     strategy.entry("Long", strategy.long)
-    if use_martingale
-        // martingale logic here, increase position size based on losses
-        pass
 
-if short_condition
-    strategy.entry("Short", strategy.short)
-    if use_martingale
-        // martingale logic here, increase position size based on losses
-        pass
+if (crsi > 80 and frsi > v_input_8 and not(body_filter))
+    strategy.exit("Short", "Long")
 
-// stop loss and exit condition
-stop_loss = 10 * close / 100
+// Stop loss exit
+stop_loss = close * 0.95
 strategy.exit("Stop Loss", "Long", stop=stop_loss)
-strategy.exit("Stop Loss", "Short", stop=stop_loss)
-
-// plot indicators
-plot(c_rsi, color=color.blue)
-plot(c_crsi, color=color.orange)
-plot(c_frsi, color=color.red)
 ```
-
 ```
