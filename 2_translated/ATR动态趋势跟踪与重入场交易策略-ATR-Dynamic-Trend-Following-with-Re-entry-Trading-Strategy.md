@@ -1,4 +1,55 @@
-``` pinescript
+> Name
+
+ATR Dynamic Trend Following with Re-entry Trading Strategy - ATR-Dynamic-Trend-Following-with-Re-entry-Trading-Strategy
+
+> Author
+
+ChaoZhang
+
+> Strategy Description
+
+![IMG](https://www.fmz.com/upload/asset/1130fe9232956b0e1dc.png)
+
+[trans]
+#### Overview
+This is a trend-following strategy that dynamically adjusts using ATR, combining moving averages and ATR indicators to determine entry and exit points. The strategy's core feature is using ATR to dynamically adjust moving average bands, entering long positions when price breaks above the upper band, and setting stop-loss and take-profit levels based on ATR multiples. Additionally, the strategy includes an innovative re-entry mechanism allowing new positions when price retraces to the entry point.
+
+#### Strategy Principles
+The strategy operates based on the following key elements:
+1. Uses ATR-adjusted moving averages as trend indicators, forming dynamic upper and lower bands
+2. Generates long entry signals when price breaks above the upper band, with entry price at current close
+3. Sets stop-loss at 2×ATR below entry price
+4. Sets take-profit at (5+custom multiplier)×ATR above entry price
+5. Automatically re-enters positions if price retraces to original entry level after stop-loss or take-profit
+6. Implements 30-bar maximum display limit for optimized chart visualization
+
+#### Strategy Advantages
+1. Strong Dynamic Adaptability: ATR-adjusted moving averages self-adapt to market volatility changes
+2. Scientific Risk Management: Stop-loss and take-profit levels dynamically set based on ATR, matching market volatility characteristics
+3. Innovative Re-entry Mechanism: Allows re-entry at favorable price levels, increasing profit opportunities
+4. Excellent Visualization: Provides clear entry, stop-loss, and take-profit line displays for trade monitoring
+5. Flexible Parameters: Adjustable trend period and take-profit multiplier through input parameters
+
+#### Strategy Risks
+1. Trend Reversal Risk: Frequent stop-losses possible in ranging markets
+2. Re-entry Risk: Consecutive stop-losses possible when re-entering at previous entry points
+3. Slippage Risk: Actual execution prices may deviate from signal prices during high volatility
+4. Parameter Sensitivity: Optimal parameters may vary significantly across different market conditions
+5. Computational Load: Real-time calculation of multiple technical indicators may increase system load
+
+#### Strategy Optimization Directions
+1. Implement Market Environment Filters: Add volatility filters to adjust parameters or pause trading during high volatility
+2. Optimize Re-entry Logic: Consider stricter conditions for re-entry, such as trend confirmation indicators
+3. Enhance Profit Taking: Implement trailing stops to protect more profits in trending markets
+4. Add Time Filters: Implement trading time restrictions to avoid low liquidity periods
+5. Improve Calculation Efficiency: Reduce unnecessary calculations and plotting to enhance strategy performance
+
+#### Summary
+This is a well-designed, logically clear trend-following strategy with good market adaptability through ATR dynamic adjustment. The re-entry mechanism is an innovative feature that can provide additional profit opportunities under favorable market conditions. While there are some risk factors to consider, the suggested optimization directions can further enhance the strategy's stability and profitability. For investors seeking systematic trading methods, this represents a worthwhile basic strategy framework.
+
+#### Source (PineScript)
+
+```pinescript
 /*backtest
 start: 2024-02-19 00:00:00
 end: 2025-02-16 08:00:00
@@ -42,5 +93,4 @@ if not inTrade and signal_up
     strategy.exit("Exit Long", "Long", stop=stopLoss, limit=targetPrice)
     inTrade := true
     barCount := 0  // Reset bar count when signal occurs
-
 ```
