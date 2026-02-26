@@ -45,9 +45,8 @@ The Supertrend strategy also has the following risks:
 
 Supertrend Strategy Summary
 
-Overall, the Supertrend strategy is a simple and practical trend following system. It capitalizes on the dynamic Supertrend lines to determine trend direction and uses multiple parameter sets to improve performance. The strategy mechanisms are also reasonably designed for tradability. However, issues like false signals and difficult parameter optimization requires combining with other technical indicators for improvements. In general, the Supertrend strategy works well for medium to long-term trend tracking and can serve as a reference strategy template for beginners.
-
-||
+Overall, the Supertrend strategy is a simple and practical trend following system. It capitalizes on the dynamic Supertrend lines to determine trend direction and uses multiple parameter sets to improve performance. The strategy mechanisms are also reasonably designed for tradability. However, issues like false signals and difficult parameter optimization require combining with other technical indicators for improvements. In general, the Supertrend strategy works well for medium to long-term trend tracking and can serve as a reference strategy template for beginners.
+[/trans]
 
 > Strategy Arguments
 
