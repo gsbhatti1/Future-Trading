@@ -1,4 +1,4 @@
-```markdown
+```plaintext
 Name
 
 Nick-Rypock-Trailing-Reverse-NRTR
@@ -17,24 +17,21 @@ The idea of the indicator is similar to the Chandelier Exit, but doesn't involve
 
 A dynamic price channel is used to calculate the NRTR. The calculations involve only those prices that are included in the current trend and exclude the extremes related to the previous trend. The indicator is always at the same distance (in percent) from the extremes reached by prices (below the maximum peak for the current uptrend, above the minimum bottom for the current downtrend).
 
-
 **backtest**
 
 ![IMG](https://www.fmz.com/upload/asset/105233670b8ab608dba.png)
 
 
-> Strategy Arguments
-
+Strategy Arguments
 
 | Argument | Default | Description |
-| ---- | ---- | ---- |
+| --- | --- | --- |
 | v_input_1 | 2 | Coefficient of Correction, % |
 | v_input_2 | true | Show Buy/Sell Labels ? |
 | v_input_3 | true | Apply Ribbon ? |
 
 
-> Source (PineScript)
-
+Source (PineScript)
 
 ```pinescript
 /*backtest
@@ -114,12 +111,11 @@ else if sellSignal
     strategy.entry("Enter Short", strategy.short)
 ```
 
-
-> Detail
+Detail
 
 https://www.fmz.com/strategy/365713
 
-> Last Modified
+Last Modified
 
 2022-05-25 18:14:32
 ```
