@@ -1,4 +1,4 @@
-``` pinescript
+```pinescript
 /*backtest
 start: 2022-05-03 00:00:00
 end: 2022-05-09 23:59:00
@@ -11,25 +11,26 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 
 // I designed this indicator to be used with a market structure break strategy.
 // It labels swing highs and lows that are confirmed by the MACD.  
-// It also displays higher timeframe Fast and Slow EMAs to determine directional bias.
-// Additionally, it provides alerts for Swing Low breaks in downtrends and Swing High Breaks in uptrends.
-// It draws horizontal lines on the last Swing High and Low.
+// It also displays a higher timeframe Fast and Slow EMA to determine directional bias.
+// Also provides alerts that signal Swing Low breaks in downtrends and Swing High Breaks in uptrends.
+// It draws a horizontal line on the last Swing High and Low.
 
 // Display this indicator on your entry timeframe and choose your Higher Timeframe in settings.
-// You can also change the lookback period for Swing Highs and Lows, as well as EMA lengths.
+// You can also change lookback period for Swing Highs and Lows and EMA's.
 
 //@version=4
-study("Swing High/Low Indicator with MACD and HTF EMAs", overlay=true)
+study("Swing High/Low Indicator with MACD and HTF EMA's", overlay=true)
 
 barsback = input(5, title='Bars back to check for a swing')
 showsig = input(true, title='Show Signal Markers')
 res = input(title="EMA Timeframe", defval="240")
 flen = input(title="Fast EMA Length", type=input.integer, defval=20)
 slen = input(title="Slow EMA Length", type=input.integer, defval=50)
-showema = input(title="Show EMAs", type=input.bool, defval=true)
+showema = input(title="Show EMA's", type=input.bool, defval=true)
 showentry = input(title="Show Swing Break Entry Levels", type=input.bool, defval=true)
 
 // Higher Timeframe EMAs
+
 fema = ema(close, flen)
 sema = ema(close, slen)
 
@@ -37,8 +38,8 @@ rp_security(_symbol, _res, _src, _gaps, _lookahead) => security(_symbol, _res, _
 
 femaSmooth = rp_security(syminfo.tickerid, res, fema, barmerge.gaps_on, barmerge.lookahead_off)
 semaSmooth = rp_security(syminfo.tickerid, res, sema, barmerge.gaps_on, barmerge.lookahead_off)
-plot(showema ? femaSmooth : na,"Fast HTF EMA", color.lime, 3)
-plot(showema ? semaSmooth : na,"Slow HTF EMA", color.navy, 3)
+plot(showema ? femaSmooth : na, "Fast HTF EMA", color.lime, 3)
+plot(showema ? semaSmooth : na, "Slow HTF EMA", color.navy, 3)
 
 downtrend = femaSmooth < semaSmooth
 uptrend = femaSmooth > semaSmooth
@@ -50,10 +51,10 @@ uptrend = femaSmooth > semaSmooth
 swing_detection(index)=>
     swing_high = false
     swing_low = false
-    start = (index*2) - 1 // -1 so we have an even number of
+    start = (index*2) - 1 // -1 so we have an even number of 
     swing_point_high = high[index]
     swing_point_low = low[index]
-
+    
     // Swing Highs
     for i = 0 to start
         swing_high := true
@@ -61,21 +62,21 @@ swing_detection(index)=>
             if high[i] > swing_point_high 
                 swing_high := false
                 break
-        // Have to do checks before pivot and after separately because we can get
+        // Have to do checks before pivot and after seperately because we can get
         // two highs of the same value in a row. Notice the > and >= difference
         if i > index
             if high[i] >= swing_point_high 
                 swing_high := false
                 break
         
-    // Swing Lows
+    // Swing lows
     for i = 0 to start
         swing_low := true
         if i < index
             if low[i] < swing_point_low 
                 swing_low := false
                 break  
-        // Have to do checks before pivot and after separately because we can get
+        // Have to do checks before pivot and after seperately because we can get
         // two lows of the same value in a row. Notice the > and >= difference
         if i > index
             if low[i] <= swing_point_low 
@@ -90,11 +91,11 @@ swing_detection(index)=>
 
 float swing_high_price = na
 float swing_low_price = na
-
+ 
 if swing_high
-    swing_high_price := high[barsback]
+    swing_high_price := high[barsback] 
 if swing_low
-    swing_low_price := low[barsback]
+    swing_low_price := low[barsback] 
 
 [macdline, signalline, histline] = macd(close,12,26,9)
 
@@ -113,5 +114,6 @@ if swing_high and macpos and showsig
 
 if swing_low and macneg and showsig
     // label.new(bar_index[barsback], swing_low_price, SLPrice, xloc.bar_index, yloc.belowbar, color.green, label.style_arrowup, textcolor=color.green)
-    // SLLine = line.new(bar_index[barsback], swing_low_price, bar_index[barsback] + 20, swing_low_price, xloc.bar_index, extend.none, color.black, wi
+    // SLLine = line.new(bar_index[barsback], swing_low_price, bar_index[barsback] + 20, swing_low_price, xloc.bar_index, extend.none, color.black, width=2)
+    // line.delete(SLLine[1])
 ```
