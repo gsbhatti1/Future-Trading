@@ -1,4 +1,4 @@
-```markdown
+```plaintext
 Name
 
 Swing-Highs-Lows-Candle-Patterns
@@ -32,17 +32,25 @@ Higher values of length might return errors.
 
 **Backtest**
 
-![](https://www.fmz.com/upload/asset/be36dc9f3162c7d660.jpg)
+![IMG](https://www.fmz.com/upload/asset/be36dc9f3162c7d660.jpg)
 
 > Strategy Arguments
 
-|Argument|Default|Description|
-|--------|-------|-----------|
-|v_input_1|21|length|
+| Argument  | Default | Description |
+|-----------|---------|-------------|
+| v_input_1 | 21      | length      |
 
 > Source (PineScript)
 
 ```pinescript
+/*backtest
+start: 2021-05-06 00:00:00
+end: 2022-05-05 23:59:00
+period: 2h
+basePeriod: 15m
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
+
 // This work is licensed under a Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) https://creativecommons.org/licenses/by-nc-sa/4.0/
 // © LuxAlgo
 
@@ -71,11 +79,11 @@ beareng = c > o and c[1] < o[1] and c > o[1] and o < c[1]
 //Descriptions
 //------------------------------------------------------------------------------
 hammer_ = "The hammer candlestick pattern is formed of a short body with a long lower wick, and is found at the bottom of a downward trend."
-  + "\n" + "\n A hammer shows that although there were selling pressures during the day, ultimately a strong buying pressure drove the price back up." 
+  + "\n" + "\nA hammer shows that although there were selling pressures during the day, ultimately a strong buying pressure drove the price back up." 
 ihammer_ = "The inverted hammer is a similar pattern than the hammer pattern. The only difference being that the upper wick is long, while the lower wick is short."
-  + "\n" + "\n It indicates a buying pressure, followed by a selling pressure that was not strong enough to drive the market price down. The inverse hammer suggests that buyers will soon have control of the market."
+  + "\n" + "\nIt indicates a buying pressure, followed by a selling pressure that was not strong enough to drive the market price down. The inverse hammer suggests that buyers will soon have control of the market."
 bulleng_ = "The bullish engulfing pattern is formed of two candlesticks. The first candle is a short red body that is completely engulfed by a larger green candle"
-  + "\n" + "\n Though the second day opens lower than the first, the bullish market pushes the price up, culminating in an obvious win for buyers"
+  + "\n" + "\nThough the second day opens lower than the first, the bullish market pushes the price up, culminating in an obvious win for buyers"
 hanging_ = "The hanging man is the bearish equivalent of a hammer; it has the same shape but forms at the end of an uptrend."
   + "\n" + "It indicates that there was a significant sell-off during the day, but that buyers were able to push the price up again. The large sell-off is often seen as an indication that the bulls are losing control of the market."
 shotting_ = "The shooting star is the same shape as the inverted hammer, but is formed in an uptrend: it has a small lower body, and a long upper wick."
