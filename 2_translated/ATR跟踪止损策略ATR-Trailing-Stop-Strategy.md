@@ -1,6 +1,6 @@
 > Name
 
-ATR Tracking Stop Loss Strategy ATR-Trailing-Stop-Strategy
+ATR Trailing Stop Strategy ATR-Trailing-Stop-Strategy
 
 > Author
 
@@ -10,7 +10,7 @@ ChaoZhang
 
 [trans]
 
-Overview: The ATR tracking stop loss strategy is a trading approach that dynamically sets stop-loss levels based on the Average True Range (ATR) indicator. It is suitable for volatile foreign exchange instruments, capturing profits in major trends while controlling risk by dynamically tracking market volatility.
+Overview: The ATR trailing stop strategy is a trading approach that dynamically sets stop loss levels based on the Average True Range (ATR) indicator. It is suitable for volatile foreign exchange instruments, capturing profits in major trends while controlling risk by dynamically tracking market volatility.
 
 ### Strategy Logic
 
@@ -18,7 +18,7 @@ The strategy calculates the AVERAGE indicator (price moving average) and upper/l
 
 Specifically, it first calculates the simple moving average AVERAGE and ATR indicator. The upper band DIFF and lower band DIFFLOW are then computed by multiplying ATR values with a coefficient. This forms a trading channel bounded by DIFF and DIFFLOW. When price breaks above the upper band, a long position is taken. When price breaks below the lower band, a short position is taken. In addition, the stop loss level moves dynamically with ATR values. This allows for adaptive stops.
 
-Thus, the strategy can continuously go long/short to capture profits in major trends while using ATR trailing stops to control risk. This makes it suitable for volatile instruments.
+Thus, the strategy can continuously go long/short to capture profits in major trends while using ATR trailing stops to control risk. It makes it suitable for volatile instruments.
 
 ### Advantage Analysis
 
@@ -42,14 +42,14 @@ Some risks to consider:
 Possible optimizations:
 
 1. Optimize ATR parameters to find the right balance between tracking volatility and preventing excessive stops.
-2. Add a trend indicator, only trade breaks in the trend direction. Avoid countertrend trades.
+2. Add a trend indicator, only trade breakouts in the trend direction. Avoid countertrend trades.
 3. Test parameters individually for each instrument to find optimal values.
 4. Optimize entry, consider entering on channel midline breakouts.
 5. Increase position sizes while controlling total risk/drawdown.
 
 ### Conclusion
 
-The ATR tracking stop loss strategy trades continuously in trends while dynamically managing risk. It suits volatile instruments and provides good capital utilization. Parameter optimization and adding filters can further refine performance. Overall, it is a simple and practical trend-following strategy.
+The ATR trailing stop strategy trades continuously in trends while dynamically managing risk. It suits volatile instruments and provides good capital utilization. Parameter optimization and adding filters can further refine performance. Overall, it is a simple and practical trend following strategy.
 
 [/trans]
 
@@ -87,8 +87,8 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 strategy("ATR Strategy FOREX", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
 
 len = input(26, type=input.integer, minval=1, title="Length")
-mul = input(1, type=input.float, minval=0, title="Length")
-mullow = input(2, type=input.float, minval=0, title="Length")
+mul = input(1, type=input.float, minval=0, title="Multiplier for Upper Band")
+mullow = input(2, type=input.float, minval=0, title="Multiplier for Lower Band")
 
 price = sma(close, 1)
 average = ema(close, len)
@@ -104,5 +104,5 @@ FromMonth = input(defval=8, title="From Month", minval=1, maxval=12)
 FromDay   = input(defval=18, title="From Day", minval=1, maxval=31)
 FromYear  = input(defval=2008, title="From Year", minval=2008)
 ToMonth   = input(defval=1, title="To Month", minval=1, maxval=12)
-ToDay     = input(defval=25, title="To Day", minval=1, maxval=31)
+ToDay     = input(defval=31, title="To Day", minval=1, maxval=31)
 ```
