@@ -1,6 +1,6 @@
 > Name
 
-Eleven-Moving-Averages-Crossover-Strategy Ten Moving Averages Crossover Strategy
+Eleven-Moving-Averages-Crossover-Strategy十一条移动平均线组合交叉策略
 
 > Author
 
@@ -26,8 +26,8 @@ The core strategy logic relies on crossovers between two moving averages to dete
 
 The entry conditions are:
 
-Long entry: Fast MA > Slow MA  
-Short entry: Fast MA < Slow MA  
+Long entry: Fast MA > Slow MA 
+Short entry: Fast MA < Slow MA
 
 Exits are determined by one of three criteria:
 
@@ -39,8 +39,8 @@ The strategy allows configuring key parameters like the MA type and length, pyra
 
 ## Advantages
 
-- Combines 11 different MA types for robust signals  
-- Flexible configuration of key parameters
+- Combines 11 different MA types for robust signals
+- Flexible configuration of key parameters 
 - Take profit and stop loss features protect profits and limit losses
 - Pyramiding allows increased position size for strong trends
 
@@ -70,59 +70,61 @@ The eleven moving averages crossover strategy provides a systematic approach to 
 
 ## Overview
 
-This strategy combines 11 different types of moving averages (SMA, EMA, WMA, VWMA, SMMA, DEMA, TEMA, HMA, ZEMA, TMA, SSMA) to generate both long and short trading signals. The core logic revolves around crossovers between two selected MA lines.
+This strategy combines crossovers of 11 different types of moving averages for long and short entries. The 11 moving averages used are: Simple (SMA), Exponential (EMA), Weighted (WMA), Volume-weighted (VWMA), Smoothed (SMMA), Double Exponential (DEMA), Triple Exponential (TEMA), Hull (HMA), Zero Lag Exponential (ZEMA), Triangular (TMA), and SuperSmoother (SSMA) filter.
 
-The strategy allows the user to configure:
+The strategy allows configuring two moving averages - a faster one and a slower one, both selected from the 11 options. Long signals are generated when the faster MA crosses above the slower MA. Short signals occur when the faster MA crosses below the slower MA.
 
-- Two moving averages: a fast one and a slow one
-- Take profit and stop loss levels
-- Pyramiding settings
+Additional features include pyramiding settings, take profit and stop loss levels.
 
-### Entry Conditions
+## Strategy Logic
 
-- Long entry: Fast MA crosses above Slow MA  
-- Short entry: Fast MA crosses below Slow MA  
+The core strategy logic relies on crossovers between two moving averages to determine entries and exits.
 
-### Exit Criteria
+The entry conditions are:
 
-- Reaching the take profit level
-- Reaching the stop loss level 
-- Generating an opposite signal (crossover in the opposite direction)
+Long entry: Fast MA > Slow MA 
+Short entry: Fast MA < Slow MA
 
-Key parameters like MA type, length, and settings can be fine-tuned for different market conditions.
+Exits are determined by one of three criteria:
+
+1. Take profit level reached
+2. Stop loss level reached 
+3. Opposite signal generated (MA crossover in opposite direction)
+
+The strategy allows configuring key parameters like the MA type and length, pyramiding settings, take profit and stop loss percentages. This provides flexibility to optimize the strategy for different market conditions and risk preferences.
 
 ## Advantages
 
-- Combines 11 different MA types to generate robust signals  
-- Flexible configuration options
-- Protection through take profit and stop loss features
-- Ability to increase position size with pyramiding during strong trends
+- Combines 11 different MA types for robust signals
+- Flexible configuration of key parameters 
+- Take profit and stop loss features protect profits and limit losses
+- Pyramiding allows increased position size for strong trends
 
 ## Risks
 
-- Like any technical indicator, there's a risk of generating false signals
-- Overfitting the strategy may reduce its effectiveness in future markets
-- Hard stop losses might force exiting profitable trades prematurely in volatile periods
+- As with any technical indicator, MA crossovers can generate false signals
+- Overoptimization for current market conditions may degrade future performance
+- Hard stop loss exits can lead to exiting good trades early in volatile markets
 
-To mitigate these risks, using price action confirmation for entries, employing trailing stops, and avoiding overfitting are recommended.
+Risk management can be enhanced by using price action confirmation for entry signals, using trailing stops instead of hard stops, and avoiding overoptimization.
 
 ## Enhancement Opportunities
 
-Improvements can be made by:
+There are several ways in which this strategy can be improved:
 
-1. Incorporating additional filters before entry (e.g., volume and price action checks)
-2. Systematically testing different MA types to select the most optimal 1-2
-3. Optimizing MA lengths specifically for the trading instrument and timeframe
-4. Replacing hard stops with trailing stops 
-5. Adding incremental profit-taking levels as the trend extends
+1. Incorporate additional filters before entry, such as volume and price action checks
+2. Test performance of different MA types systematically and select optimal 1 or 2
+3. Optimize MA lengths specifically for trading instrument and time frame
+4. Employ trailing stops instead of hard stops
+5. Add profit taking at incremental levels as trend extends
 
 ## Conclusion
 
-The eleven moving averages crossover strategy provides a structured approach to detecting crossovers. By combining signals from multiple MA indicators and allowing flexible parameter configurations, it offers a robust yet adaptable trading framework. Fine-tuning and effective risk management are crucial for optimal performance. The strategy has significant potential in momentum-based trading but should be tailored to varying market conditions.
+The eleven moving averages crossover strategy provides a systematic approach to trading crossovers. By combining signals across multiple MA indicators and allowing configuration of key parameters, it provides a robust yet flexible trading framework. Fine-tuning and risk management will play key roles in optimizing performance. The strategy has strong potential for momentum-based trading but should be adapted for different market environments.
 
 ||
 
-> Strategy Arguments
+## Strategy Arguments
 
 
 |Argument|Default|Description|
@@ -141,22 +143,21 @@ The eleven moving averages crossover strategy provides a structured approach to 
 |v_input_12|false|Stop Loss Short|
 |v_input_13|3|Stop Loss %|
 
-> Source (PineScript)
+## Source (PineScript)
 
-``` pinescript
+```pinescript
 //@version=3
-strategy(title="[STRATEGY] MA Cross Eleven", overlay=true)
+strategy(title = "[STRATEGY] MA Cross Eleven", overlay = true)
 
 // MA - type, source, length
 
-type = input("ZEMA", title="MA Type: ", options=["SMA", "EMA", "WMA", "VWMA", "SMMA", "DEMA", "TEMA", "HullMA", "ZEMA", "TMA", "SSMA"])
-len1 = input(8, title="Fast MA Length", minval=1)
+type = input(defval="ZEMA", title="MA Type: ", options=["SMA", "EMA", "WMA", "VWMA", "SMMA", "DEMA", "TEMA", "HullMA", "ZEMA", "TMA", "SSMA"])
+len1 = input(defval=8, title="Fast MA Length", minval=1)
 srcclose1 = input(close, "Fast MA Source")
-len2 = input(21, title="Slow MA Length", minval=1)
+len2 = input(defval=21, title="Slow MA Length", minval=1)
 srcclose2 = input(close, "Slow MA Source")
 
 // Returns MA input selection variant, default to SMA if blank or typo.
 variant(type, src, len) =>
     v1 = sma(src, len)
-
 ```
