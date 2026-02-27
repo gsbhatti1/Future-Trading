@@ -1,0 +1,39 @@
+``` pinescript
+/*backtest
+start: 2023-04-23 00:00:00
+end: 2024-04-28 00:00:00
+period: 1d
+basePeriod: 1h
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
+
+//@version=5
+strategy("Ichimoku Leading Span B Alım/Satım Stratejisi", overlay=true)
+
+// Ichimoku göstergesi parametreleri
+conversionPeriods = input(9, title="Dönüşüm Periyodu")
+basePeriods = input(26, title="Taban Periyodu")
+laggingSpan2Periods = input(52, title="Gecikme Span 2 Periyodu")
+displacement = input(26, title="Kaydırma")
+
+// Ichimoku hesaplama
+tenkanSen = (ta.highest(high, conversionPeriods) + ta.lowest(low, conversionPeriods)) / 2
+kijunSen = (ta.highest(high, basePeriods) + ta.lowest(low, basePeriods)) / 2
+senkouSpanA = (tenkanSen + kijunSen) / 2
+senkouSpanB = (ta.highest(high, laggingSpan2Periods) + ta.lowest(low, laggingSpan2Periods)) / 2
+
+// Leading Span B'nin grafiğe çizilmesi
+plot(senkouSpanB, color=color.red, title="Leading Span B", offset=displacement)
+
+// Alım sinyali: Fiyat Leading Span B'yi yukarı keserse
+buy_signal = ta.crossover(close, senkouSpanB[displacement])
+if (buy_signal)
+    strategy.entry("Buy", strategy.long)
+
+// Satınalmış pozisyonun kapatılması: Fiyat Leading Span B'yi aşağı keserse
+sell_signal = ta.crossunder(close, senkouSpanB[displacement])
+if (sell_signal)
+    strategy.close("Buy")
+```
+
+This Pine Script code translates the trading strategy logic into English while maintaining the original formatting and functionality.
