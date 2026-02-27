@@ -1,0 +1,38 @@
+``` pinescript
+/*backtest
+start: 2022-04-12 00:00:00
+end: 2022-05-06 23:59:00
+period: 1h
+basePeriod: 15m
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
+
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © businessduck
+
+//@version=5
+indicator("Rainbow Oscillator")
+
+float w1 = input.float(0.33, 'RSI Weight', 0, 1, 0.01)
+float w2 = input.float(0.33, 'CCI Weight', 0, 1, 0.01)
+int period = input.int(24, 'Ocillograph Period', 4, 60, 1)
+int oscillographSamplesPeriod = input.int(4, 'Oscillograph MA Period', 1, 30, 1)
+int oscillographSamplesCount = input.int(1, 'Oscillograph Samples', 0, 4, 1)
+string oscillographMAType = input.string("SMA", "Oscillograph MA type", options = ["EMA", "SMA", "RMA", "WMA"])
+int levelPeriod = input.int(18, 'Level Period', 2, 30)
+int levelOffset = input.int(0, 'Level Offset', 0, 200, 10)
+float redunant = input.float(0.99, 'Level Redunant', 0, 1, 0.01)
+int levelSampleCount = input.int(3, 'Level Smooth Samples', 0, 4, 1)
+string levelType = input.string("RMA", "Level MA type", options = ["EMA", "SMA", "RMA", "WMA"])
+
+perc(current, prev) => ((current - prev) / prev) * 100
+
+smooth(value, type, period) =>
+    float ma = switch type
+        "EMA" => ta.ema(value, period)
+        "SMA" => ta.sma(value, period)
+        "RMA" => ta.rma(value, period)
+        "WMA" => ta.wma(value, period)
+        =>
+            run
+```
