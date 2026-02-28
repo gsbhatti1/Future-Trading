@@ -1,0 +1,46 @@
+``` pinescript
+/*backtest
+start: 2024-11-04 00:00:00
+end: 2024-12-04 00:00:00
+period: 1h
+basePeriod: 1h
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
+
+//@version=5
+strategy("G-Channel with EMA Strategy", overlay=true)
+
+// G-Channel Indicator
+length = input.int(100, title="G-Channel Length")
+src = input(close, title="Source")
+
+var float a = na
+var float b = na
+a := math.max(src, nz(a[1])) - (nz(a[1]) - nz(b[1])) / length
+b := math.min(src, nz(b[1])) + (nz(a[1]) - nz(b[1])) / length
+avg = (a + b) / 2
+
+// G-Channel buy/sell signals
+crossup = ta.crossover(close, b)
+crossdn = ta.crossunder(close, a)
+bullish = ta.barssince(crossdn) <= ta.barssince(crossup)
+
+// EMA Indicator
+emaLength = input.int(200, title="EMA Length")
+ema = ta.ema(close, emaLength)
+
+// Buy Condition: G-Channel gives a buy signal and price is below EMA
+buySignal = bullish and close < ema
+
+// Sell Condition: G-Channel gives a sell signal and price is above EMA
+sellSignal = not bullish and close > ema
+
+// Plotting the G-Channel and EMA
+plot(a, title="Upper", color=color.blue, linewidth=2, transp=100)
+plot(b, title="Lower", color=color.blue, linewidth=2, transp=100)
+plot(avg, title="Average", color=color.orange, linewidth=2, transp=100)
+
+// Plot buy and sell signals
+plotshape(series=buySignal, location=location.belowbar, color=color.green, style=shape.labelup, text="BUY")
+plotshape(series=sellSignal, location=location.abovebar, color=color.red, style=shape.labeldown, text="SELL")
+```
