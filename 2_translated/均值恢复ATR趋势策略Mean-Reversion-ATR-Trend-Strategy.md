@@ -19,7 +19,7 @@ This strategy utilizes the highs and lows of price volatility to determine the t
 
 1. Use ATR indicator to measure price volatility. Calculate the ATR over the last 20 periods and get its moving average and standard deviation. If current ATR value exceeds the average plus one standard deviation, price volatility is considered high.
 
-2. Use first order logarithmic price change rate to determine price trend. Calculate the logarithmic close price change rate over the last 20 periods, get its moving average. If the current change rate exceeds the average for 3 consecutive days and is positive, price is considered in an uptrend.
+2. Use first-order logarithmic price change rate to determine price trend. Calculate the logarithmic close price change rate over the last 20 periods, get its moving average. If the current change rate exceeds the average for 3 consecutive days and is positive, price is considered in an uptrend.
 
 3. When price volatility is high and price shows an uptrend, go long. When price pulls back and stop loss is triggered, close position. Stop loss price is adjusted dynamically to stay below the lowest price minus 2 times ATR.
 
@@ -31,7 +31,7 @@ This strategy utilizes the highs and lows of price volatility to determine the t
 
 3. Backtest shows annualized return of 159% during 2015-2021, far exceeding 120% of buy & hold.
 
-## Risk Analysis
+## Risk Analysis 
 
 1. Overly aggressive ATR parameters may result in too few entry opportunities. Can relax parameters moderately to increase frequency.
 
@@ -76,7 +76,7 @@ This strategy combines the advantages of gauging volatility and trend to determi
 
 > Source (PineScript)
 
-``` pinescript
+```pinescript
 /*backtest
 start: 2022-09-14 00:00:00
 end: 2023-09-20 00:00:00
@@ -89,18 +89,18 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // © DojiEmoji (kevinhhl)
 
 //@version=4
-strategy("Mean Reversion (ATR) Strategy [KL]",overlay=true,pyramiding=1)
+strategy("Mean Reversion (ATR) Strategy [KL]", overlay=true, pyramiding=1)
 ENUM_LONG = "Long"
 
 // Timeframe {
-backtest_timeframe_start = input(defval = timestamp("01 Apr 2000 13:30 +0000"), title = "Backtest Start Time", type = input.time)
-USE_ENDTIME = input(false,title="Define backtest end-time (If false, will test up to most recent candle)")
-backtest_timeframe_end = input(defval = timestamp("01 May 2021 19:30 +0000"), title = "Backtest End Time (if checked above)", type = input.time)
+backtest_timeframe_start = input(defval = timestamp("01 Apr 2000 13:30 +0000"), title="Backtest Start Time", type=input.time)
+USE_ENDTIME = input(false, title="Define backtest end-time (If false, will test up to most recent candle)")
+backtest_timeframe_end = input(defval = timestamp("01 May 2021 19:30 +0000"), title="Backtest End Time (if checked above)", type=input.time)
 within_timeframe = true
 // }
 
 // Trailing stop loss {
-ATR_X2_TSL = atr(input(14,title="Length of ATR for trailing stop loss")) * input(2.0,title="ATR Multiplier for trailing stop loss",type=input.float)
+ATR_X2_TSL = atr(input(14, title="Length of ATR for trailing stop loss")) * input(2.0, title="ATR Multiplier for trailing stop loss", type=input.float)
 TSL_source = low
 var stop_loss_price = float(0)
 TSL_line_color = color.green, TSL_transp = 100
