@@ -1,4 +1,4 @@
-``` pinescript
+```pinescript
 /*backtest
 start: 2023-09-23 00:00:00
 end: 2023-10-23 00:00:00
@@ -39,45 +39,37 @@ getHULLMA(src, len) =>
     hullma
 
 //==========T3 MA
-t3ma(source, length, factor, order) =>
-    t3 = 0.0
-    for i = 1 to (order * 2 + 1)
-        mul = ((factor / (length * 2)) * (i - 1))
-        tmp = wma(source, length * pow(2, (order - i)))
-        t3 := t3 + (mul * tmp)
-    t3
+t3Len = 5
+t3Ma = na
+for i = 1 to t3Len
+    temp := (src * ((100 - input(8.0, title="T3 Mult", minval=1)) / 100) + src.shift(i))
+    if na(t3Ma)
+        t3Ma := temp
+    else
+        t3Ma := (t3Ma * ((100 - input(8.0, title="T3 Mult", minval=1)) / 100) + temp)
 
-hullMAMa = getHULLMA(close, length_Ma)
-t3MaVal = t3ma(close, length_Ma, 0.5, 7)
+plot(hullma(src, length_Ma), color=color.blue, linewidth=2, title="HULL MA")
+plot(t3Ma, color=color.red, linewidth=2, title="T3 MA")
 
-avgLine = (hullMAMa + t3MaVal) / 2
-plot(avgLine, title="Average Line", color=color.blue)
+//==========Entry/Exit Conditions
+hullAvg = (getHULLMA(close, length_Ma) + t3Ma) / 2
 
+longCond = crossover(hullAvg, hullAvg.shift(-1))
+shortCond = crossunder(hullAvg, hullAvg.shift(-1))
 
-// Entry and Exit Logic
+plotshape(series=longCond, location=location.belowbar, color=color.green, style=shape.triangleup, title="Long Entry")
+plotshape(series=shortCond, location=location.abovebar, color=color.red, style=shape.triangledown, title="Short Entry")
 
-longEntry = crossover(avgLine, hullMAMa)
-shortEntry = crossunder(avgLine, hullMAMa)
+//==========Stop Loss and Take Profit
+longTp = input(0.08, title="TP Long")
+longSl = input(true, title="SL Long")
+shortTp = input(0.03, title="TP Short")
+shortSl = input(0.06, title="SL Short")
 
-tpLong = input(0.08, title="TP Long")
-slLong = input(true, title="SL Long")
-tpShort = input(0.03, title="TP Short")
-slShort = input(0.06, title="SL Short")
-
-longOrder = order(entry=true, amount=parameters.amount.long, limit=(avgLine * (1 + tpLong)))
-if (longEntry)
-    strategy.entry("Long", strategy.long)
-
-if (slLong and longOrder)
-    strategy.exit(id="Long SL", from_entry="Long", stop=(avgLine * (1 - slLong)))
-
-shortOrder = order(entry=true, amount=parameters.amount.short, limit=(avgLine * (1 - tpShort)))
-if (shortEntry)
-    strategy.entry("Short", strategy.short)
-
-if (slShort and shortOrder)
-    strategy.exit(id="Short SL", from_entry="Short", stop=(avgLine * (1 + slShort)))
+strategy.entry("Long", strategy.long, when=longCond)
+strategy.exit("Take Profit & Stop Loss", "Long", limit=strategy.close + longTp * close, stop=strategy.close - (close * shortSl))
+strategy.entry("Short", strategy.short, when=shortCond)
+strategy.exit("Take Profit & Stop Loss", "Short", limit=strategy.close - shortTp * close, stop=strategy.close + (close * longSl))
 
 ```
-
-This Pine Script translates the provided Chinese text into English, keeping all code blocks and formatting intact.
+```
