@@ -14,9 +14,9 @@ ChaoZhang
 This strategy combines the DMI (Directional Movement Index) and ADX (Average Directional Index) indicators to identify strong market trends and capture trading opportunities. The strategy uses DMI's +DI and -DI line crossovers to determine trend direction while utilizing the ADX indicator to measure trend strength, only entering trades when trends are clearly established. This is a complete trend following trading system that includes entry signals and risk management features like stop-loss and take-profit levels.
 
 #### Strategy Principles
-The core logic of this strategy includes several key elements:
-1. Uses DMI indicator's +DI and -DI lines to judge trend direction, generating long signals when +DI crosses above -DI and short signals when +DI crosses below -DI.
-2. Uses ADX indicator to assess trend strength, with a default threshold of 25, only allowing trades when ADX exceeds the threshold to avoid false signals in choppy markets.
+The core logic includes several key elements:
+1. Uses DMI's +DI and -DI lines to judge trend direction, generating long signals when +DI crosses above -DI and short signals when +DI crosses below -DI.
+2. Utilizes ADX to assess trend strength, with a default threshold of 25; only allowing trades when ADX exceeds the threshold to avoid false signals in choppy markets.
 3. Employs percentage-based stop-loss and take-profit levels for risk control, with default settings of 1% stop-loss and 2% take-profit from entry price.
 4. Strategy parameters are adjustable, including DMI period, ADX period and smoothing parameters, ADX threshold, and stop-loss/take-profit percentages.
 
@@ -46,10 +46,12 @@ Mitigation measures:
    - Add trend confirmation indicators like moving averages.
    - Optimize dynamic adjustment mechanism for ADX threshold.
    - Consider incorporating volume indicators for auxiliary judgment.
+
 2. Risk Control Optimization:
    - Introduce dynamic stop-loss mechanisms.
    - Optimize position management methods.
    - Add maximum drawdown controls.
+
 3. Parameter Optimization:
    - Develop adaptive parameter adjustment mechanisms.
    - Set parameter combinations for different market environments.
@@ -60,19 +62,11 @@ The DMI+ADX crossover strategy is a classic trend following strategy that combin
 
 #### Source (PineScript)
 
-``` pinescript
-/*backtest
-start: 2024-02-19 00:00:00
-end: 2024-10-25 08:00:00
-period: 4h
-basePeriod: 4h
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
+```pinescript
 //@version=6
 strategy("DMI + ADX Strategy", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=250)
 
-// Parameter Settings
+// Parameter settings
 adxLength = input.int(14, title="ADX Length")
 adxSmoothing = input.int(14, title="ADX Smoothing")
 dmiLength = input.int(14, title="DMI Length")
@@ -83,27 +77,20 @@ takeProfitPerc = input.float(2.0, title="Take Profit (%)")
 // Calculation of DMI and ADX using ta.dmi
 [plusDI, minusDI, adxValue] = ta.dmi(dmiLength, adxSmoothing)
 
-// Buying Conditions
+// Buy conditions
 longCondition = ta.crossover(plusDI, minusDI) and adxValue > adxThreshold
 if (longCondition)
     strategy.entry("Long", strategy.long)
 
-// Selling Conditions
+// Sell conditions
 shortCondition = ta.crossunder(plusDI, minusDI) and adxValue > adxThreshold
 if (shortCondition)
     strategy.entry("Short", strategy.short)
 
-// Defining Stop and Limit for Long Position
+// Defining Stop and Limit for Long position
 longStop = strategy.position_avg_price * (1 - stopLossPerc / 100)
 longLimit = strategy.position_avg_price * (1 + takeProfitPerc / 100)
 if (strategy.position_size > 0)
     strategy.exit("Long Exit", "Long", stop=longStop, limit=longLimit)
 
-// Defining Stop and Limit for Short Position
-shortStop = strategy.position_avg_price * (1 + stopLossPerc / 100)
-shortLimit = strategy.position_avg_price * (1 - takeProfitPerc / 100)
-if (strategy.position_size < 0)
-    strategy.exit("Short Exit", "Short", stop=shortStop, limit=shortLimit)
-
-// End of Script
-```
+// Definition
