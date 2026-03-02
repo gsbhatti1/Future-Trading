@@ -1,6 +1,6 @@
 > Name
 
-Dynamic EMA System Combined with RSI Momentum Indicator for Optimized Intraday Trading Strategy-Dynamic-EMA-System-Combined-with-RSI-Momentum-Indicator-for-Optimized-Intraday-Trading-Strategy
+Dynamic EMA System Combined with RSI Momentum Indicator for Optimized Intraday Trading Strategy - Dynamic-EMA-System-Combined-with-RSI-Momentum-Indicator-for-Optimized-Intraday-Trading-Strategy
 
 > Author
 
@@ -53,18 +53,10 @@ This strategy builds a complete trading system by combining EMA trend system wit
 #### Source (PineScript)
 
 ```pinescript
-/*backtest
-start: 2024-12-17 00:00:00
-end: 2025-01-16 00:00:00
-period: 1h
-basePeriod: 1h
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT","balance":49999}]
-*/
-
 //@version=5
 strategy("Intraday Trading Strategy - EMA Crossover + RSI - Optimized", overlay=true, pyramiding=0, default_qty_type=strategy.percent_of_equity, default_qty_value=20)
 
-// Parameters with optimization ranges
+// Optimization range parameters
 ema_fast_length = input.int(title="Fast EMA Length", defval=12, minval=5, maxval=30, step=1)
 ema_slow_length = input.int(title="Slow EMA Length", defval=26, minval=15, maxval=50, step=1)
 rsi_length = input.int(title="RSI Length", defval=14, minval=7, maxval=21, step=1)
@@ -79,28 +71,27 @@ ema_slow = ta.ema(close, ema_slow_length)
 rsi = ta.rsi(close, rsi_length)
 
 // Entry conditions
-longCondition = ta.crossover(ema_fast, ema_slow) and rsi > 50
-shortCondition = ta.crossunder(ema_fast, ema_slow) and rsi < 50
+long_condition = ta.crossover(ema_fast, ema_slow) and rsi > 50
+short_condition = ta.crossunder(ema_fast, ema_slow) and rsi < 50
 
 // Position management
-var float longQty = na
-var float shortQty = na
+var float long_qty = na
+var float short_qty = na
 
-if longCondition
-    longQty := 20 / close
-    strategy.entry("Long", strategy.long, qty=longQty)
+if long_condition
+    long_qty := 20 / close
+    strategy.entry("Long", strategy.long, qty=long_qty)
     if stop_loss_percent > 0 and take_profit_percent > 0
         strategy.exit("Exit Long", "Long", stop=close * (1 - stop_loss_percent / 100), limit=close * (1 + take_profit_percent / 100))
 
 if strategy.position_size > 0 and ta.crossunder(ema_fast, ema_slow)
     strategy.close("Long")
-    longQty := na
+    long_qty := na
 
-if shortCondition
-    shortQty := 20 / close
-    strategy.entry("Short", strategy.short, qty=shortQty)
+if short_condition
+    short_qty := 20 / close
+    strategy.entry("Short", strategy.short, qty=short_qty)
     if stop_loss_percent > 0 and take_profit_percent > 0
         strategy.exit("Exit Short", "Short", stop=close * (1 + stop_loss_percent / 100), limit=close * (1 - take_profit_percent / 100))
 ```
-
-This code block defines the Pine Script for the intraday trading strategy, including all necessary parameters and conditions.
+[/trans]
