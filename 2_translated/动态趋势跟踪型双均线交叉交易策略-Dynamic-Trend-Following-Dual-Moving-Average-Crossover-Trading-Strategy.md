@@ -56,5 +56,7 @@ if exitCondition
 
 // Plot MAs
 plot(sma200, title="200-Day SMA", color=color.blue)
-plot(ema21w, title="21-Week EMA", color=color.red)
+plot(ema21w, title="21-Week EMA", color=color.orange)
 ```
+
+This translation preserves the original structure and formatting of the Pine Script code while translating the comments into English.
