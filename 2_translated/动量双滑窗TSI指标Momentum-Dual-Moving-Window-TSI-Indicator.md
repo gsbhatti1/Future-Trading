@@ -20,40 +20,38 @@
 > Source (PineScript)
 
 ```pinescript
-//backtest
-//start: 2023-01-01 00:00:00
-//end: 2024-01-07
+// Define the strategy name and description
+strategy("Momentum Dual Moving Window TSI Indicator Strategy", shorttitle="MDMW-TSI")
 
-//@version=5
-strategy("Momentum Dual Moving Window TSI Indicator Strategy", overlay=true)
+// Input parameters
+timeframe = input(120, title="Timeframe")
+long_length = input(25, title="Long Length")
+short_length = input(13, title="Short Length")
+signal_length = input(13, title="Signal Length")
+period = input(300, title="Period")
+from_month = input(true, title="From Month")
+from_day = input(true, title="From Day")
+from_year = input(2017, title="From Year")
+to_month = input(true, title="To Month")
+to_day = input(true, title="To Day")
+to_year = input(9999, title="To Year")
 
-timeframe = input.int(120, title="Timeframe")
-longLength = input.int(25, title="Long Length")
-shortLength = input.int(13, title="Short Length")
-signalLength = input.int(13, title="Signal Length")
-period = input.int(300, title="Period")
+// Function to calculate double smoothed price change
+double_smooth(pc, long_period, short_period) =>
+    ewa1 = ema(close - close[long_period], long_period)
+    ewa2 = ema(ewa1, short_period)
+    ewa2
 
-// Helper functions
-smooth = ta.sma
-double_smooth = lambda pc, l, s: smooth(smooth(pc, l), s)
+// Calculate TSI value
+tsi_value = 100 * (double_smooth(change(close), long_length, short_length) / double_smooth(abs(change(close)), long_length, short_length))
 
-// Calculate price changes
-pc = change(close)
-
-// Double smoothed price changes and absolute values
-double_smoothed_pc = double_smooth(pc, longLength, shortLength)
-double_smoothed_abs_pc = double_smooth(abs(pc), longLength, shortLength)
-
-// TSI value
-tsi_value = 100 * (double_smoothed_pc / double_smoothed_abs_pc)
-
+// Plot TSI value on the chart
 plot(tsi_value, title="TSI Value", color=color.blue)
 
-// Buy and sell signals
-buy_signal = ta.crossover(tsi_value, sma(tsi_value, signalLength))
-sell_signal = ta.crossunder(tsi_value, sma(tsi_value, signalLength))
-
-strategy.entry("Buy", when=buy_signal)
-strategy.close("Buy", when=sell_signal)
+// Generate buy and sell signals based on TSI crossing its moving average
+if crossover(tsi_value, sma(tsi_value, signal_length))
+    strategy.entry("Buy", strategy.long)
+if crossunder(tsi_value, sma(tsi_value, signal_length))
+    strategy.exit("Sell", "Buy")
 ```
 ```

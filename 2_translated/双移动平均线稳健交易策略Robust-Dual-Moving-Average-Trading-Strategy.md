@@ -1,20 +1,15 @@
-> Strategy Arguments
+> Name
 
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|0|Long Only or Short Only or Both?: Both|Long Only|Short Only|
-|v_input_2|50|RSI Overbought Level: 50|70|
-|v_input_3|30|RROC Oversold Level: 30|-70|
-|v_input_4|90|RSM Smooth Period: 90|120|
-|v_input_5|10|Short RSI Overbought Level: 10|20|
-|v_input_6|10|Short RROC Oversold Level: 10|-20|
-|v_input_7|20|Short SMA Period: 20|40|
-|v_input_8|50|Long SMA Period: 50|100|
-|v_input_9|3|Stop Loss Percentage: 3%|5%|
-|v_input_10|20|Take Profit Percentage: 20%|30%|
+Robust Dual Moving Average Trading Strategy
 
----
+> Author
 
+ChaoZhang
+
+> Strategy Description
+
+![IMG](https://www.fmz.com/upload/asset/6d11bbe4e33a9d6334.png)
+[trans]
 ## Overview
 
 The Robust Dual Moving Average Trading Strategy combines the power of both Relative Strength Index (RSI) and Rate of Change (ROC) indicators to identify the direction of intermediate-to-long-term trends. With built-in filters and stop loss conditions, this strategy enters the market only after the trend direction is confirmed, which effectively reduces the risk of false breakouts.
@@ -55,3 +50,12 @@ The strategy can be optimized in the following aspects:
 The Robust Dual Moving Average Trading Strategy successfully combines trend diagnosis and reversal indicators to capture structural opportunities upon intermediate-to-long-term trend confirmation. With robust configurability, traders can optimize parameters for individual stocks and market conditions. The dual line of defense also makes it a risk-controllable choice. Further performance improvements can be achieved by incorporating more indicators or establishing adaptive parameter tuning mechanisms.
 
 [/trans]
+
+> Strategy Arguments
+
+
+
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|0|Long Only or Short Only or Both?: Both|Long Only|Short Only|
+|v_input_2|
