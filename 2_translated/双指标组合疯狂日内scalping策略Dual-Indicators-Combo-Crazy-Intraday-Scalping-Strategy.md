@@ -10,8 +10,6 @@ ChaoZhang
 
 ![IMG](https://www.fmz.com/upload/asset/11fba740b932e76ed3d.png)
 
-[trans]
-
 ## Overview
 
 This strategy combines the buy and sell signals from LuxAlgo's TMO and AMA indicators to catch the beginning of a trend during range-bound consolidation. It goes long or short when the conditions of TMO signal, AMA extremities, and increasing candle body size are met. The stop loss is set at the latest swing high/low based on recent bars.
@@ -22,8 +20,8 @@ The TMO indicator reflects price momentum. It belongs to the oscillator indicato
 
 The main logic behind this strategy is: TMO can detect trend divergence to generate trading signals. AMA can identify price reversal zones. Together with the confirmation from increasing candle body size, they can improve the accuracy of capturing trend start. So the strategy will go long/short when:
 
-1. TMO gives buy signal, i.e., bullish divergence AND AMA shows its max extremity
-2. TMO gives sell signal, i.e., bearish divergence AND AMA shows its min extremity
+1. TMO gives buy signal, i.e. bullish divergence AND AMA shows its max extremity
+2. TMO gives sell signal, i.e. bearish divergence AND AMA shows its min extremity
 3. Also requires the most recent 3 candle's body to expand in size
 
 This solves the false signal problem of single indicators. The stop loss based on recent bars' highest high/lowest low can control risk effectively.
@@ -106,27 +104,22 @@ The strategy can be further optimized in the following areas:
 
 This strategy combines the trading signals from TMO and AMA to scalp in range-bound markets by capturing early trend moves. It has the advantages of high signal accuracy, early trend capture, and effective risk control. Further optimizations on parameters and strategy rules can make it a highly practical intraday scalping strategy.
 
-||
+| Argument | Default | Description |
+| ---- | ---- | ---- |
+| v_input_float_1 | 2 | Factor |
+| v_input_1 | true | As Smoothed Candles |
+| v_input_2 | true | Show Alternating Extremities |
+| v_input_int_1 | 7 | (TMO Settings) TMO Length |
+| v_input_source_1_close | 0 | TMO Source: close/high/low/open/hl2/hlc3/hlcc4/ohlc4 |
+| v_input_source_2_close | 0 | (AMA Settings) AMA Source: close/high/low/open/hl2/hlc3/hlcc4/ohlc4 |
+| v_input_int_2 | 50 | AMA Length |
+| v_input_float_2 | true | (AMA Kernel Parameters) Lag |
+| v_input_float_3 | 0.5 | Overshoot |
+| v_input_int_3 | 10 | (Stop Loss Settings) SL Period |
 
-> Strategy Arguments
+## Source (PineScript)
 
-
-|Argument|Default|Description|
-|----|----|----|
-|v_input_float_1|2|Factor|
-|v_input_1|true|As Smoothed Candles|
-|v_input_2|true|Show Alternating Extremities|
-|v_input_int_1|7|(?TMO Settings)TMO Length|
-|v_input_source_1_close|0|TMO Source: close|high|low|open|hl2|hlc3|hlcc4|ohlc4|
-|v_input_source_2_close|0|(?AMA Settings)AMA Source: close|high|low|open|hl2|hlc3|hlcc4|ohlc4|
-|v_input_int_2|50|AMA Length|
-|v_input_float_2|true|(?AMA Kernel Parameters)Lag|
-|v_input_float_3|0.5|Overshoot|
-|v_input_int_3|10|(?Stop Loss Settings)SL Period|
-
-> Source (PineScript)
-
-``` pinescript
+```pinescript
 /*backtest
 start: 2023-11-23 00:00:00
 end: 2023-11-30 00:00:00

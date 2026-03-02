@@ -8,10 +8,10 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 */
 
 //@version=4
-strategy("Momentum-Trend-Following-Trading-Strategy", overlay=true)
+strategy("Trading Trend Following", overlay=true)
 
 // Define EMA parameters
-emaLengthShort = input(50, title="Short EMA Length")
+emaLengthShort = input(50, title="Short EaMA Length")
 emaLengthLong = input(200, title="Long EMA Length")
 ema50 = ema(close, emaLengthShort)
 ema200 = ema(close, emaLengthLong)
@@ -34,7 +34,7 @@ strategy.entry("Buy", strategy.long, when=buyCondition and buyEntryCondition)
 
 // Entry point sell when the price is closed below Supply and EMA gives a sell signal
 sellEntryCondition = close < ema50 and supplyZone
-strategy.close("Buy", when=sellCondition or sellEntryCondition)
+strategy.entry("Sell", strategy.short, when=sellCondition and sellEntryCondition)
 ```
 
-This completes the translation of your trading strategy document into English, maintaining all code blocks as-is.
+This Pine Script defines the trading strategy with the specified parameters and conditions for entering buy and sell trades. The `buyCondition` is triggered when both the fast EMA crosses above the slow EMA, the price closes above the short-term EMA, and RSI is above 55. The `sellCondition` triggers a short position when the opposite occurs with the RSI below 45. Additionally, entry points are further filtered by demand and supply zones to ensure more precise trades.
