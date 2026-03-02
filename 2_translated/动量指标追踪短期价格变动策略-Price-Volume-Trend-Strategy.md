@@ -14,81 +14,82 @@ ChaoZhang
 
 ### Overview
 
-This strategy uses momentum indicators to track short-term price movements and determine market trend directions for buy and sell operations. The strategy name "Price Volume Trend Strategy" reflects the idea of using price changes and volume changes to judge the trend.
+This strategy uses momentum indicators to track short-term price movements and determine market trend directions for buy and sell operations. The strategy name "Price Volume Trend Strategy" reflects the idea of using price changes and volume changes to judge trends.
 
-### Principles  
+### Principles
 
-The strategy first calculates the momentum of prices. By calculating the difference between the current period price and the previous period price, it can reflect the absolute change in prices over the latest period. A positive value indicates a price increase, and a negative value indicates a price decrease. Then the moving average of this difference value is calculated for filtering to obtain the average momentum indicator.
+The strategy first calculates the momentum of prices. By calculating the difference between the current period price and the previous period price, it can reflect the absolute change in prices over the latest period. A positive value indicates a price increase, and a negative value indicates a price decrease. Then, the moving average of this difference value is calculated for filtering to obtain the average momentum indicator.
 
-When the latest price is greater than the average momentum, it indicates that the price is rising. When the latest price is less than the average momentum, it indicates that the price is falling. Determine the price trend direction based on this indicator. Combined with volume amplification filtering, only signals with relatively large trading volumes are selected in actual trading.
+When the latest price is greater than the average momentum, it indicates that the price is rising; when the latest price is less than the average momentum, it indicates that the price is falling. Based on this indicator, determine the direction of the price trend. Combined with volume amplification filtering, only signals with relatively large trading volumes are selected in actual trading.
 
 According to the identified upward and downward price trends, corresponding buy and sell operations are carried out.
 
-### Advantage Analysis  
+### Advantage Analysis
 
-- The strategy judges trends quickly and can quickly capture short-term price movements, which is suitable for short-term operations  
-- Avoid being misled by false breakouts through volume filtering  
-- Implemented the operating logic of chasing rises and killing falls  
-- High trading frequency, suitable for aggressive investors  
+- The strategy judges trends quickly and can quickly capture short-term price movements, making it suitable for short-term operations
+- Volume filtering avoids being misled by false breakouts
+- Implements the "chase rises and kill falls" trading logic
+- High trading frequency, suitable for aggressive investors
 
-### Risk Analysis  
+### Risk Analysis
 
-- Vulnerable to the impact of abnormal market fluctuations, with certain false signal risks  
-- Slippage risks caused by frequent trading  
-- May miss medium and long term trends, and long-term profitability needs to be verified  
+- Vulnerable to the impact of abnormal market fluctuations, with certain false signal risks
+- Slippage risks due to frequent trading
+- May miss medium and long-term trends; long-term profitability needs verification
 
-### Optimization Directions  
+### Optimization Directions
 
-- Adjust the parameters of momentum indicators to optimize judgment effects  
-- Optimize volume filtering parameters to improve signal quality  
-- Increase stop-loss mechanisms to control single loss  
-- Incorporate more factors to ensure multi-factor driven  
+- Adjust momentum indicator parameters to optimize judgment effects
+- Optimize volume filtering parameters to improve signal quality
+- Increase stop-loss mechanisms to control single losses
+- Incorporate more factors to ensure multi-factor driven
 
-### Conclusion  
+### Conclusion
 
-The strategy overall tracks short-term price change trends through momentum indicators, and quickly determines entry and exit timing. The advantages are fast operation, chasing rises and killing falls. The disadvantages are signal quality and long-term profitability need to be examined. Through parameter adjustments and enhanced risk control mechanisms, the strategy can become an important component of high-frequency strategies, combined with other low-frequency strategies.
+Overall, the strategy tracks short-term price change trends through momentum indicators and quickly determines entry and exit timing. The advantages are rapid operations and chasing rises and killing falls. However, signal quality and long-term profitability need examination. Through parameter adjustments and enhanced risk control mechanisms, the strategy can become an important component of high-frequency strategies when combined with other low-frequency strategies.
 
 ||
 
 ### Overview
 
-This strategy uses momentum indicators to track short-term price movements and determine market trend directions for buy and sell operations. The strategy name "Price Volume Trend Strategy" reflects the idea of using price changes and volume changes to judge the trend.
+This strategy uses momentum indicators to track short-term price movements and determine market trend directions for buy and sell operations. The strategy name "Price Volume Trend Strategy" reflects the idea of using price changes and volume changes to judge trends.
 
-### Principles  
+### Principles
 
-The strategy first calculates the momentum of prices. By calculating the difference between the current period price and the previous period price, it can reflect the absolute change in prices over the latest period. A positive value indicates a price increase, and a negative value indicates a price decrease. Then the moving average of this difference value is calculated for filtering to obtain the average momentum indicator.
+The strategy first calculates the momentum of prices. By calculating the difference between the current period price and the previous period price, it can reflect the absolute change in prices over the latest period. A positive value indicates a price increase, and a negative value indicates a price decrease. Then, the moving average of this difference value is calculated for filtering to obtain the average momentum indicator.
 
-When the latest price is greater than the average momentum, it indicates that the price is rising. When the latest price is less than the average momentum, it indicates that the price is falling. Determine the price trend direction based on this indicator. Combined with volume amplification filtering, only signals with relatively large trading volumes are selected in actual trading.
+When the latest price is greater than the average momentum, it indicates that the price is rising; when the latest price is less than the average momentum, it indicates that the price is falling. Based on this indicator, determine the direction of the price trend. Combined with volume amplification filtering, only signals with relatively large trading volumes are selected in actual trading.
 
 According to the identified upward and downward price trends, corresponding buy and sell operations are carried out.
 
-### Advantage Analysis  
+### Advantage Analysis
 
-- The strategy judges trends quickly and can quickly capture short-term price movements, which is suitable for short-term operations  
-- Avoid being misled by false breakouts through volume filtering  
-- Implemented the operating logic of chasing rises and killing falls  
-- High trading frequency, suitable for aggressive investors  
+- The strategy judges trends quickly and can quickly capture short-term price movements, making it suitable for short-term operations
+- Volume filtering avoids being misled by false breakouts
+- Implements the "chase rises and kill falls" trading logic
+- High trading frequency, suitable for aggressive investors
 
-### Risk Analysis  
+### Risk Analysis
 
-- Vulnerable to the impact of abnormal market fluctuations, with certain false signal risks  
-- Slippage risks caused by frequent trading  
-- May miss medium and long term trends, and long-term profitability needs to be verified  
+- Vulnerable to the impact of abnormal market fluctuations, with certain false signal risks
+- Slippage risks due to frequent trading
+- May miss medium and long-term trends; long-term profitability needs verification
 
-### Optimization Directions  
+### Optimization Directions
 
-- Adjust the parameters of momentum indicators to optimize judgment effects  
-- Optimize volume filtering parameters to improve signal quality  
-- Increase stop-loss mechanisms to control single loss  
-- Incorporate more factors to ensure multi-factor driven  
+- Adjust momentum indicator parameters to optimize judgment effects
+- Optimize volume filtering parameters to improve signal quality
+- Increase stop-loss mechanisms to control single losses
+- Incorporate more factors to ensure multi-factor driven
 
-### Conclusion  
+### Conclusion
 
-The strategy overall tracks short-term price change trends through momentum indicators, and quickly determines entry and exit timing. The advantages are fast operation, chasing rises and killing falls. The disadvantages are signal quality and long-term profitability need to be examined. Through parameter adjustments and enhanced risk control mechanisms, the strategy can become an important component of high-frequency strategies, combined with other low-frequency strategies.
+Overall, the strategy tracks short-term price change trends through momentum indicators and quickly determines entry and exit timing. The advantages are rapid operations and chasing rises and killing falls. However, signal quality and long-term profitability need examination. Through parameter adjustments and enhanced risk control mechanisms, the strategy can become an important component of high-frequency strategies when combined with other low-frequency strategies.
 
-[/trans]
+||
 
 > Strategy Arguments
+
 
 
 |Argument|Default|Description|
@@ -102,6 +103,7 @@ The strategy overall tracks short-term price change trends through momentum indi
 |v_input_7|true|strength toggle |
 |v_input_8|600|strength elimination|
 
+
 > Source (PineScript)
 
 ```pinescript
@@ -113,7 +115,7 @@ basePeriod: 1h
 exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 */
 
-// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2n2/
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2nL/
 // © russtic
 
 //@version=2
@@ -180,5 +182,4 @@ is_downtrend =  (b1)// and (p <0)
 barcolor(b1 ? red: a1 ? lime : blue)
 
 //end
-
 ```
