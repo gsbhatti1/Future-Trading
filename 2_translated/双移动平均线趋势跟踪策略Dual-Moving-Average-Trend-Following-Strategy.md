@@ -10,45 +10,45 @@ ChaoZhang
 
 ## Overview
 
-This strategy uses the combination of a fast moving average and a slow moving average to determine trend direction, generating trading signals when the fast line crosses above the slow line. This is part of a dual-moving-average trading system.
+This strategy utilizes a combination of fast and slow moving averages to identify trend direction, generating trading signals when the fast line crosses above the slow line. It constitutes a dual moving average system.
 
 ## Principles
 
-The strategy employs a shorter fast moving average and a longer slow moving average.
+The strategy employs a shorter fast moving average (MA) and a longer slow MA.
 
-The slow MA defines the main trend direction. Prices above the MA indicate an uptrend; prices below it suggest a downtrend.
+The slow MA defines the main trend direction. Price above MA is an uptrend; price below MA is a downtrend.
 
-During an uptrend, if the fast MA crosses above the slow MA, a long signal is generated; during a downtrend, if the fast MA crosses below the slow MA, a short signal is generated.
+In an uptrend, a long signal is generated when the fast MA crosses above the slow MA. In a downtrend, a short signal is generated when the fast MA crosses below the slow MA.
 
-After generating a trading signal, trailing stops can optionally be enabled for continued tracking.
+After generating signals, trailing stop can optionally be enabled to continue tracking stops.
 
 ## Advantages
 
 1. The combination of fast and slow MAs effectively identifies trends.
 2. The fast MA produces sensitive trading signals.
-3. The slow MA filters out noise to prevent false breakouts.
-4. Various MA types such as EMA, DEMA can be used.
+3. The slow MA filters out noise, preventing false breakouts.
+4. Various types of MAs such as EMA, DEMA can be used.
 5. Trailing stop loss can be enabled.
 
 ## Risks and Mitigations
 
-1. MAs may lag, causing delayed signals. More sensitive parameters can be tested.
-2. Stop losses may be too tight, leading to premature exits. Adequate wiggle room should be allowed.
-3. Volume is ignored, posing a risk of price manipulation. Volume confirmation can be added.
-4. Indicator-only systems are prone to false signals. Additional confirmation is required.
-5. Parameter optimization is difficult. Stepwise optimization or genetic algorithms can find optimal parameters.
+1. MA lag may delay signals. More sensitive parameters can be tested.
+2. Stop losses may be too tight, leading to premature exits. Should allow for some flexibility in the stop distance.
+3. Volume is ignored, posing a risk of price manipulation. Can add volume confirmation.
+4. Indicator-only prone to false signals. Additional confirmation required.
+5. Parameter optimization can be challenging. Stepwise optimization or genetic algorithms can find optimal parameters.
 
 ## Enhancement Opportunities
 
 1. Test different MA types and parameters for the best results.
 2. Research adaptive MAs for better sensitivity.
 3. Add other indicators or factors for signal filtering.
-4. Build dynamic stop-loss mechanisms for more flexible stops.
-5. Optimize money management strategies like dynamic position sizing with ATR.
+4. Build dynamic stop mechanisms for more flexible stops.
+5. Optimize money management strategies like dynamically adjusting position sizes based on ATR.
 
 ## Summary
 
-The strategy trades dual MA crossovers to identify trends, with trailing stops limiting risk. The logic is simple and clear but suffers from parameter selection challenges. Enhancements through optimization, filtering, and stop-loss strategies can improve robustness. It serves as a reasonable baseline trend-following system.
+This strategy trades dual MA crossovers to identify trends, with trailing stops limiting risk. The logic is simple and clear but faces issues such as parameter selection. Enhancements through optimization, filtering, and stop-loss strategies can improve robustness. It serves as a reasonable baseline trend-following system.
 
 ||
 
@@ -58,46 +58,43 @@ This strategy uses fast and slow moving averages to identify trend direction and
 
 ## Principles
 
-The strategy employs a shorter fast moving average and a longer slow moving average. 
+The strategy employs a shorter fast moving average (MA) and a longer slow MA. 
 
-The slow MA defines the main trend direction. Prices above the MA indicate an uptrend; prices below it suggest a downtrend.
+The slow MA defines the main trend direction. Price above the MA indicates an uptrend; price below the MA indicates a downtrend.
 
-During an uptrend, if the fast MA crosses above the slow MA, a long signal is generated. During a downtrend, if the fast MA crosses below the slow MA, a short signal is generated.
+In an uptrend, a long signal is generated when the fast MA crosses above the slow MA. In a downtrend, a short signal is generated when the fast MA crosses below the slow MA.
 
-After generating a trading signal, trailing stops can optionally be enabled for continued tracking.
+After generating signals, trailing stops can optionally be enabled to continue tracking losses.
 
 ## Advantages
 
 1. The combination of fast and slow MAs effectively identifies trends.
 2. The fast MA produces sensitive trading signals.
-3. The slow MA filters out noise to prevent false breakouts.
-4. Various MA types such as EMA, DEMA can be used.
-5. Trailing stop loss can be enabled.
+3. The slow MA filters out noise, preventing false breakouts.
+4. Various types of MAs such as EMA, DEMA can be used.
+5. Trailing stop losses can be enabled.
 
 ## Risks and Mitigations
 
-1. MAs may lag, causing delayed signals. More sensitive parameters can be tested.
-2. Stop losses may be too tight, leading to premature exits. Adequate wiggle room should be allowed.
-3. Volume is ignored, posing a risk of price manipulation. Volume confirmation can be added.
-4. Indicator-only systems are prone to false signals. Additional confirmation is required.
-5. Parameter optimization is difficult. Stepwise optimization or genetic algorithms can find optimal parameters.
+1. MA lag may delay signals. More sensitive parameters can be tested.
+2. Stop loss levels may be too tight, leading to premature exits. Should allow for some flexibility in the stop distance.
+3. Volume is ignored, posing a risk of price manipulation. Can add volume confirmation.
+4. Indicator-only systems are prone to false signals. Additional confirmation required.
+5. Parameter optimization can be challenging. Stepwise optimization or genetic algorithms can find optimal parameters.
 
 ## Enhancement Opportunities
 
 1. Test different MA types and parameters for the best results.
 2. Research adaptive MAs for better sensitivity.
 3. Add other indicators or factors for signal filtering.
-4. Build dynamic stop-loss mechanisms for more flexible stops.
-5. Optimize money management strategies like dynamic position sizing with ATR.
+4. Build dynamic stop mechanisms for more flexible stops.
+5. Optimize money management strategies like dynamically adjusting position sizes based on ATR.
 
 ## Summary
 
-The strategy trades dual MA crossovers to identify trends, with trailing stops limiting risk. The logic is simple and clear but suffers from parameter selection challenges. Enhancements through optimization, filtering, and stop-loss strategies can improve robustness. It serves as a reasonable baseline trend-following system.
-
-[/trans]
+The strategy trades dual MA crossovers to identify trends, with trailing stops limiting risk. The logic is simple and clear but faces issues such as parameter selection. Enhancements through optimization, filtering, and stop-loss strategies can improve robustness. It serves as a reasonable baseline trend-following system.
 
 > Strategy Arguments
-
 
 
 |Argument|Default|Description|
@@ -173,7 +170,8 @@ center = (lasthigh + lastlow) / 2
 
 //Trend
 ma = type == 1 ? sma(src, len) : type == 2 ? ema(src, len) : type == 3 ? vwma(src, len) : type == 4 ? dema : type == 5 ? tema : type == 6 ? kama : type == 7 ? center : 0
-trend = low > ma and low[1] > ma[1] and low[2] > ma[2] ? 1 : 0
-dn = trend == -1 and (high > fastsma or usefastsma == false) and greenbars == 1 ? 1 : 0
+trend = low > ma and low[1] > ma[1] and low[2] > ma[2] ? 1 : high < ma and high[1] < ma[1] and high[2] < ma[2] ? -1 : 0
 
+up = trend == 1 and (low < fastsma or not usefastsma) and bars == 1 ? 1 : 0
+dn = trend == -1 and (high > fastsma or not usefastsma) and bars == 2 ? 1 : 0
 ```
