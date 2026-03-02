@@ -1,6 +1,7 @@
+---
 > Name
 
-Dual EMA Trend Momentum Trading Strategy
+Dual EMA Trend Momentum Trading Strategy - 双均线趋势动量交易策略
 
 > Author
 
@@ -40,19 +41,10 @@ The core mechanism relies on identifying trend changes through crossovers betwee
 #### Conclusion
 This is a well-structured and logically rigorous trend-following strategy. It captures market trends through dual EMA crossovers, offering good operability and scalability. While certain limitations exist, continuous optimization and improvement can develop it into a stable and reliable trading system. The key is to flexibly adjust parameters based on different market characteristics and establish comprehensive risk control mechanisms.
 
----
-
+||
 #### Source (PineScript)
 
 ```pinescript
-/*backtest
-start: 2019-12-23 08:00:00
-end: 2024-11-27 08:00:00
-period: 1d
-basePeriod: 1d
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
 //@version=5
 strategy("EMA Crossover Strategy", overlay=true)
 
@@ -65,8 +57,8 @@ ema11 = ta.ema(close, shortEmaPeriod)
 ema21 = ta.ema(close, longEmaPeriod)
 
 // Plot EMAs on the chart
-plot(ema11, title="Short EMA", color=color.blue, linewidth=2)
-plot(ema21, title="Long EMA", color=color.red, linewidth=2)
+plot(ema11, title="11 EMA", color=color.blue, linewidth=2)
+plot(ema21, title="21 EMA", color=color.red, linewidth=2)
 
 // Generate trading signals
 longSignal = ta.crossover(ema11, ema21)
@@ -96,3 +88,4 @@ https://www.fmz.com/strategy/473383
 > Last Modified
 
 2024-11-29 16:08:51
+---
