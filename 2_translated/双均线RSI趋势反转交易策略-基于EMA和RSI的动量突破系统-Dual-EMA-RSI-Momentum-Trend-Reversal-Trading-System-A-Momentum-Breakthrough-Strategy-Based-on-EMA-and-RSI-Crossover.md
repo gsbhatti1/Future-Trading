@@ -10,7 +10,6 @@ ChaoZhang
 
 ![IMG](https://www.fmz.com/upload/asset/103c91b1cb9850cf712.png)
 
-[trans]
 #### Overview
 This strategy is a trend reversal trading system that combines Exponential Moving Averages (EMA) and Relative Strength Index (RSI). It identifies trend reversal points through the crossover signals of 9-period and 21-period EMAs, confirmed by RSI breakthroughs at the 50 level. The system includes a comprehensive risk management mechanism with fixed risk-reward ratios to effectively control drawdowns.
 
@@ -29,6 +28,7 @@ The core logic is based on the crossover between Fast EMA (9-period) and Slow EM
 2. Lag risk: Moving averages have inherent lag, potentially missing optimal entry points
 3. RSI misjudgment: RSI indicators may generate misleading signals in extreme market conditions
 4. Parameter sensitivity: Different market environments may require parameter adjustments, increasing maintenance costs
+
 Solutions: Recommended for use in clear trending markets, consider adding ATR for volatility filtering, and combine with longer-term trend analysis.
 
 #### Strategy Optimization Directions
@@ -46,6 +46,14 @@ This strategy builds a robust trend-following system by combining EMA crossovers
 #### Source (PineScript)
 
 ```pinescript
+/*backtest
+start: 2024-11-26 00:00:00
+end: 2024-12-25 08:00:00
+period: 1h
+basePeriod: 1h
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
+
 //@version=5
 strategy("EMA Crossover with RSI Confirmation and Buy/Sell Signals", overlay=true)
 
