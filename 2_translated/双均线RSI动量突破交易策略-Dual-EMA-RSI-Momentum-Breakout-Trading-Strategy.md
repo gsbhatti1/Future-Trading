@@ -1,4 +1,5 @@
 ---
+
 #### Overview
 This strategy combines a dual EMA system (50 and 100 periods) with the RSI momentum indicator. It identifies market trends and entry points through EMA crossovers and RSI overbought conditions, while implementing dynamic stop-loss for risk management. The strategy is particularly effective in trending market conditions, capitalizing on trend continuation patterns.
 
@@ -39,7 +40,7 @@ This trend-following strategy, built on classical technical analysis principles,
 
 ```pinescript
 //@version=5
-strategy("Dual EMA - RSI Momentum Breakout Trading Strategy", overlay=true)
+strategy("Dual-EMA-RSI-Momentum-Breakout-Trading-Strategy", overlay=true)
 
 // === INPUTS ===
 src = close
@@ -58,7 +59,7 @@ emaB = ta.ema(src, emaB_value)
 // RSI
 rsi = ta.rsi(rsi_source, rsi_length)
 
-// EMA Crossover Conditions
+// EMA Cross Conditions
 isGreenCrossover = emaS > emaB  // Green band
 isRedCrossover = emaS < emaB    // Red band
 
