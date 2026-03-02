@@ -1,55 +1,41 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
 ---
 
-> Name
-
-Dynamic Moving Average Pullback Trading Strategy
-
-> Author
-
-ChaoZhang
-
-> Strategy Description
-
-![IMG](https://www.fmz.com/upload/asset/753c60999f268f8a11.png)
-[trans]
 ## Overview
 
-This strategy utilizes a dual moving average system to identify potential breakout opportunities in selected stocks or cryptocurrencies. The core principle is to buy when the shorter-term moving average bounces back from below the longer-term moving average and sell when prices retest the longer-term moving average.
+This strategy employs a dual moving average system to identify potential breakout opportunities in selected stocks or cryptocurrencies. The core principle is to buy when the shorter-term moving average bounces back from below the longer-term moving average and sell when prices retest the longer-term moving average.
 
 ## Strategy Logic
 
-The strategy employs two simple moving averages (SMA) with different periods as trading signals. The first SMA has a longer period representing the overall trend direction, while the second SMA has a shorter period to capture short-term price fluctuations.
+The strategy utilizes two simple moving averages (SMA) with different periods as trading signals. The first SMA has a longer period to represent the overall trend direction. The second SMA has a shorter period to capture short-term price fluctuations.
 
-When the shorter-term SMA crosses above the longer-term SMA from below, it indicates an uptrend in prices overall; hence the strategy opens a long position. When prices pull back down to retest the longer-term SMA, it signals the end of the short-term pullback and prompts the strategy to consider stopping out or taking profit on the position.
+When the shorter-term SMA crosses above the longer-term SMA from below, it signals an uptrend in prices overall; hence, the strategy opens a long position. When prices pull back down to retest the longer-term SMA, it indicates the short-term pullback has ended and the strategy considers stopping out or taking profit on the position.
 
-Additionally, the strategy includes "oversold" and "overbought" conditions to avoid trading in extreme situations. Positions are only opened when both SMA crossovers and reasonable valuation criteria are met.
+In addition, the strategy has “oversold” and “overbought” conditions to avoid trading in extreme situations. It only opens positions when both SMA crossover and reasonable valuation criteria are met.
 
 ## Advantages
 
-- The dual moving average system effectively identifies medium-term trends.
-- Combines the merits of trend following and pullback trading.
-- Built-in oversold and overbought conditions reduce unnecessary trades.
+- Dual moving average system effectively identifies medium-term trends
+- Combines the merits of trend following and pullback trading
+- Embedded oversold and overbought conditions reduce unnecessary trades
 
-## Risk Analysis
+## Risk Analysis 
 
-- Difficult to determine precise pullback end timing, which may lead to premature stopout.
-- Unable to quickly cut losses when trend changes, potentially leading to large drawdowns.
-- Poor parameter tuning could result in excessive or conservative trading.
+- Difficult to determine precise pullback end timing, may stop out prematurely
+- Unable to quickly cut losses when trend changes, could suffer large drawdowns
+- Poor parameter tuning may result in over-trading or conservative trading
 
 ## Optimization Directions
 
-There is further room for optimizing this strategy:
+There is further room to optimize this strategy:
 
-1. Utilize more advanced technical indicators like Bollinger Bands and KD to gauge price waves and trends.
-2. Incorporate additional factors such as volume changes, volatility to determine pullback completion.
-3. Dynamically adjust position sizing to maximize profit potential.
-4. Optimize stop loss logic with KAMA, Ichimoku clouds, and lower timeframe signals.
+1. Utilize more advanced technical indicators like Bollinger Bands and KD to gauge price waves and trends
+2. Incorporate more factors like volume change, volatility to determine pullback completion  
+3. Dynamically size positions to maximize profit potential
+4. Optimize stop loss logic with KAMA, Ichimoku clouds and lower timeframe signals  
 
 ## Conclusion
 
-This strategy integrates the strengths of trend following and pullback trading using a dual moving average system to detect opportunities. Additionally, built-in overbought/oversold conditions avoid unnecessary position opening. It is a highly practical quant trading strategy worth deeper research and optimization.
+This strategy combines the strengths of trend following and pullback trading using a dual moving average system to detect opportunities. At the same time, embedded overbought/oversold conditions avoid unnecessary position opening. It is a very practical quant trading strategy worth deeper research and optimization.
 
 ||
 
@@ -59,7 +45,7 @@ This strategy employs a dual moving average system to identify potential breakou
 
 ## Strategy Logic
 
-The strategy utilizes two simple moving averages (SMA) with different periods as trading signals. The first SMA has a longer period representing the overall trend direction, while the second SMA has a shorter period to capture short-term price fluctuations.  
+The strategy utilizes two simple moving averages (SMA) with different periods as trading signals. The first SMA has a longer period to represent the overall trend direction. The second SMA has a shorter period to capture short-term price fluctuations.  
 
 When the shorter-term SMA crosses above the longer-term SMA from below, it signals an uptrend in prices overall hence the strategy opens a long position. When prices pull back down to retest the longer-term SMA, it indicates the short-term pullback has ended and the strategy considers stopping out or taking profit on the position.
 
@@ -92,7 +78,7 @@ This strategy combines the strengths of trend following and pullback trading usi
 
 ---
 
-> Strategy Arguments
+## Strategy Arguments
 
 
 
@@ -105,7 +91,7 @@ This strategy combines the strengths of trend following and pullback trading usi
 |v_input_float_3|0.03|Too Thin (%)|
 
 
-> Source (PineScript)
+## Source (PineScript)
 
 ```pinescript
 /*backtest
@@ -132,7 +118,7 @@ ma2 = ta.sma(close,ma_length2)
 too_deep2   = (ma2/ma1-1) < too_deep
 too_thin2   = (ma2/ma1-1) > too_thin
 
-// Entry and close conditions
+// Entry and close condtions
 var float buy_price = 0
 buy_condition = (close > ma1) and (close < ma2) and strategy.position_size == 0 and too_deep2 and too_thin2
 close_condition1  = (close > ma2) and strategy.position_size > 0 and (close < low[1])
@@ -152,13 +138,12 @@ if close_condition1 or close_condition2
 plot(ma1,color = color.blue)
 plot(ma2,color = color.orange)
 
-
 ```
 
-> Detail
+## Detail
 
 https://www.fmz.com/strategy/442929
 
-> Last Modified
+## Last Modified
 
 2024-02-27 14:38:45
