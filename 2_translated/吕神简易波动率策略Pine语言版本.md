@@ -1,3 +1,4 @@
+---
 Name
 
 Lu Shen Simple Volatility Strategy Pine Language Version
@@ -16,14 +17,15 @@ I accidentally came across that I rewrote it using PINE and reduced the amount o
 
 ![IMG](https://www.fmz.com/upload/asset/143fce25524c3447937.png)
 
+---
+
 Strategy Arguments
-
-
 
 |Argument|Default|Description|
 |----|----|----|
 |v_input_1|50|Index calculation period|
 
+---
 
 Source (PineScript)
 
@@ -64,6 +66,8 @@ if strategy.position_size == 0
             strategy.close_all()
 
 ```
+
+---
 
 Detail
 

@@ -1,18 +1,3 @@
-> Strategy Arguments
-
-
-
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|14|RSI Length|
-|v_input_2|70|RSI Overbought Level|
-|v_input_3|30|RSI Oversold Level|
-|v_input_4|0.03|Trade Risk (3%)|
-|v_input_5|true|Stop-Loss Distance in Pips|
-
-
-> Source (PineScript)
-
 ``` pinescript
 /*backtest
 start: 2023-10-01 00:00:00
@@ -23,39 +8,39 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 */
 
 //@version=4
-strategy("RSI and EMA Risk Management Strategy", overlay=true)
+strategy("RSI and EMA-Based Trend Following Strategy with Risk Management", overlay=true)
 
-// Strategy parameters
+// Strategy Parameters
 rsiLength = input(14, "RSI Length")
 rsiOverbought = input(70, "RSI Overbought Level")
 rsiOversold = input(30, "RSI Oversold Level")
 
-// RSI calculation
+// RSI Calculation
 rsiValue = rsi(close, rsiLength)
 
-// EMA parameters
+// EMA Parameters
 ema20 = ema(close, 20)
 ema50 = ema(close, 50)
 ema200 = ema(close, 200)
 
-// Trade risk per trade parameter
-riskPerTrade = input(0.03, "Trade Risk (3%)")
+// Trade Risk Parameter
+riskPerTrade = input(0.03, "Risk per Trade (3%)")
 
-// Stop-loss distance in pips (adjust according to your strategy)
-stopLossPips = input(1, "Stop-Loss Distance in Pips")
+// Stop Loss Distance in pips (adjust according to your strategy)
+stopLossPips = input(1, "Stop Loss Distance in pips")
 
-// Calculate position size and stop-loss
+// Position Size and Stop Loss Calculation
 calculatePositionSize(entryPrice, stopLossPips) =>
     stopLossPrice = entryPrice - stopLossPips * syminfo.mintick
     riskPerTradeValue = strategy.equity * riskPerTrade
     positionSize = riskPerTradeValue / (entryPrice - stopLossPrice)
     positionSize
 
-// Entry conditions
+// Entry Conditions
 longCondition = (rsiValue < rsiOversold) and (close > ema20 or close > ema50 or close > ema200)
 if longCondition
     strategy.entry("Long", strategy.long, qty=1)
 
-// Exit conditions
-exitCondition = (rsiValue >
+// Exit Conditions
+exitCondition = (rsiValue > 
 ```
