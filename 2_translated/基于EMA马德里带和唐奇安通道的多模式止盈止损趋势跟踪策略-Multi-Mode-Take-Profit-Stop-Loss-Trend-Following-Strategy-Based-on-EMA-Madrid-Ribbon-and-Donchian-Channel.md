@@ -10,12 +10,13 @@ ChaoZhang
 
 ![IMG](https://www.fmz.com/upload/asset/d543e8976a6674406a.png)
 
+[trans]
 #### Overview
 This is a trend following strategy that combines Exponential Moving Average (EMA), Madrid Ribbon, and Donchian Channel. The strategy's uniqueness lies in its three switchable take-profit/stop-loss modes: tick-based, dollar-based, and risk-reward ratio based. It enhances reliability through a double confirmation mechanism, only executing trades on the second valid signal.
 
 #### Strategy Principles
 The strategy employs a triple technical indicator combination to identify trading opportunities:
-1. 200-period EMA for determining overall trend direction
+1. 200-period EMA to determine overall trend direction
 2. Madrid Ribbon (crossover of 5-period and 100-period EMA) for medium-term trend judgment
 3. Donchian Channel breakout for specific entry timing
 
@@ -47,6 +48,8 @@ Solution: Dynamically adjust TP/SL levels based on volatility
 
 #### Summary
 This is a trend following strategy that combines multiple classic technical indicators, enhancing trading stability through flexible TP/SL management and double confirmation mechanism. The strategy's high customizability allows it to adapt to different market environments and trading styles. It is recommended to conduct thorough historical data backtesting before live trading and adjust parameters according to specific market characteristics.
+
+#### Source (PineScript)
 
 ```pinescript
 /*backtest

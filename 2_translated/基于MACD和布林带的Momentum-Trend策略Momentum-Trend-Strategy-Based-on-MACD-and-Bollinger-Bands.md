@@ -18,34 +18,29 @@
 //@version=4
 // Simple strategy based on MACD and Bollinger Bands
 
-strategy("Momentum Trend", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=50)
+strategy("Momentum Trend", shorttitle="MT", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=10, initial_capital=10000)
 
 // Input parameters
 fast_ma_period = input(8, title="Fast MA period")
 slow_ma_period = input(21, title="Slow MA period")
-source = input(close, title="Source: close|high|low|open|hl2|hlc3|hlcc4|ohlc4")
-calculation_method = input(True, title="Moving Average Calculation: (1 = SMA), (2 = EMA), (3 = WMA), (4 = Linear)")
+source = input(close, title="Source")
+ma_calculation = input(true, title="Moving Average Calculation: (1 = SMA), (2 = EMA), (3 = WMA), (4 = Linear)")
 length = input(40, title="Length")
-bb_multiplier = input(2.0, title="BB multiplier")
+bb_multiplier = input(2, title="BB multiplier")
 
 // Calculate MACD
 [macd_line, signal_line, _] = macd(source, fast_ma_period, slow_ma_period, 9)
 
-// Bollinger Bands
-src = close
-basis = sma(src, length)
-dev = bb_multiplier * ta.stdev(src, length)
-upper_band = basis + dev
-lower_band = basis - dev
+// Calculate Bollinger Bands
+[bb_upperband, bb_middleband, bb_lowerband] = bollinger(source, length, bb_multiplier)
 
-// Plotting
-plot(macd_line, color=color.blue, title="MACD Line")
-plot(signal_line, color=color.orange, title="Signal Line")
-fill(macd_line, signal_line, color=color.rgb(255, 0, 0, 100), title="MACD Histogram")
+// Plot Bollinger Bands
+plot(bb_upperband, color=color.red, title="BB Upper Band")
+plot(bb_lowerband, color=color.blue, title="BB Lower Band")
 
-// Entry conditions
-long_condition = ta.crossover(macd_line, signal_line) and close > lower_band
-short_condition = ta.crossunder(macd_line, signal_line) and close < upper_band
+// Strategy logic
+long_condition = crossover(macd_line, signal_line) and close > bb_middleband
+short_condition = crossunder(macd_line, signal_line) and close < bb_middleband
 
 if (long_condition)
     strategy.entry("Long", strategy.long)
@@ -53,11 +48,12 @@ if (long_condition)
 if (short_condition)
     strategy.entry("Short", strategy.short)
 
-// Plot Bollinger Bands
-plot(basis, color=color.blue, title="Bollinger Bands")
-hline(upper_band, "Upper Band", color=color.red)
-hline(lower_band, "Lower Band", color=color.green)
+// Close positions when price crosses the middle band
+if (close > bb_middleband)
+    strategy.close("Long")
 
+if (close < bb_middleband)
+    strategy.close("Short")
 ```
 
-This PineScript code defines a simple momentum-trend strategy using MACD and Bollinger Bands. The strategy uses the default settings provided in the arguments to calculate the MACD and Bollinger Bands, and then enters long or short positions based on the crossover of the MACD line with the signal line relative to the Bollinger Bands.
+This PineScript code implements a simple trading strategy based on MACD and Bollinger Bands, as described in the document. The strategy uses the default settings for inputs such as period lengths and multipliers, and it enters long or short positions when conditions are met.
