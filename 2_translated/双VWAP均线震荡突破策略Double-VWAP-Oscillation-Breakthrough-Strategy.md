@@ -1,5 +1,6 @@
 > Strategy Arguments
 
+
 |Argument|Default|Description|
 |----|----|----|
 |v_input_bool_1|false|Close early if price crosses outer VWAP band|
@@ -25,20 +26,13 @@
 
 > Source (PineScript)
 
-``` pinescript
-/*backtest
-start: 2023-10-23 00:00:00
-end: 2023-11-22 00:00:00
-period: 1h
-basePeriod: 15m
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
+
+```pinescript
+//@version=5
+strategy(title="Double-VWAP-Oscillation-Breakthrough-Strategy", overlay=true, scale=scale.none, max_bars_back=500, default_qty_type=strategy.percent_of_equity, default_qty_value=100, initial_capital=100000, commission_type=strategy.commission.percent, commission_value=0.05, backtest_fill_limits_assumption=2)
 
 // This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
 // © jordanfray
-
-//@version=5
-strategy(title="Double VWAP Strategy", overlay=true, scale=scale.none, max_bars_back=500, default_qty_type=strategy.percent_of_equity, default_qty_value=100, initial_capital=100000, commission_type=strategy.commission.percent, commission_value=0.05, backtest_fill_limits_assumption=2)
 
 // Indenting Cl
 ```

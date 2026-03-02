@@ -6,12 +6,6 @@ Dynamic Moving Average Crossover Trend Following Strategy - Dynamic-Moving-Avera
 
 ianzeng123
 
-> Strategy Description
-
-![IMG](https://www.fmz.com/upload/asset/2d90376151f47c54222d7.png)
-![IMG](https://www.fmz.com/upload/asset/2d80f15f034088daf4844.png)
-
-
 #### Overview
 This strategy is a trend following system based on multiple moving average crossovers, combining SMA and EMA indicators to capture market trends. The strategy utilizes a customizable period Simple Moving Average (SMA) and two Exponential Moving Averages (EMA) to construct a complete trend following trading system. It also integrates dynamic stop-loss and profit target management mechanisms to effectively control risk and lock in profits.
 
@@ -71,26 +65,15 @@ plot(smaVal, color=color.orange, title="SMA")
 plot(emaFast, color=color.blue, title="EMA Fast")
 plot(emaSlow, color=color.red, title="EMA Slow")
 
-// Entry conditions - Long
+// Long entry condition
 // Condition 1: Close price above SMA and EMA Fast crosses above EMA Slow
 longTrigger1 = (close > smaVal) and ta.crossover(emaFast, emaSlow)
-// Condition 2: Close price breaks through SMA and previous 5 bars' low prices are all above their respective SMAs
+// Condition 2: Close price breaks through SMA with previous 5 low prices all above their respective SMAs
 longTrigger2 = ta.crossover(close, smaVal) and (low[1] > smaVal[1] and low[2] > smaVal[2] and low[3] > smaVal[3] and low[4] > smaVal[4] and low[5] > smaVal[5])
 longCondition = longTrigger1 or longTrigger2
 
-// Entry conditions - Short
+// Short entry condition
 // Condition 1: Close price below SMA and EMA Fast crosses below EMA Slow
 shortTrigger1 = (close < smaVal) and ta.crossunder(emaFast, emaSlow)
-// Condition 2: Close price breaks through SMA and previous 5 bars' high prices are all below their respective SMAs
-shortTrigger2 = ta.crossunder(close, smaVal) and (high[1] < smaVal[1] and high[2] < smaVal[2] and high[3] < smaVal[3] and high[4] < smaVal[4] and high[5] < smaVal[5])
-shortCondition = shortTrigger1 or shortTrigger2
-
-// Place orders based on conditions
-if (longCondition)
-    strategy.entry("Long", strategy.long)
-
-if (shortCondition)
-    strategy.entry("Short", strategy.short)
-```
-
-This Pine Script code defines the trading strategy described above. It uses customizable SMA and EMA periods, plots the moving averages, and implements entry conditions for both long and short positions based on the specified rules.
+// Condition 2: Close price breaks through SMA with previous 5 high prices all below their respective SMAs
+shortTrigger2 = ta.crossunder(close, smaVal) and (high[1] < smaVal[1] and high[2] < smaVal[2] and high[3] < smaVal[3] and high[4] < smaVal[4] and high[5] < smaVal
