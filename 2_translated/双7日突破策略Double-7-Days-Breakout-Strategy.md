@@ -1,4 +1,4 @@
-``` pinescript
+```pinescript
 /*backtest
 start: 2023-12-01 00:00:00
 end: 2023-12-31 23:59:59
@@ -37,10 +37,22 @@ if testPeriod()
 
     if (close>exit)
         strategy.close_all()
+
 ```
 
-> Detail
+[/trans]
 
-https://www.fmz.com/strategy/440451
+> Strategy Arguments
 
-> Last Mod
+
+
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|7|Quantity of day low|
+|v_input_2|7|Quantity of day high|
+|v_input_3|2009|Backtest Start Year|
+|v_input_4|true|Backtest Start Month|
+|v_input_5|2|Backtest Start Day|
+|v_input_6|2020|Backtest Stop Year|
+|v_input_7|12|Backtest Stop Month|
+|v_input_8|30|Backtest Stop Day|
