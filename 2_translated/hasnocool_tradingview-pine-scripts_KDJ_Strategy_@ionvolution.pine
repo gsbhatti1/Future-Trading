@@ -1,0 +1,143 @@
+# SOURCE: https://github.com/hasnocool/tradingview-pine-scripts
+# FILE  : KDJ Strategy @ionvolution.pine
+
+Script Name: KDJ Strategy @ionvolution
+Author: ionvolution
+Description: Buys if there is crossover in J and D and the crossover is above an SMA defined as an input parameter
+Sells if the close is below the SMA or there is a crossunder in J and D
+
+The KDJ calculation is done using ll21LAMBOS21 script. I added start date, end date, stop loss margin and stop profit margin to  ease the simulation on diferent conditions of the...
+PineScript code:
+
+Pine Script™ strategy
+KDJ Strategy @ionvolution
+Copy code
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// Buys if there is crossover in J and D and the crossover is above an SMA defined as an input parameter
+// Sells if the close is below the SMA or there is a crossunder in J and D
+// The KDJ calculation is done using ll21LAMBOS21 script. I added start date, end date, stop loss margin and stop profit margin to 
+// ease the simulation on diferent conditions of the market.
+// Tested on BTCBUSD pair. Gives good results in 30m candles with K period = 7 and D period = 3, but also works fine with K period = 14 and D period = 8
+// It works fine when market is bullish and gives false signals in flat markets.
+// I just developed long strategy, as it is developed to work in SPOT trading.
+// © ionvolution
+// @version = 5
+//strategy("KDJ IAM Strategy",shorttitle="kdj @ionvolution",overlay=true,default_qty_value=1,initial_capital=100,currency=currency.EUR)
+strategy("KDJ IAM Strategy",shorttitle="kdj @ionvolution",overlay=true)
+// Input parameters 
+ilong = input.int(14,"Period")
+isig = input.int(8, "Signal")
+isma = input.int(200, "SMA")
+// Function to compute average for KDJ
+bcwsma(s, l, m) =>
+    _bcwsma = float(na)
+    _s = s
+    _l = l
+    _m = m
+    _bcwsma := (_m * _s + (_l - _m) * nz(_bcwsma[1])) / _l
+    _bcwsma
+profit_m = input.float(1.20,"Profit Margin",minval=1.0,maxval=1.99,step=0.01)
+stop_m = input.float(0.98,"Stop Loss Margin",minval=0.0,maxval=1,step=0.01)
+// Make input options that configure backtest date range
+startDate = input.int(title="Start Date", defval=1, minval=1,maxval=31)
+startMonth = input.int(title="Start Month", defval=1,minval=1,maxval=12)
+startYear = input.int(title="Start Year", defval=2022,minval=2018,maxval=2023)
+endDate = input.int(title="End Date", defval=1, minval=1,maxval=31)
+endMonth = input.int(title="End Month", defval=1,minval=1,maxval=12)
+endYear = input.int(title="End Year", defval=2022,minval=2018,maxval=2099)
+// intialization of variables
+// Look if the close time of the current bar
+// falls inside the date range
+inDateRange = (time >= timestamp(syminfo.timezone, startYear,startMonth, startDate, 0, 0)) and (time < timestamp(syminfo.timezone, endYear, endMonth, endDate, 0, 0))
+c = close
+ma = ta.sma(close,isma)
+h = ta.highest(high, ilong)
+l = ta.lowest(low,ilong)
+RSV = 100*((c-l)/(h-l))
+pK = bcwsma(RSV, isig, 1)
+pD = bcwsma(pK, isig, 1)
+pJ = 3 * pK-2 * pD
+go_long= ta.crossover(pJ,pD) and close >ma
+go_short= ta.crossover(pD,pJ) or close < ma
+if (inDateRange and go_long)
+    strategy.entry("S",strategy.long,comment="C")
+    strategy.exit("S", limit=c*profit_m, stop=c*stop_m, comment="SL/SP")
+    
+if (inDateRange and go_short)
+    strategy.close("S",when=go_short,comment="V")
+    
+// Plot options
+//plot(pK, color= #1E88E5,transp=0)
+//plot(pD, color=#FF6F00,transp=0)
+plot(ma, color=color.yellow)
+bgcolor(pJ>pD? color.green : color.red, transp=75)
+//h0 = hline(80)
+//h1 = hline(20)
+Expand (67 lines)
