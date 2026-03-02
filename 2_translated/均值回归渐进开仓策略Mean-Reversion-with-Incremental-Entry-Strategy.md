@@ -12,52 +12,103 @@ ChaoZhang
 [trans]
 ## Overview
 
-The Mean Reversion with Incremental Entry strategy is a sophisticated quantitative trading script designed by HedgerLabs, focusing on the mean reversion technique in financial markets. This strategy caters to traders who prefer a systematic approach and emphasize gradual entry based on price movements relative to moving averages.
+The Mean Reversion with Incremental Entry strategy is a sophisticated quantitative trading script designed by HedgerLabs, focusing on the mean reversion technique in financial markets. This strategy caters to traders who prefer a systematic approach and emphasize incremental entries based on price movements relative to a moving average.
 
-## Strategy Logic
+## Strategy Logic  
 
-At the core of this strategy lies the Simple Moving Average (SMA). All entries and exits are centered around the SMA. Traders can customize the MA length to fit different trading styles and timeframes.
+At its core, this strategy relies on the Simple Moving Average (SMA). All entry and exit trades revolve around the SMA. Traders can customize the MA length to fit different trading styles and timeframes.
 
-The unique feature of this strategy is its incremental entry mechanism. When the price deviates from the MA by a certain percentage, it initiates the first position. Subsequently, as the price continues to deviate further from the MA, additional entries are made in predefined increments, as defined by the trader. This approach aims to capture higher returns during increased market volatility.
+A unique feature of this strategy is its incremental entry mechanism. When the price deviates from the moving average by a certain percentage, it initiates the first position. Subsequently, as the price continues to deviate further from the moving average, additional positions are entered in increments defined by the trader. This approach aims to capture higher returns during increased market volatility.
 
-The strategy intelligently manages positions by going long when prices are below the MA and short when above, adapting to varying market conditions. Exit points are set when the price touches the MA, aiming to catch potential reversals for optimal position closure.
+The strategy also intelligently manages positions. It enters long when the price is below the moving average and short when above, adapting to changing market conditions. Exit points are set when the price touches the moving average, aiming to close positions at potential reversal points for optimal outcomes.
 
-Enabling `calc_on_every_tick`, this strategy continuously evaluates market conditions to respond promptly.
+Enabling `calc_on_every_tick`, this strategy continuously evaluates market conditions to ensure timely responses.
 
 ## Advantage Analysis
 
 The Mean Reversion with Incremental Entry strategy offers several advantages:
 
-1. High systematization reduces the risk of subjective errors.
-2. Incremental entry can yield higher profits during periods of high volatility.
-3. Customizable parameters like MA period cater to different instruments.
-4. Intelligent position management automatically adjusts long/short positions.
-5. Optimal exit points are chosen to capture reversals and close positions.
+1. High systematization to reduce subjective errors
+2. Incremental entry can capture higher profits during high volatility
+3. Customizable parameters like MA period fit different instruments
+4. Intelligent position management automatically adjusts long/short positions
+5. Optimal exit points help in capturing reversals and closing positions
 
-## Risk Analysis
+## Risk Analysis  
 
-Some risks associated with this strategy include:
+This strategy also has some risks:
 
-1. Dependence on technical indicators, which can lead to false signals.
-2. Inability to identify market trends, leading to potential drawdowns.
-3. Incorrect MA parameter settings may result in frequent stopouts.
-4. Larger position sizes due to incremental entry.
+1. Reliance on technical indicators, leading to false signals
+2. Inability to determine market trends, making it prone to being trapped
+3. Incorrect MA parameter settings may lead to frequent stop-outs
+4. Larger position sizes from incremental entry increase risk
 
-Optimizing exits, adding trend filters, and adjusting position sizing can mitigate these risks.
+These risks can be mitigated by optimizing exits, adding trend filters, and appropriately reducing position sizing.
 
-## Optimization Directions
+## Enhancement Opportunities  
 
-This strategy can be improved by:
+The strategy can be improved in the following ways:
 
-1. Adding trend filters to avoid unfavorable trades.
-2. Optimizing entry increments based on volatility.
-3. Incorporating trailing stops to lock in profits.
-4. Experimenting with different types of moving averages.
-5. Applying filters to reduce false signals.
+1. Adding trend filters to avoid unfavorable trades
+2. Optimizing entry increments based on volatility  
+3. Incorporating trailing stops to lock in profits
+4. Experimenting with different types of moving averages
+5. Using filters to reduce false signals
 
 ## Conclusion
 
-The Mean Reversion with Incremental Entry strategy focuses on mean reversion techniques using a systematic incremental position sizing approach, adaptable across various trading instruments. It performs well in volatile markets and is suitable for short-term systematic traders.
+The Mean Reversion with Incremental Entry strategy focuses on mean reversion techniques using a systematic incremental position sizing approach. With customizable settings, it is adaptable across various trading instruments. It performs well in range-bound markets and suits short-term systematic traders.
+
+||
+
+## Overview
+
+The Mean Reversion with Incremental Entry strategy designed by HedgerLabs is an advanced trading script focused on the mean reversion technique in financial markets. Tailored for traders who prefer a systematic approach with emphasis on incremental entries based on price movements relative to a moving average.
+
+## Strategy Logic  
+
+Central to this strategy is the Simple Moving Average (SMA), around which all entry and exit trades revolve. Traders can customize the MA length to fit different trading styles and timeframes.
+
+A unique feature of this strategy is its incremental entry mechanism. When the price deviates from the moving average by a certain percentage, it initiates the first position. Subsequently, as the price continues to deviate further from the moving average, additional positions are entered in increments defined by the trader. This approach aims to capture higher returns during increased market volatility.
+
+The strategy also intelligently manages positions. It enters long when the price is below the moving average and short when above, adapting to changing market conditions. Exit points are set when the price touches the moving average, aiming to close positions at potential reversal points for optimal outcomes.
+
+With `calc_on_every_tick` enabled, this strategy continuously evaluates market conditions to ensure timely responses.
+
+## Advantage Analysis
+
+The Mean Reversion with Incremental Entry strategy has the following key advantages:
+
+1. Highly systematized to reduce emotional interference
+2. Incremental entry captures greater profit during high volatility
+3. Customizable parameters like MA period suit different instruments  
+4. Intelligent position management automatically adapts long/short positions
+5. Optimal exit targeting reversals to close positions
+
+## Risk Analysis  
+
+The risks to consider include:
+
+1. Whipsaws from technical indicator reliance  
+2. Trendlessness causing extended drawdowns
+3. Poor MA settings lead to frequent stop-outs
+4. Larger position size from incremental entry  
+
+Exits can be optimized, trend filters added, and position sizing reduced to mitigate the above risks.
+
+## Enhancement Opportunities
+
+The strategy can be enhanced by:
+
+1. Adding trend filters to avoid unfavorable trades
+2. Optimizing entry increments with volatility  
+3. Incorporating trailing stops to lock in profits
+4. Experimenting with different moving averages  
+5. Using filters to reduce false signals  
+
+## Conclusion
+
+The Mean Reversion with Incremental Entry strategy focuses on mean reversion techniques using a systemized incremental position sizing approach. With customizable settings, it is adaptable across different trading instruments. It performs well in range-bound markets and suits short-term systematic traders.
 
 [/trans]
 
@@ -74,7 +125,7 @@ The Mean Reversion with Incremental Entry strategy focuses on mean reversion tec
 
 > Source (PineScript)
 
-``` pinescript
+```pinescript
 /*backtest
 start: 2023-12-29 00:00:00
 end: 2024-01-28 00:00:00
