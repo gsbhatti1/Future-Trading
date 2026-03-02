@@ -3,3 +3,6 @@
 __pycache__/
 *.log
 .DS_Store
+
+0_secrets.py
+0_config.py
