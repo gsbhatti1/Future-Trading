@@ -1,7 +1,6 @@
----
 > Name
 
-Moving Average Conversion - Divergence Indicator Trading Strategy CMO-Oscillator-Trading-Strategy
+Moving Average Conversion - Disparity Indicator Trading Strategy CMO-Oscillator-Trading-Strategy
 
 > Author
 
@@ -14,57 +13,57 @@ ChaoZhang
 
 ## Overview
 
-This strategy is based on the Moving Average Conversion - Divergence Indicator (CMO) to make trading judgments. The absolute value of CMO represents the degree of price divergence, and the strategy determines overbought or oversold conditions by averaging the absolute values of CMO over three periods, making it a typical oscillating indicator trading strategy.
+This strategy is based on trading judgments using the Moving Average Conversion - Disparity Indicator (CMO). The absolute value of CMO represents the degree of price divergence. The strategy judges overbought and oversold conditions by averaging the absolute values of CMO over three periods, making it a typical mean reversion oscillator trading strategy.
 
-## Strategy Principle
+## Strategy Logic
 
-The strategy primarily relies on the following logic:
+The key logic of this strategy includes:
 
-1. Calculate the absolute values of CMO for three different time periods.
-2. Take the average of these three-period CMO absolute values.
-3. Short sell when the average value exceeds an upper threshold.
-4. Long buy when the average value falls below a lower threshold.
-5. Close positions when CMO returns to normal levels.
+1. Calculating the absolute values of CMO over 3 different periods
+2. Taking the average of the 3-period absolute CMO values
+3. Going short when the average value exceeds the upper threshold
+4. Going long when the average value drops below the lower threshold
+5. Closing positions when CMO returns to a normal range
 
-The CMO index reflects the momentum of price changes, with its absolute value representing the degree of price divergence entering overbought or oversold regions. This strategy leverages this characteristic of CMO, using multi-period averages to smooth the curve and determine overbought or oversold conditions, making it a typical oscillating trading strategy.
+The CMO index reflects the momentum of price changes. High absolute values indicate significant price divergence, entering overbought or oversold zones. This strategy utilizes this characteristic of CMO by using a multi-period average to smooth the curve for identifying extremes.
 
-## Strategy Advantages
+## Advantages 
 
-- Utilizes CMO index to identify overbought or oversold areas.
-- Multi-period averaging creates a smoothed curve, avoiding false signals.
-- Strong theoretical basis for determining overbought or oversold levels.
-- Customizable parameter thresholds to adapt to market changes.
-- Simple implementation of mean reversion.
+- Utilizes CMO to identify overbought and oversold regions
+- Multi-period averaging smooths the curve and avoids false signals
+- Robust theoretical basis for detecting overbought and oversold conditions
+- Customizable parameter thresholds to adapt to market changes
+- Simple implementation of mean reversion
 
-## Strategy Risks and Mitigations
+## Risks and Mitigations 
 
-- CMO indicators may produce false signals.
-- Parameter thresholds need constant testing and optimization.
-- Persistent extremes during trends can result in losses.
+- Potential for CMO indicator to issue false signals
+- Requires ongoing threshold optimization
+- Sustained extremes during trends can cause losses
 
-Mitigation methods:
+Mitigations:
 
-1. Combining with trend indicators to avoid counter-trend trades.
-2. Optimizing parameters for better CMO sensitivity.
-3. Using stop-losses to control single trade losses.
+1. Pairing with trend indicators to avoid counter-trend trades
+2. Optimizing parameters for better sensitivity of the CMO
+3. Using stop-losses to control single trade losses
 
-## Strategy Optimization Directions
+## Strategy Optimization Directions 
 
-This strategy can be expanded from the following dimensions:
+This strategy can be expanded in the following dimensions:
 
-1. Adding volume confirmation to avoid false breakouts in trend reversals.
-2. Integrating trailing stops to optimize risk management.
-3. Automatically optimizing parameters using machine learning methods.
-4. Adjusting position sizing based on volatility indicators.
-5. Combining with other strategies for diversification and improved overall returns.
+1. Adding volume confirmation to avoid false breakouts during trend reversals
+2. Integrating trailing stops for improved risk management
+3. Automating parameter optimization using machine learning methods
+4. Adjusting position sizes based on volatility indicators
+5. Combining with other strategies to diversify and improve overall returns
 
-## Conclusion
+## Conclusion 
 
-This strategy uses CMO to identify overbought or oversold conditions for mean reversion trading. Multi-period averaging helps avoid false signals. The CMO index itself has a solid theoretical basis for gauging price divergence. Through parameter optimization, stop-loss strategies, and other enhancements, it can be optimized into a stable oscillating indicator trading strategy.
+This strategy uses CMO to identify overbought and oversold conditions for mean reversion trading, utilizing multi-period averaging to effectively smooth the curve and avoid false signals. The CMO index itself has a solid theoretical foundation, reliably gauging price divergence. Enhancements through better parameter optimization, stop-loss strategies, and other filters can make it a more stable oscillator trading strategy.
 
-||
+|| 
 
-## Overview 
+## Overview
 
 This strategy uses the Chande Momentum Oscillator (CMO) to determine overbought and oversold levels for trading signals. The absolute CMO values over 3 periods are averaged to smooth the oscillator for identifying extremes. A typical mean reversion oscillator trading strategy.
 
@@ -72,65 +71,62 @@ This strategy uses the Chande Momentum Oscillator (CMO) to determine overbought 
 
 The key logic includes:
 
-1. Calculating absolute CMO values over 3 different periods.
-2. Taking the average of these three-period absolute CMO values.
-3. Going short when the average value exceeds an upper threshold.
-4. Going long when the average value drops below a lower threshold.
-5. Closing positions when CMO returns to normal levels.
+1. Calculating absolute CMO values over 3 different periods
+2. Taking the average of 3-period absolute CMO values
+3. Going short when the average value exceeds the upper threshold 
+4. Going long when the average value drops below the lower threshold
+5. Closing positions when CMO returns to a normal range
 
-The CMO index reflects the momentum of price changes, with high absolute values indicating significant price divergence entering overbought or oversold zones. The strategy leverages this characteristic of CMO, using multi-period averages to smooth the curve and identify extremes, making it a typical oscillating trading strategy.
+The CMO reflects the momentum of price changes. High absolute values indicate significant price divergence entering overbought or oversold zones. The strategy utilizes this characteristic of CMO, using a multi-period average to smooth the curve for identifying extremes.
 
 ## Advantages  
 
-- Uses CMO to identify overbought/oversold regions.
-- Multi-period averaging smooths the curve and avoids false signals.
-- Sound theoretical basis for overbought/oversold detection.
-- Customizable parameter thresholds to adapt.
-- Simple mean reversion implementation.
+- Uses CMO to identify overbought and oversold regions
+- Multi-period averaging smooths the curve and avoids false signals
+- Sound theoretical basis for detecting overbought and oversold conditions
+- Customizable parameter thresholds to adapt  
+- Simple mean reversion implementation
 
-## Risks and Mitigations
+## Risks and Mitigations 
 
-- Potential for false CMO signals.
-- Requires ongoing threshold optimization.
-- Sustained extremes during trends can cause losses.
+- Potential for false CMO signals 
+- Requires ongoing threshold optimization
+- Sustained extremes during trends can cause losses
 
-Mitigation methods:
+Mitigations:
 
-1. Adding a trend filter to avoid counter-trend trades.
-2. Parameter optimization for better CMO sensitivity.
-3. Using stop-losses to limit single trade losses.
+1. Adding trend filter to avoid counter-trend trades
+2. Parameter optimization for better CMO sensitivity
+3. Using stops to limit losses
 
-## Enhancement Opportunities
+## Enhancement Opportunities 
 
 The strategy can be enhanced through:
 
-1. Volume confirmation to avoid false breakouts.
-2. Incorporating trailing stops for better risk management.
-3. Auto-optimization of parameters via machine learning methods.
-4. Volatility-based position sizing.
-5. Combining with other strategies to diversify and improve returns.
+1. Volume confirmation to avoid false breakouts
+2. Incorporating trailing stops for better risk management
+3. Auto-optimization of parameters via machine learning
+4. Volatility-based position sizing 
+5. Combining with other strategies to diversify and improve returns
 
-## Conclusion
+## Conclusion 
 
-This strategy uses CMO to identify overbought or oversold conditions for mean reversion trading. Multi-period averaging helps avoid false signals. The CMO index itself has a solid theoretical basis for gauging price divergence. Enhancements through better parameters, stop-losses, and filters can make it a stable oscillating indicator trading strategy.
+This strategy uses CMO to identify overbought and oversold conditions for mean reversion trading. Multi-period averaging helps avoid false signals. CMO itself has a solid theoretical basis for gauging divergence. Enhancements through better parameters, stops, and filters can make it a more stable oscillator trading strategy.
 
-|| 
+[/trans]
 
-## Strategy Arguments
+> Strategy Arguments
 
+| Argument | Default | Description |
+| --- | --- | --- |
+| v_input_1 | 5 | Length1 |
+| v_input_2 | 10 | Length2 |
+| v_input_3 | 20 | Length3 |
+| v_input_4 | 58 | TopBand |
+| v_input_5 | 5 | LowBand |
+| v_input_6 | false | Trade reverse |
 
-
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|5|Length1|
-|v_input_2|10|Length2|
-|v_input_3|20|Length3|
-|v_input_4|58|TopBand|
-|v_input_5|5|LowBand|
-|v_input_6|false|Trade reverse|
-
-
-## Source (PineScript)
+> Source (PineScript)
 
 ```pinescript
 /*backtest
@@ -142,11 +138,10 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 */
 
 //@version=2
-////////////////////////////////////////////////7/////////////
-//  Copyright by HPotter v1.0 21/02/2017
-//    This indicator plots the absolute value of CMO averaged over three 
-//    different lengths. This indicator plots a classical-looking oscillator, 
-//    which is really an averaged value based on three different periods.
+///////////////////////////////////////////////////////
+// Copyright by HPotter v1.0 21/02/2017
+// This indicator plots the absolute value of CMO averaged over three different lengths.
+// This is a classical-looking oscillator, which is really an averaged value based on three different periods.
 //
 // You can change long to short in the Input Settings
 // Please, use it only for learning or paper trading. Do not for real trading.
@@ -169,7 +164,7 @@ nSum2 = sum(xMom, Length2)
 nSumAbs2 = sum(xMomabs, Length2)
 nSum3 = sum(xMom, Length3)
 nSumAbs3 = sum(xMomabs, Length3)
-nRes = abs(100 * (nSum1 / nSumAbs1 + nSum2 / nSumAbs2 + nSum3 / nSumAbs3) / 3)
+nRes = abs(100 * (nSum1 / nSumAbs1 + nSum2 / nSumAbs2 + nSum3 / nSumAbs3 ) / 3)
 pos = iff(nRes > TopBand, 1,
 	     iff(nRes < LowBand, -1, nz(pos[1], 0))) 
 possig = iff(reverse and pos == 1, -1,
@@ -182,11 +177,10 @@ barcolor(possig == -1 ? red: possig == 1 ? green : blue )
 plot(nRes, color=blue, title="CMOabsav")
 ```
 
-## Detail
+> Detail
 
 https://www.fmz.com/strategy/427300
 
-## Last Modified
+> Last Modified
 
 2023-09-19 21:16:26
----
