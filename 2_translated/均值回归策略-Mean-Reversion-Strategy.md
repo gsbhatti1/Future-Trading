@@ -1,6 +1,6 @@
 > Name
 
-Mean-Reversion Strategy
+Mean Reversion Strategy - Mean-Reversion-Strategy
 
 > Author
 
