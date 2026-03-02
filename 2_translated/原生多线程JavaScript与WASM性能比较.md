@@ -24,7 +24,8 @@ int fib(int f) {
 ```
 
 After compilation, download the wasm file and convert it to a hex string using python
-```python
+
+```bash
 python -c "print('data:hex,'+bytes.hex(open('program.wasm','rb').read()))"
 ```
 
@@ -35,6 +36,7 @@ Just replace the content behind the variable in the code
 Create a thread and return the thread tid. The functions of the accepted thread body function must complete all function codes within the thread function. References to other closure functions are not supported. All APIs of the platform can be called within the thread, but other user-defined functions cannot be called.
 
 Simple example:
+
 ```javascript
 let tid = __Thread(function(x, y) {
     return x + y
@@ -43,6 +45,7 @@ Log(__threadJoin(tid))
 ```
 
 Example of multi-threaded request:
+
 ```javascript
 function main() {
     let threads = [
@@ -81,6 +84,7 @@ __threadPeekMessage(tid, timeout) // Receive messages from the specified thread.
 > __threadJoin(tid, timeout)
 
 Wait for the thread to end. Specify timeout (milliseconds) to specify the waiting timeout. You can not specify it, just wait until the thread ends. Successfully returns a structure containing the function return value and recycles resources. The structure is as follows
+
 ```javascript
 {
     id: tid, // Thread id
@@ -89,6 +93,7 @@ Wait for the thread to end. Specify timeout (milliseconds) to specify the waitin
     ret: 123, // Return value of thread function
 }
 ```
+
 If timeout returns undefined
 
 > __threadTerminate(tid)
@@ -100,6 +105,7 @@ Forcefully end the thread and recycle resources (you can no longer use __threadJ
 The __Thread function does not support referencing variables outside the function (running as an isolated environment). Referring to external variables will cause compilation failure.
 
 Source (javascript)
+
 
 ```javascript
 function main() {
@@ -122,7 +128,7 @@ function main() {
         __Thread(function(cycle, input) {
             let data ='data:hex,0061736d010000000186808080000160017f017f0382808080000100048480808000017000000583808080000100010681808080000007908080800002066d656d6f727902000366696200000aa480808000019e80808000000240200041024e0d0020000f0b2000417f6a10002000417e6a10006a0b'
             let m = wasm.parseModule(data)
-
+            
             let instance = wasm.buildInstance(m, {
                 stack_size: 65 * 1024 * 1024,
             })
