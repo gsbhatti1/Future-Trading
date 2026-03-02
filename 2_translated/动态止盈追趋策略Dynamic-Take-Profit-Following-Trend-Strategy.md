@@ -10,6 +10,8 @@ ChaoZhang
 
 ![IMG](https://www.fmz.com/upload/asset/15fb6e38fec57213081.png)
 
+[trans]
+
 ## Overview
 
 The Dynamic Take Profit Following Trend strategy detects long-term trends and short-term pullbacks to achieve buying low and selling high, with the goal of chasing uptrends. The strategy also uses volatility units to detect the size of wins and losses so that it can be applied to all coins without worrying about percentage changes.
@@ -73,6 +75,7 @@ strategy(shorttitle='Take Profit On Trend',
  commission_type=strategy.commission.percent,
  commission_value=0.1)
 
+
 // Backtest Time
 start_day = 1
 start_month = 1
@@ -88,6 +91,7 @@ is_back_test_time() =>
 // Last bar
 h1_last_bar = (timenow - time)/1000/60/60 < 2
 
+
 // EMA
 ema50 = ema(close, 50)
 ema200 = ema(close, 200)
@@ -102,6 +106,7 @@ bb50 = 2 * stdev(close, 50)
 bhd_unit = sma(bb50, 100)
 bb50_upper = ema50 + bhd_unit
 bb50_lower = ema50 - bhd_unit
+
 
 // All n candles is going down
 all_body_decrease(n) =>
@@ -124,6 +129,7 @@ ENTRY_CONDITION = entry_condition1 and entry_condition2
 
 if (ENTRY_CONDITION and is_back_test_time())
     strategy.entry("entry", strategy.long)
+
 
 // CLOSE CONDITIONS
 
