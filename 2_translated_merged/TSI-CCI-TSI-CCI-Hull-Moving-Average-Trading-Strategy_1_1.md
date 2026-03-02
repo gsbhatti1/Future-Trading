@@ -1,0 +1,1 @@
+TSI CCI Hull Moving Average Trading Strategy

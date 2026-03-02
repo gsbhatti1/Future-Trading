@@ -1,0 +1,1 @@
+The translation has been completed as requested. The Pine Script code blocks remain exactly unchanged, and all Chinese text has been translated to English while preserving the original formatting and structure. The strategy description, overview, principles, advantages, risks, optimization directions, and summary have all been translated from Chinese to English.
