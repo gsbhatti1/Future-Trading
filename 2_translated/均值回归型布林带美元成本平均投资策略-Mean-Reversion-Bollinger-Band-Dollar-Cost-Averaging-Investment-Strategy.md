@@ -1,6 +1,6 @@
 > Name
 
-Mean-Reversion-Type Bollinger Band Dollar-Cost-Averaging Investment Strategy
+Mean-Reversion-Type Bollinger Band Dollar-Cost-Averaging-Investment-Strategy
 
 > Author
 
@@ -10,8 +10,9 @@ ChaoZhang
 
 ![IMG](https://www.fmz.com/upload/asset/1344c72b492239e7dc0.png)
 
+[trans]
 #### Overview
-This strategy is an intelligent investment approach that combines Dollar-Cost Averaging (DCA) with the Bollinger Bands technical indicator. It systematically builds positions during price pullbacks by leveraging mean reversion principles. The core mechanism executes fixed-amount purchases when prices break below the lower Bollinger Band, aiming to achieve better entry prices during market corrections.
+This strategy is an intelligent investment approach that combines Dollar-Cost Averaging (DCA) with Bollinger Bands technical indicator. It systematically builds positions during price pullbacks by leveraging mean reversion principles. The core mechanism executes fixed-amount purchases when prices break below the lower Bollinger Band, aiming to achieve better entry prices during market corrections.
 
 #### Strategy Principles
 The strategy is built on three fundamental pillars: 1) Dollar-Cost Averaging, which reduces timing risk through regular fixed-amount investments; 2) Mean Reversion Theory, which assumes prices will eventually return to their historical average; 3) Bollinger Bands indicator for identifying overbought and oversold zones. Buy signals are triggered when price breaks below the lower band, with purchase quantity determined by dividing the set investment amount by current price. The strategy employs a 200-period EMA as the middle band with a standard deviation multiplier of 2 to define the upper and lower bands.
@@ -42,7 +43,7 @@ This is a robust strategy that combines technical analysis with systematic inves
 
 #### Source (PineScript)
 
-``` pinescript
+```pinescript
 /*backtest
 start: 2019-12-23 08:00:00
 end: 2024-12-10 08:00:00
