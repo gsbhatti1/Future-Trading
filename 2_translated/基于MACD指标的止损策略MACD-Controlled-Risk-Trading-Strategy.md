@@ -1,3 +1,16 @@
+> Strategy Arguments
+
+
+
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|true|% capital risk per trade|
+|v_input_2|4|Take Profit in 'R'|
+|v_input_3|150|WMA Bias Length|
+
+
+> Source (PineScript)
+
 ```pinescript
 /*backtest
 start: 2022-10-19 00:00:00
@@ -8,7 +21,7 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 */
 
 //@version=4
-strategy( "MACD-Controlled-Risk-Trading-Strategy", shorttitle="Risk Controlled Trading", initial_capital=10000, default_qty_type=strategy.cash, currency=currency.USD )
+strategy( "McDonalds ", shorttitle="Ur Lovin' It", initial_capital=10000, default_qty_type=strategy.cash, currency=currency.USD )
 
 capital_risk    = input( 1.0, "% capital risk per trade" ) / 100
 r_exit          = input( 4.0, "Take Profit in 'R'" )
@@ -44,3 +57,4 @@ if golong
 // experimental exit strategy
 // hist_strength = hist >= 0 ? ( hist[1] < hist ? 'strong' : 'weak') : ( hist[1] < hist ? 'weak' : 'strong' )
 // if hist < 0 and hist_strength == '
+```

@@ -52,9 +52,9 @@ To mitigate risks, it is recommended to:
 #### Summary
 This strategy constructs a complete trading system through the synergistic effect of multiple technical indicators. While maintaining flexibility, the system ensures trading safety through strict risk control. Although certain limitations exist, through continuous optimization and improvement, the strategy demonstrates good application value and development potential.
 
-#### Source (PineScript)
+---
 
-```pinescript
+``` pinescript
 /*backtest
 start: 2025-02-17 10:00:00
 end: 2025-02-20 00:00:00
