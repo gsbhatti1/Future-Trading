@@ -1,5 +1,5 @@
 ``` pinescript
-/* backtest
+/*backtest
 start: 2023-08-12 00:00:00
 end: 2023-09-11 00:00:00
 period: 1h
@@ -26,8 +26,8 @@ length = input(20, minval=1, title="STOCH - K")
 smoothK = input(2, minval=1, title="STOCH - D")
 smoothD = input(2 , minval=1, title="STOCH - Smooth")
 
-StkLong = input(50 , minval=1, maxval=100, title="Long when Close > MA and Stoch > ")
-StkShort = input(80 , minval=1, maxval=100, title="Short when Close < EMA and Stoch < ")
+StkLong= input(50 , minval=1, maxval=100, title="Long when Close > MA and Stoch > ")
+StkShort= input(80 , minval=1, maxval=100, title="Short when Close < EMA and Stoch < ")
 
 k = sma(stoch(close, high, low, length), smoothK)
 d = sma(k, smoothD)
@@ -35,7 +35,7 @@ d = sma(k, smoothD)
 // plot(d, color=color.orange, title="STOCH - D")
 // band180 = hline(80, title="STOCH - Banda superior")
 // band120 = hline(20, title="STOCH - Banda inferior")
-// band100 = hline(50, color=color.gray, editable=false, linestyle=hline.style_solid)
+// band100 = hline(50,  color=color.gray, editable=false, linestyle=hline.style_solid)
 // fill(band180, band120, color=color.gray, transp=75, title="STOCH - Fundo")
 
 BTStartY = input(title="Strategy Test Start Year", type=input.integer, defval=2019, minval=2010, maxval=2100)
@@ -57,13 +57,13 @@ long := long[1]
 short := short[1]
 
 if (crossover(close, MA) and k > StkLong and d > StkLong) // "LONG!"
-    // if (close > MA and k > StkLong and d > StkLong) // "LONG!"
+// if (close > MA and k > StkLong and d > StkLong) // "LONG!"
     short := false
     long := true
     trade := true // LONG
 
 if (crossunder(close, EMA)  and k < StkShort and d < StkShort) // "SHORT!""
-    // if (close < EMA and k < StkShort and d < StkShort) // "SHORT!""
+// if (close < EMA and k < StkShort and d < StkShort) // "SHORT!""
     long := false
     short := true
     trade := false // SHORT
@@ -71,15 +71,14 @@ if (crossunder(close, EMA)  and k < StkShort and d < StkShort) // "SHORT!""
 // bgcolor(FL > SH ? color.green : FH < SL ? color.red : na, transp=80)
 bgcolor(trade ? color.green : color.red, transp=90)
 
-// alertcondition((crossover(close, MA) and k > 50 and d > 50), title='Buy', message='Buy')
-// alertcondition((crossunder(close, EMA) and k > 80 and d > 80), title='Sell', message='Sell')
+// alertcondition((crossover(close, MA) and k > 50 and d > 50) , title='Buy', message='Buy')
+// alertcondition((crossunder(close, EMA) and k > 80 and d > 80) , title='Sell', message='Sell')
 
 if ((crossover(close, MA) and k > StkLong and d > StkLong) and InTime)
+// if ((close > MA and k > StkLong and d > StkLong) and InTime)
     strategy.entry("Long", strategy.long)
 
 if ((crossunder(close, EMA) and k < StkShort and d < StkShort)  and InTime)
-    strategy.exit("Short", "Long")
-
+// if ((close < EMA and k < StkShort and d < StkShort) and InTime)
+    strategy.close("Long")
 ```
-
-This code includes all the original code blocks and formatting as requested. The human-readable text has been translated into English, while keeping the Pine Script logic intact.
