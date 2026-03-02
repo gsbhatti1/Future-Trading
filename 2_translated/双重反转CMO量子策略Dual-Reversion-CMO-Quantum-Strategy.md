@@ -1,12 +1,4 @@
 ```pinescript
-/*backtest
-start: 2023-12-04 00:00:00
-end: 2024-01-03 00:00:00
-period: 1h
-basePeriod: 15m
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
 //@version=4
 ////////////////////////////////////////////////////////////
 //  Copyright by HPotter v1.0 19/08/2019
@@ -45,8 +37,54 @@ Reversal123(Length, KSmoothing, DLength, Level) =>
     vSlow = sma(vFast, DLength)
     pos = 0.0
     pos := iff(close[2] < close[1] and close > close[1] and vFast < vSlow and vFast > Level, 1,
-             iff(close[2] > close[1] and close < close[1] and vFast > vSlow and vFast < Level, -1, nz(pos[1], 0))) 
+             iff(close[2] > close[1] and close < close[1] and vFast > vSlow and vFast < Level, -1, nz(pos[1], 0)))
     pos
 
-CMOWMA(Length, Len
+CMOWMA(Length, LengthWMA) =>
+    cmo = chaikin_momentum_oscillator(close, high, low, volume)
+    wma_cmo = wma(cmo, LengthWMA)
+    color_bar = na
+    if (cmo > wma_cmo and cmo > 0)
+        color_bar := green
+    else if (cmo < wma_cmo and cmo < 0)
+        color_bar := red
+    color_bar
+
+strategy("Dual-Reversion-CMO-Quantum-Strategy", overlay = true, default_qty_type = strategy.percent_of_equity, default_qty_value = 10, initial_capital = 10000)
+
+length = input(14, title="Length")
+kSmoothing = input(True, title="KSmoothing")
+dLength = input(3, title="DLength")
+level = input(50, title="Level")
+cmoLength = input(14, title="CMO Length")
+wmaLength = input(13, title="WMA Length")
+tradeReverse = input(False, title="Trade reverse")
+
+// First strategy logic
+reversalSignal = Reversal123(length, kSmoothing, dLength, level)
+
+// Second strategy logic
+cmoValue = chaikin_momentum_oscillator(close, high, low, volume)
+wmaCmo = wma(cmoValue, wmaLength)
+cmowmaSignal = cmoValue > wmaCmo
+
+// Combined signal
+signal = (reversalSignal == 1 and cmowmaSignal) or (reversalSignal == -1 and not cmowmaSignal)
+
+if (signal)
+    strategy.entry("Long", strategy.long)
+if (not(signal))
+    strategy.close("Long")
+
+plotshape(series=signal, location=location.belowbar, color=color.blue, style=shape.labelup, text="Entry Signal")
+plotshape(series=(reversalSignal == -1 and not cmowmaSignal), location=location.abovebar, color=color.red, style=shape.labeldown, text="Exit Signal")
+
+// Color bars based on CMO and WMA
+var color barColor = na
+if (cmoValue > wmaCmo)
+    barColor := green
+else if (cmoValue < wmaCmo)
+    barColor := red
+barcolor(barColor)
+
 ```
