@@ -1,14 +1,14 @@
 > Name
 
-Trend Filtering Based on EMA Incremental Positioning Trading Strategy - Tutorial
+Trend Filtering Step-by-Step Position Increasing Trading Strategy - Teaching
 
 > Author
 
-Inventor Quantitative- Xiao Xiao Meng
+Inventor Quantitative - XiaoXiaoMeng
+
 
 
 > Strategy Arguments
-
 
 
 |Argument|Default|Description|
@@ -19,18 +19,18 @@ Inventor Quantitative- Xiao Xiao Meng
 |isReset|Reset|Reset|
 |pricePrecision|Price Precision|Price Precision|
 |amountPrecision|Order Volume Precision|Order Volume Precision|
-|isSimulate|If the added exchange object is API KEY of OKEX_V5 simulation disk, check this option to switch to simulation mode.|OKEX_V5 Simulation Mode Option|
+|isSimulate|If the added exchange object is the API KEY of OKEX_V5 simulation disk, check this option to switch to the simulation disk|OKEX_V5 Simulation Disk Option|
 |ratio|Addition and Liquidation Distance Ratio|Addition and Liquidation Distance Ratio|
 |contractType|Contract Code|Contract Code|
-|isAmountForUSDT|Trade in U, write 100 to indicate a position value of 100U.|Trade in U|
-|oneCtValue|One contract value, one coin for each contract on Binance; for example, OKX ETH is 0.1 per contract.|Contract Value|
-|setAddCounter|Force set the addition counter, used for restoring when migrating devices.|Force Set Addition Counter|
+|isAmountForUSDT|Place orders in U, write 100 to indicate a position value of 100U|Place Orders in U|
+|oneCtValue|One contract value, one coin per contract on Binance, for example, one ETH contract is worth 0.1 ETH on OKX.|Contract Value|
+|setAddCounter|Force set the number of additions to recover when switching devices|Force Set Number of Additions|
 |reserve|Margin Reserve Percentage|Margin Reserve Percentage|
-|marginLevel||Leverage Value|
-|maxAddCounter|Maximum Addition Counter|Maximum Addition Counter|
-|isDoubling|Whether to double add, check this option for doubling addition.|Whether to Double Add|
+|marginLevel||Leverage Ratio|
+|maxAddCounter|Maximum Addition Count|Maximum Addition Count|
+|isDoubling|Whether to double the addition, check for doubling addition|Double Addition Option|
 |interval|Polling Interval|Polling Interval|
-|isMaxAddCounterClear|Liquidate when reaching maximum addition counter|Whether to Liquidate When Reaching Maximum Addition Counter|
+|isMaxAddCounterClear|Clear position when reaching maximum addition count|Clear Position When Reaching Maximum Addition Count|
 
 
 > Source (javascript)
@@ -90,7 +90,7 @@ function ceilToDecimals(value, decimals) {
 }
 
 function cancelAll() {
-    while (true) {
+    while (1) {
         var orders = _C(exchange.GetOrders)
         if (orders.length == 0) {
             break
@@ -172,7 +172,7 @@ function main() {
         LogReset(1)
         LogProfitReset()
         LogVacuum()
-        Log("All data resetted.", "#FF0000")
+        Log("All data reset", "#FF0000")
     }
 
     exchange.SetContractType(contractType)
@@ -216,7 +216,7 @@ function main() {
         var pos = _C(exchange.GetPosition)
         if (pos.length > 1) {
             Log(pos)
-            throw "Multiple long and short positions held simultaneously."
+            throw "Multiple positions exist"
         }
 
         var r = _C(exchange.GetRecords, 60 * 60)
@@ -229,7 +229,7 @@ function main() {
             isLock = false 
         }
         if (isLock) {
-            LogStatus(_D(), "Pausng, threshold detected: ", _N(Math.abs(ticker.Last - ema[ema.length - 2]) / ema[ema.length - 2], 3), logStatusMsgBuff)
+            LogStatus(_D(), "Paused, threshold detected: ", _N(Math.abs(ticker.Last - ema[ema.length - 2]) / ema[ema.length - 2], 3), logStatusMsgBuff)
             plotRecords(c, null, null, pos)
             Sleep(interval)
             continue 
