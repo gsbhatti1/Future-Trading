@@ -10,71 +10,69 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 //@version=3
 ////////////////////////////////////////////////////////////
 //  Copyright by HPotter v1.0 20/06/2019
-// This is combo strategies for get a cumulative signal. 
+// This is a combined strategy for getting a cumulative signal.
 //
-// First strategy
-// This System was created from the Book "How I Tripled My Money In The 
-// Futures Market" by Ulf Jensen, Page 183. This is reverse type of strategies.
-// The strategy buys at market, if close price is higher than the previous close 
-// during 2 days and the meaning of 9-days Stochastic Slow Oscillator is lower than 50. 
-// The strategy sells at market, if close price is lower than the previous close prior to today
-// and the value of 9-day Stochastic Oscillator is higher than that of 3-day Stochastic Oscillator.
-//
-// Second strategy
-// This system uses the Awesome Oscillator from Williams Indicators,
-// which calculates the difference between the 5-day and 34-day price fluctuations 
-// to form a buy or sell signal. A buy signal occurs when the current value is above the previous period, 
-// while a sell signal happens if it's below.
-//
-// Final signal
-// The final trading signal is formed by taking the intersection of the two strategy signals.
+// First Strategy:
+// Generates a buy signal when yesterday's close price is higher than the previous day's close and 
+// the fast 9-day Stochastic Oscillator is lower than the slow 3-day Stochastic Oscillator D-line.
+// Generates a sell signal when yesterday's close price is lower than the previous day's close and
+// the fast Stochastic Oscillator is higher than the slow Stochastic Oscillator D-line.
 
-study("Dual-Moving-Average-Crossover-and-Williams-Indicator-Combo-Strategy", shorttitle="DMACWIS")
+// Second Strategy:
+// Calculates the difference between the 5-day and 34-day price fluctuations, then computes moving averages of that difference.
+// A buy signal is generated when the current value is above the previous period.
+// A sell signal is generated when the current value is below the previous period.
 
-// Inputs for first strategy
-length = input(14, title="Length")
-kSmoothing = input(true, title="KSmoothing")
-dLength = input(3, title="DLength")
-level = input(50, title="Level")
-lengthSlow = input(34, title="Length Slow")
-lengthFast = input(15, title="Length Fast")
+// The two strategy signals are combined by taking their intersection. 
+// Long positions are taken when both strategies give a buy signal, and short positions are taken when both strategies give a sell signal.
 
-// Inputs for second strategy
-ma = input(15, title="MA")
-ema = input(15, title="EMA")
-wma = input(15, title="WMA")
-showAndTradeWMA = input(false, title="Show and trading WMA")
-showAndTradeMA = input(false, title="Show and trading MA")
-showAndTradeEMA = input(false, title="Show and trading EMA")
-tradeReverse = input(false, title="Trade reverse")
+// Strategy Arguments
+strategy("Dual-Moving-Average-Crossover-and-Williams-Indicator-Combo-Strategy", overlay=true)
 
-// Calculate first strategy signals
-[fastK, slowD] = sma(close, lengthFast) < sma(close, lengthSlow + 1) ? [sma(close, lengthFast), sma(close, lengthSlow + 1)] : na
+v_input_1 = input(14, title="Length")
+v_input_2 = input(true, title="KSmoothing")
+v_input_3 = input(3, title="DLength")
+v_input_4 = input(50, title="Level")
+v_input_5 = input(34, title="Length Slow")
+v_input_6 = input(5, title="Length Fast")
+v_input_7 = input(15, title="MA")
+v_input_8 = input(15, title="EMA")
+v_input_9 = input(15, title="WMA")
+v_input_10 = input(true, title="Show and trading WMA")
+v_input_11 = input(false, title="Show and trading MA")
+v_input_12 = input(false, title="Show and trading EMA")
+v_input_13 = input(false, title="Trade reverse")
 
-buySignal1 = close[2] > close[1] and fastK[2] < dLength
-sellSignal1 = close[2] < close[1] and fastK[2] > dLength
+// First Strategy
+var float sma9 = na
+sma9 := ta.sma(close, v_input_6)
+var float sma3 = na
+sma3 := ta.sma(close, v_input_3)
 
-// Calculate second strategy signals
-priceFluctuationDiff = hl2 - close[34]
-maValue = sma(priceFluctuationDiff, length)
+buy_signal_1 = not na(sma9) and not na(sma3) and close[1] > open[1] and sma9 < sma3[v_input_3]
+sell_signal_1 = not na(sma9) and not na(sma3) and close[1] < open[1] and sma9 > sma3[v_input_3]
 
-buySignal2 = maValue[1] > maValue
-sellSignal2 = maValue[1] < maValue
+// Second Strategy
+var float diff = na
+diff := (close - ta.sma(close, v_input_5)) - (ta.sma(close, v_input_6))
+var float ma_diff = na
+ma_diff := ta.sma(diff, v_input_7)
 
-// Combine two signals
-buySignal = buySignal1 and buySignal2
-sellSignal = sellSignal1 or sellSignal2
+buy_signal_2 = not na(ma_diff) and ma_diff > ma_diff[1]
+sell_signal_2 = not na(ma_diff) and ma_diff < ma_diff[1]
 
-// Plot the signals
-plotshape(series=buySignal, title="Buy Signal", location=location.belowbar, color=color.green, style=shape.labelup, text="BUY")
-plotshape(series=sellSignal, title="Sell Signal", location=location.abovebar, color=color.red, style=shape.labeldown, text="SELL")
+// Combined Signal
+long_signal = buy_signal_1 and buy_signal_2
+short_signal = sell_signal_1 and sell_signal_2
 
-// Trade logic
-if (buySignal and not tradeReverse)
+if (long_signal)
     strategy.entry("Long", strategy.long)
 
-if (sellSignal and not tradeReverse)
-    strategy.exit("Short", "Long")
-```
+if (short_signal)
+    strategy.entry("Short", strategy.short)
 
-This Pine Script implements the dual-moving-average-crossover-and-Williams-indicator-combo-strategy described in the original document. The script includes both the buy/sell logic for the two strategies and plots the signals on the chart.
+plotshape(series=long_signal, location=location.belowbar, color=color.green, style=shape.triangleup, title="Buy Signal")
+plotshape(series=short_signal, location=location.abovebar, color=color.red, style=shape.triangledown, title="Sell Signal")
+
+```
+```

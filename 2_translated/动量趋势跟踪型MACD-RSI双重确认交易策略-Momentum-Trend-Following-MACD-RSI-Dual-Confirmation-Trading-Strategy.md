@@ -44,9 +44,11 @@ The core logic of the strategy is based on several key elements:
 #### Summary
 This is a trend-following strategy based on classic technical indicators, achieving reliable trading signal generation through the combined use of MACD and RSI. The strategy's overall design is concise and practical, with good real-world application value. Through reasonable parameter optimization and functional expansion, this strategy has the potential to achieve stable trading performance across different market environments.
 
+---
+
 #### Source (PineScript)
 
-``` pinescript
+```pinescript
 /*backtest
 start: 2024-11-11 00:00:00
 end: 2024-12-11 00:00:00
@@ -59,7 +61,7 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // © cryptohitman09
 
 //@version=6
-strategy("MACD + RSI Trading System - Buy $110", overlay=true)
+strategy("MACD + RSI Trading System - $110 Buy", overlay=true)
 
 // MACD settings
 fastLength = input.int(6, title="MACD Fast Length")
@@ -73,13 +75,13 @@ rsiValue = ta.rsi(close, rsiLength)  // Calculate RSI value
 rsiThresholdHigh = input.int(70, title="RSI Overbought Threshold")  // RSI overbought threshold
 rsiThresholdLow = input.int(30, title="RSI Oversold Threshold")  // RSI oversold threshold
 
-// Buy signal conditions: MACD line breaks above the signal line and RSI is not below 30
+// Buy signal condition: MACD line crosses above the signal line and RSI is not below 30
 buySignal = (macdLine > signalLine) and (rsiValue >= rsiThresholdLow)  // Only trigger buy when RSI is greater than or equal to 30
 
-// Calculate position size for each trade (target $110 per buy)
-tradeAmount = 20010  // Buy $110 per trade
+// Calculate position size for each trade (aiming to invest $110 per purchase)
+tradeAmount = 20010  // Invest $110 per purchase
 orderSize = tradeAmount / close  // Position size based on current price
 
 // Trailing Stop
 enableTrailingStop = input.bool(true, title="Enable trailing stop")
-trailingStopDistance = input.float(2, title="Trailing stop distance (%)") / 89500  // Increase
+trailingStopDistance = input.float(2, title="Trailing stop distance (%)") / 89500  // Add
