@@ -1,4 +1,123 @@
-``` pinescript
+> Name
+
+Dynamic Trend Tracking Optimized Strategy - Dynamic-Trend-Tracking-Optimized-Strategy
+
+> Author
+
+ChaoZhang
+
+> Strategy Description
+
+![IMG](https://www.fmz.com/upload/asset/160aa5299dcb9739e8e.png)
+[trans]
+
+### Overview
+
+This strategy calculates the CMO indicator and rate of change to dynamically plot support lines. Trading signals are generated when price breaks through the support lines. Meanwhile, the strategy also optimizes the stop loss range around support lines to lock in more profits.
+
+### Strategy Logic
+
+1. Calculate the CMO indicator to determine price trend
+2. Calculate rate of change Var to reflect price change trend  
+3. Plot support line based on rate of change
+4. Calculate optimized stop loss lines longStop and shortStop
+5. Generate trading signals when price breaks support line
+
+### Advantage Analysis  
+
+1. Use CMO indicator to determine price trend and avoid false breakouts
+2. Support line clearly indicates trend direction
+3. Optimized stop loss locks in more profits  
+4. Clear and simple trading signals, easy to follow  
+
+### Risk Analysis
+
+1. CMO indicator has lagging effect, may miss price turning points
+2. Breaks of support line may generate false signals  
+3. Improper stop loss optimization may lead to larger losses  
+
+Risk Solutions:
+1. Adjust CMO parameters properly to reduce lagging  
+2. Add more filters with other indicators to avoid false signals
+3. Test to determine suitable stop loss optimization ratio   
+
+### Optimization Directions  
+
+1. Add more indicators to filter out false signals
+2. AI automated optimization of stop loss range   
+3. Auto adjust trading size  
+
+### Summary
+
+Overall this strategy works well, using support line to clearly determine trend direction. Combined with CMO indicator and optimized stop loss it achieves good results. But there are some risks of false signals, which can be improved by combining more indicators.
+
+||
+
+### Overview
+
+This strategy calculates the CMO indicator and rate of change to dynamically plot support lines. Trading signals are generated when price breaks through the support lines. Meanwhile, the strategy also optimizes the stop loss range around support lines to lock in more profits.
+
+### Strategy Logic
+
+1. Calculate the CMO indicator to determine price trend
+2. Calculate rate of change Var to reflect price change trend  
+3. Plot support line based on rate of change
+4. Calculate optimized stop loss lines longStop and shortStop
+5. Generate trading signals when price breaks support line
+
+### Advantage Analysis  
+
+1. Use CMO indicator to determine price trend and avoid false breakouts
+2. Support line clearly indicates trend direction
+3. Optimized stop loss locks in more profits  
+4. Clear and simple trading signals, easy to follow  
+
+### Risk Analysis
+
+1. CMO indicator has lagging effect, may miss price turning points
+2. Breaks of support line may generate false signals  
+3. Improper stop loss optimization may lead to larger losses  
+
+Risk Solutions:
+1. Adjust CMO parameters properly to reduce lagging  
+2. Add more filters with other indicators to avoid false signals
+3. Test to determine suitable stop loss optimization ratio   
+
+### Optimization Directions  
+
+1. Add more indicators to filter out false signals
+2. AI automated optimization of stop loss range   
+3. Auto adjust trading size  
+
+### Summary
+
+Overall this strategy works well, using support line to clearly determine trend direction. Combined with CMO indicator and optimized stop loss it achieves good results. But there are some risks of false signals, which can be improved by combining more indicators.
+
+> Strategy Arguments
+
+
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1_close|0|Source: close|high|low|open|hl2|hlc3|hlcc4|ohlc4|
+|v_input_2|true|OTT Period|
+|v_input_3|0.1|OTT Percent|
+|v_input_4|0|Condition: Support Line Crossing Signals|Price/OTT Crossing Signals|
+|v_input_5|true|Show Support Line?|
+|v_input_6|true|Show OTT Color Changes?|
+|v_input_7|true|Highlighter On/Off ?|
+|v_input_8|true|Barcolor On/Off ?|
+|v_input_9|false|Show OTT BUY/SELl Labels?|
+|v_input_10|true|From Month|
+|v_input_11|true|From Day|
+|v_input_12|2020|From Year|
+|v_input_13|true|To Month|
+|v_input_14|true|To Day|
+|v_input_15|9999|To Year|
+
+
+> Source (PineScript)
+
+```pinescript
 /*backtest
 start: 2024-01-04 00:00:00
 end: 2024-01-11 00:00:00

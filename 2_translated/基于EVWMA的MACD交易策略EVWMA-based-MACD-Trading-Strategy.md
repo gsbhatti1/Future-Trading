@@ -1,34 +1,35 @@
 ---
+
 ### Overview
 
-This strategy is a MACD trading strategy based on Elastic Volume Weighted Moving Average (EVWMA). It utilizes the advantages of EVWMA and designs a strategy with clear trading signals and strong practicality.
+This strategy is a MACD trading strategy based on Elastic Volume Weighted Moving Average (EVWMA). It leverages the advantages of EVWMA to design a strategy with clear and practical trading signals.
 
 ### Principles
 
-The EVWMA indicator incorporates volume information into the calculation of moving averages, allowing moving averages to more accurately reflect price changes. The calculations of the fast line and slow line in this strategy are both based on EVWMA. The parameter settings of the fast line are more sensitive to capture short-term price fluctuations; the parameter settings of the slow line are more robust to filter out some noise. The MACD formed by the two EVWMAs triggers long and short signals on crossover, and the histogram provides visually enhanced trading prompts.
+The EVWMA indicator incorporates volume information into the calculation of moving averages, enabling moving averages to more accurately reflect price changes. The calculations for both the fast line and slow line in this strategy are based on EVWMA. The parameters of the fast line are set to be more sensitive, capturing short-term price fluctuations; while the parameters of the slow line are set to be more robust, filtering out some noise. The MACD formed by these two EVWMAs triggers long and short positions upon crossover, with the histogram providing visually enhanced trading signals.
 
 ### Advantage Analysis
 
-The biggest advantage of this strategy is that by leveraging the power of the EVWMA indicator, the parameters settings of the MACD strategy become more stable and trading signals become clearer. Compared with simple moving averages, EVWMA can better grasp market trend changes. This makes the strategy more adaptable to work stably across various market environments.
+The main advantage of this strategy is that it leverages the power of the EVWMA indicator to make the parameters of the MACD more stable and the trading signals clearer. Compared to simple moving averages, EVWMA better grasps market trend changes. This makes the strategy more adaptable, ensuring it works stably in various market environments.
 
 ### Risk Analysis
 
-The main risk of this strategy is that MACD itself has a certain lag and cannot promptly capture price reversals. In addition, the parameter settings of EVWMA also affect strategy performance. If the fast and slow line parameters are not set properly, the trading signals will be chaotic, affecting profitability.
+The main risk of this strategy lies in the inherent lag of MACD, which cannot promptly capture price reversals. Additionally, improper parameter settings for EVWMA can also affect the performance of the strategy. If the fast and slow line parameters are set incorrectly, it may lead to chaotic trading signals, impacting profitability.
 
-To mitigate risks, parameters should be adjusted appropriately to have a moderate difference between the fast and slow lines. The histogram can assist in judging whether a parameter adjustment is needed. In addition, stop loss strategies can also be designed to avoid excessively large single losses.
+To mitigate risks, parameters should be adjusted appropriately to maintain a moderate difference between the fast and slow lines. The histogram can assist in determining whether parameter adjustments are necessary. Additionally, stop-loss strategies can also be designed to prevent excessive single losses.
 
 ### Optimization Directions
 
-The main aspects for optimizing this strategy include:
+This strategy can be optimized from the following aspects:
 
-1. Use adaptive parameter setting techniques to automatically adjust EVWMA parameters according to market conditions to ensure signal clarity.
-2. Increase stop loss mechanisms to effectively control single losses.
-3. Incorporate other indicators to filter false signals. For example, combine with volume to only trigger signals during significant price changes.
-4. Optimize entry point selections. Currently the strategy opens positions on MACD zero line crossovers. Testing if using divergence performs better can be examined.
+1. Use adaptive parameter setting techniques to automatically adjust EVWMA parameters based on market conditions, ensuring clear trading signals.
+2. Introduce stop-loss mechanisms to effectively control single losses.
+3. Incorporate other indicators to filter out false signals, such as combining with volume for significant price changes.
+4. Optimize entry points by testing whether using divergence performs better.
 
 ### Conclusion
 
-This strategy utilizes the advantages of the EVWMA indicator to build a simple and practical MACD strategy. It has better stability and adaptability. At the same time, it also has the lag problem inherent in MACD. We can improve the strategy's robustness through adaptive parameter optimization, stop loss design, signal filtering and other aspects.
+This strategy utilizes the advantages of the EVWMA indicator to build a simple and practical MACD strategy. It offers better stability and adaptability. However, it also has the inherent lag issue in MACD. We can improve its robustness through adaptive parameter optimization, stop-loss design, signal filtering, and other aspects.
 
 ---
 
@@ -95,4 +96,3 @@ https://www.fmz.com/strategy/439609
 ### Last Modified
 
 2024-01-22 10:50:25
----
