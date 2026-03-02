@@ -40,6 +40,7 @@ The core principle utilizes CCI to measure price deviation from its mean. CCI ca
 
 #### Conclusion
 This strategy captures market oversold opportunities through CCI indicator, combined with stop-loss and take-profit mechanisms to create a complete trading system. The strategy features clear logic, easy execution, and good risk control capabilities. Through optimization measures like signal filtering and dynamic thresholds, the strategy's stability and profitability can be further improved. Traders are advised to conduct thorough backtesting and adjust parameters according to specific market characteristics before live implementation.
+[/trans]
 
 #### Source (PineScript)
 
@@ -76,7 +77,5 @@ cci = ta.cci(close, length=lookbackPeriod)
 longCondition = cci < buyThreshold
 
 // Sell condition: Close price crosses above the previous day's high, signaling potential exit
-sellCondition = close > ta.highest(close[1], 2)
+sellCondition = close > ta.highest(high[1], 2)
 ```
-
-This completes the translation while preserving all code blocks and formatting as requested.

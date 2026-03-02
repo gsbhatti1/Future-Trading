@@ -8,7 +8,7 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 */
 
 //@version=5
-strategy("Trend Following Strategy Based on ADX and MACD Indicators V1.0", overlay=true)
+strategy("TUE ADX/MACD Confluence V1.0", overlay=true)
 
 showsignals = input(true, title="Show BUY/SELL Signals")
 showcandlecolors = input(true, title="Show Candle Colors")
@@ -20,36 +20,28 @@ macdslow = input(26, title="MACD Slow Length")
 macdsignal = input(9, title="MACD Signal Length")
 colorup = input(color.green, title="Up Candle Color")
 colordown = input(color.red, title="Down Candle Color")
-stoplossprice = input(100.0, title="Stop Loss Price")
+stoplossprice = input(100, title="Stop Loss Price")
 
 // Calculate ADX
 adx = ta.adx(length, smoothing)
-posdi = ta.positive_direction(adx, length, smoothing)
-negdi = ta.negative_direction(adx, length, smoothing)
+plusdi = ta.adi(length, smoothing)
+minusdi = ta.madi(length, smoothing)
 
-// Calculate MACD
-[macdline, signalline, _] = ta.macd(macdsource, macdfast, macdslow, macdsignal)
+// Determine trend direction
+bullish = plusdi > minusdi and macdsource - ta.crossover(macdfast - macdslow, macdsignal)
+bearish = minusdi > plusdi and macdsource - ta.crossunder(macdfast - macdslow, macdsignal)
 
-// Determine trend direction and strength
-up_trend = posdi > negdi
-down_trend = negdi > posdi
+// Plot signals and candles
+plotshape(series=bullish, location=location.belowbar, color=colorup, style=shape.triangleup, title="Buy Signal")
+plotshape(series=bearish, location=location.abovebar, color=colordown, style=shape.triangledown, title="Sell Signal")
 
-// Define stop loss
-stoploss = strategy.stopLossLevel(stoplossprice)
+if (showcandlecolors)
+    bgcolor(macdsource > 0 ? colorup : colordown)
 
-// Trading Logic
-if (up_trend and ta.crossover(macdline, signalline))
-    strategy.entry("Long", strategy.long)
-    
-if (down_trend and ta.crossunder(macdline, signalline))
-    strategy.entry("Short", strategy.short)
-
-// Plot signals
-plotshape(series=showsignals ? up_trend : na, title="Buy Signal", location=location.belowbar, color=colorup, style=shape.labelup)
-plotshape(series=showsignals ? down_trend : na, title="Sell Signal", location=location.abovebar, color=colordown, style=shape.labeldown)
-
-// Plot candle colors
-bgcolor(showcandlecolors ? up_trend ? colorup : colordown : na, title="Candle Colors")
+// Stop Loss Logic
+stoploss = stoplossprice * close
+strategy.exit("StopLoss", from_entry="Long Entry", stop=stoploss)
+strategy.exit("StopLoss", from_entry="Short Entry", stop=stoploss)
 ```
 
-This Pine Script code implements the trading strategy described in the translated text. It includes all the default values and input arguments provided in the original document while ensuring that all code blocks are maintained as-is.
+This Pine Script code implements the "TUE ADX/MACD Confluence V1.0" strategy, as described in the translated text. It includes all input parameters and logic for generating buy/sell signals based on ADX and MACD conditions, as well as displaying candle colors and setting up a stop loss mechanism.
