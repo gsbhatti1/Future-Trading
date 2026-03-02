@@ -1,6 +1,6 @@
 > Name
 
-Dynamic Volatility Index VIDYA with ATR Trend Following Reversal Strategy
+Dynamic Volatility Index VIDYA with ATR Trend Following Reversal Strategy - Dynamic-Volatility-Index-VIDYA-with-ATR-Trend-Following-Reversal-Strategy
 
 > Author
 
@@ -11,7 +11,7 @@ ChaoZhang
 ![IMG](https://www.fmz.com/upload/asset/1321474433722e93ff6.png)
 
 #### Overview
-This strategy is a trend-following trading system based on the Variable Index Dynamic Average (VIDYA), combined with ATR bands to enhance trend identification and risk management capabilities. The strategy dynamically adjusts its response to market volatility while maintaining trend-following capabilities and capturing market reversal signals. The system uses VIDYA as its core indicator and ATR bands for dynamic stop-loss placement.
+This strategy is a trend-following trading system based on the Variable Index Dynamic Average (VIDYA) indicator, combined with ATR bands to enhance trend identification and risk management capabilities. The strategy dynamically adjusts its response to market volatility while maintaining trend-following capabilities and capturing market reversal signals. The system uses VIDYA as its core indicator and ATR bands for dynamic stop-loss placement.
 
 #### Strategy Principles
 The core principle lies in utilizing VIDYA's dynamic characteristics for trend identification. VIDYA adjusts moving average weights through momentum calculations, providing different sensitivities in various market conditions:
@@ -48,7 +48,7 @@ This strategy achieves dynamic trend tracking and risk control by combining VIDY
 #### Source (PineScript)
 
 ```pinescript
-/*backtest
+/* backtest
 start: 2019-12-23 08:00:00
 end: 2024-12-11 08:00:00
 period: 1d
@@ -60,6 +60,6 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // © PakunFX
 
 //@version=5
-strategy("VIDYA Auto-Trading(Reversal Logic)", overlay=true)
+strategy("VIDYA Auto-Trading (Reversal Logic)", overlay=true)
 
-// ＩＮＰＵＴＳ ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+// INPUTS ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
