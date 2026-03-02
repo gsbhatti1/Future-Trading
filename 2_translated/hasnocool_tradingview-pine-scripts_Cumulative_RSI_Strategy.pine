@@ -1,0 +1,88 @@
+# SOURCE: https://github.com/hasnocool/tradingview-pine-scripts
+# FILE  : Cumulative RSI Strategy.pine
+
+Script Name: Cumulative RSI Strategy
+Author: TradeAutomation
+Description: I suppose nothing drives a point home like a 10+ year backtest! A couple of weeks ago I published a custom indicator called the Cumulative RSI. This indicator was straight out of chapter 9 of "Short Term Trading Strategies That Work." Today I am publishing a basic sample strategy in that uses the Cumulative RSI as its only entry and exit signals on a Nasdaq 100...
+PineScript code:
+
+Pine Script™ strategy
+Cumulative RSI Strategy
+Copy code
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// @version=5
+// Author = TradeAutomation
+strategy(title="Cumulative RSI Strategy", shorttitle="CRSI Strategy", process_orders_on_close=true, overlay=true, commission_type=strategy.commission.cash_per_contract, commission_value=.0035, slippage = 1, margin_long = 75, initial_capital = 25000, default_qty_type=strategy.percent_of_equity, default_qty_value=110)
+// Cumulative RSI Indicator Calculations //
+rlen  = input.int(title="RSI Length", defval=3, minval=1)
+cumlen = input(3, "RSI Cumulation Length")
+rsi = ta.rsi(close, rlen)
+cumRSI = math.sum(rsi, cumlen)
+ob = (100*cumlen*input(94, "Oversold Level")*.01)
+os = (100*cumlen*input(20, "Overbought Level")*.01)
+// Operational Function //
+TrendFilterInput = input(false, "Only Trade When Price is Above EMA?")
+ema = ta.ema(close, input(100, "EMA Length"))
+TrendisLong = (close>ema)
+plot(ema)
+// Backtest Timeframe Inputs // 
+startDate = input.int(title="Start Date", defval=1, minval=1, maxval=31)
+startMonth = input.int(title="Start Month", defval=1, minval=1, maxval=12)
+startYear = input.int(title="Start Year", defval=2010, minval=1950, maxval=2100)
+endDate = input.int(title="End Date", defval=1, minval=1, maxval=31)
+endMonth = input.int(title="End Month", defval=1, minval=1, maxval=12)
+endYear = input.int(title="End Year", defval=2099, minval=1950, maxval=2100)
+InDateRange = (time >= timestamp(syminfo.timezone, startYear, startMonth, startDate, 0, 0)) and (time < timestamp(syminfo.timezone, endYear, endMonth, endDate, 0, 0))
+// Buy and Sell Functions //
+if (InDateRange and TrendFilterInput==true)
+    strategy.entry("Long", strategy.long, when = ta.crossover(cumRSI, os) and TrendisLong, comment="Buy", alert_message="buy")
+    strategy.close("Long", when = ta.crossover(cumRSI, ob) , comment="Sell", alert_message="Sell")
+if (InDateRange and TrendFilterInput==false)
+    strategy.entry("Long", strategy.long, when = ta.crossover(cumRSI, os), comment="Buy", alert_message="buy")
+    strategy.close("Long", when = ta.crossover(cumRSI, ob), comment="Sell", alert_message="sell")
+if (not InDateRange)
+    strategy.close_all()
+Expand (43 lines)
