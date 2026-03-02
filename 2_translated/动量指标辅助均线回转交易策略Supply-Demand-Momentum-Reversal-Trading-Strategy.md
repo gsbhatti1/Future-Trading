@@ -22,41 +22,59 @@ atrLength = input(14, title="ATR Length", group="Trailing Stop")
 atrMultiplier = input(2, title="ATR Multiplier", group="Trailing Stop")
 
 // Function to identify supply and demand zones
-get_zone(highs, lows, period) =>
-    hh = ta.highest(highs, period)
-    ll = ta.lowest(lows, period)
-    hh > prev(hh[1]) ? hh : na
-    ll < prev(ll[1]) ? ll : na
+getSupplyDemandZones(kline) =>
+    hh = na
+    ll = na
+    for i = 1 to array.size(kline) - 1
+        if (array.get(kline, i).high > array.get(kline, i - 1).high and 
+            array.get(kline, i + 1).high < array.get(kline, i).high)
+            hh := kline[i].high
+            
+        if (array.get(kline, i).low < array.get(kline, i - 1).low and 
+            array.get(kline, i + 1).low > array.get(kline, i).low)  
+            ll := kline[i].low
+        
+    hh, ll
 
-// Calculate EMA
+// EMA Calculation
 ema = ta.ema(close, emaLength)
 
-// Calculate ATR
-atr = ta.atr(atrLength)
+// ATR Calculation
+atrValue = ta.atr(atrLength)
+stopLossLevel = atrValue * atrMultiplier
 
-// Determine entry and exit conditions
-longCondition = ta.crossover(close, ema) and get_zone(highs, lows, 2)[1] < get_zone(highs, lows, 2)
-shortCondition = ta.crossunder(close, ema) and get_zone(highs, lows, -2)[1] > get_zone(highs, lows, -2)
+// Determine Entry and Exit Conditions
+var float entryPrice = na
+var int signal = 0
 
-// Plot zones
-if (showHHZone)
-    plotshape(series=get_zone(highs, lows, 2), title="HH Zone", location=location.belowbar, color=color.red, style=shape.triangleup, size=size.small)
-if (showLLZone)
-    plotshape(series=get_zone(highs, lows, -2), title="LL Zone", location=location.abovebar, color=color.green, style=shape.triangledown, size=size.small)
-if (showHLZone)
-    plotshape(series=get_zone(highs, lows, 1)[0] > get_zone(highs, lows, -1)[0], title="HL Zone", location=location.belowbar, color=color.orange, style=shape.labelup, text="HL")
-if (showLHZone)
-    plotshape(series=get_zone(highs, lows, -1)[0] < get_zone(highs, lows, 1)[0], title="LH Zone", location=location.abovebar, color=color.blue, style=shape.labeldown, text="LH")
+if (barstate.islast)
+    if (signal == 0) 
+        hlZone, llZone = getSupplyDemandZones(candledata)
+        
+        if (close > hlZone and prevClose <= prevhlZone)
+            strategy.entry("Buy", strategy.long)
+            entryPrice := close
+            signal := 1
+        
+        if (close < llZone and prevClose >= prevllZone) 
+            strategy.entry("Sell", strategy.short)
+            entryPrice := close
+            signal := -1
+    
+    if (signal == 1 and close <= stopLossLevel or close < prevhlZone)
+        strategy.exit("Buy Exit", "Buy")
+    
+    if (signal == -1 and close >= stopLossLevel or close > prevllZone) 
+        strategy.exit("Sell Exit", "Sell")
 
-// Plot signals
-plotchar(showBuySignals ? longCondition : na, "Long Signal", "▲", location.top, color=color.green)
-plotchar(showSellSignals ? shortCondition : na, "Short Signal", "▼", location.bottom, color=color.red)
+// Plotting
+plot(series=ema, title="EMA", color=color.blue, linewidth=2)
+plot(series=(hlZone), title="HL Zone", color=color.red, style=plot.style_linebr)
+plot(series=(llZone), title="LL Zone", color=color.green, style=plot.style_linebr)
 
-// Trailing stop loss
-stopLossPrice = na
-if (longCondition and not na(stopLossPrice))
-    stopLossPrice := close - atr * atrMultiplier
-if (close <= stopLossPrice)
-    strategy.close("Main")
+// Indicators
+hline(hlZone, "HL Zone Level", na, color=color.red)
+hline(llZone, "LL Zone Level", na, color=color.green)
+
 ```
 ```
