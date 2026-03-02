@@ -29,8 +29,8 @@ rsi_1h = request.security(syminfo.tickerid, timeframe_1h, ta.rsi(close, rsiPerio
 rsi = ta.rsi(close, rsiPeriod)
 
 // Find highest/lowest price and corresponding RSI in the 1-hour timeframe
-highestPrice_1h = ta.highest(high_1h, 1) // Highest Price in 1 hour timeframe
-lowestPrice_1h = ta.lowest(low_1h, 1)   // Lowest Price in 1 hour timeframe
+highestPrice_1h = ta.highest(high_1h, 1) // Highest price in the last 1 hour of 1-hour timeframe
+lowestPrice_1h = ta.lowest(low_1h, 1)   // Lowest price in the last 1 hour of 1-hour timeframe
 highestRsi_1h = ta.valuewhen(high_1h == highestPrice_1h, rsi_1h, 0)
 lowestRsi_1h = ta.valuewhen(low_1h == lowestPrice_1h, rsi_1h, 0)
 
@@ -59,5 +59,3 @@ plotshape(longCondition, title="Buy", location=location.belowbar, color=color.gr
 plotshape(shortCondition, title="Sell", location=location.abovebar, color=color.red, style=shape.labeldown, text="Sell")
 
 ```
-
-This Pine Script code implements the strategy described in the document. It uses Exponential Moving Averages (EMAs) and Relative Strength Index (RSI) to generate buy and sell signals based on specific conditions involving both trend direction and RSI divergence. The script is set up for a 1-hour timeframe and includes parameters for customizing EMA lengths, RSI periods, and thresholds.
