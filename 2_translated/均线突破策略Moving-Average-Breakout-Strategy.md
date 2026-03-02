@@ -22,15 +22,15 @@ When the fast moving average crosses above the slow moving average, it signals a
 
 Long entry condition:
 
-```
+```plaintext
 Fast MA crosses above slow MA
 Fast MA > Slow MA
 ```
 
 Short entry condition: 
 
-```
-Fast MA crosses below slow MA  
+```plaintext
+Fast MA crosses below slow MA
 Fast MA < Slow MA 
 ```
 
@@ -85,15 +85,15 @@ When the fast moving average crosses above the slow moving average, it signals a
 
 Long entry condition:
 
-```
+```plaintext
 Fast MA crosses above slow MA
 Fast MA > Slow MA
 ```
 
 Short entry condition: 
 
-```
-Fast MA crosses below slow MA  
+```plaintext
+Fast MA crosses below slow MA
 Fast MA < Slow MA 
 ```
 
@@ -136,16 +136,17 @@ The moving average breakout strategy is easy to understand, generating signals w
 
 > Strategy Arguments
 
+
+
 |Argument|Default|Description|
 |----|----|----|
-|v_input_int_1|3|Validation Period (Candle)|
-|v_input_float_1|true|Qty (Order)|
+|v_input_int_1|3|(?Candle)Validation Period|
+|v_input_float_1|true|(?Order)Qty|
 |v_input_float_2|true|Maximum Active Open Position|
-|v_input_float_3|true|Take Profit (%) (Long)|
+|v_input_float_3|true|(?Long)Take Profit (%)|
 |v_input_float_4|25|Stop Loss (%)|
 |v_input_float_5|0.2|Trailing Stop (%)|
 
----
 
 > Source (PineScript)
 
@@ -153,37 +154,44 @@ The moving average breakout strategy is easy to understand, generating signals w
 //@version=5
 strategy(
     title = 'Moving-Average-Breakout-Strategy',
-    shorttitle = 'MA Breakout Strategy',
+    shorttitle = 'MA Breakout',
     format = format.price,
     precision = 0,
     overlay = true)
 
-// Input parameters
-validationPeriod = input.int(3, title='Validation Period', group='Candle')
-qtyOrder = input.float(1.0, title='Qty', group='Order')
-maxActive = input.float(1.0, title='Maximum Active Open Position', group='Order')
-
-// Long Strategy settings
-tpLong = input.float(1, title="Take Profit (%)", minval=0.0, step=0.1, group='Long') * 0.01
-slLong = input.float(25, title="Stop Loss (%)", minval=0.0, step=0.1, group='Long') * 0.01
-trailingStopLong = input.float(0.2, title="Trailing Stop (%)", minval=0.0, step=0.1, group='Long') * 0.01
+// Input
+shortPeriod = input.int(3, title='Short Period', group='Settings')
+longPeriod = input.int(10, title='Long Period', group='Settings')
 
 // Calculation
-haTicker = ticker.heikinashi(syminfo.tickerid)
-haClose = request.security(haTicker, timeframe.period, close)
-haOpen = request.security(haTicker, timeframe.period, open)
+shortSMA = sma(close, shortPeriod)
+longSMA = sma(close, longPeriod)
 
-// Long entry conditions
-limitLong = tpLong > 0.0 ? strategy.position_avg_price * (1 + tpLong) : na
-stopLong = slLong > 0.0 ? strategy.position_avg_price * (1 - slLong) : na
-float trailLong = 0.0
-trailLong := if strategy.position_size > 0
-    trailClose = close * (1 - trailLong)
-    math.max(trailClose, trailLong[1])
-else
+// Entry Conditions
+if (shortSMA > longSMA and not strategy.position_size) 
+    strategy.entry("Buy", strategy.long)
+
+if (shortSMA < longSMA and not strategy.position_size) 
+    strategy.entry("Sell", strategy.short)
+
+// Stop Loss and Take Profit
+takeProfit = input.float(1, title="Take Profit (%)", minval=0.0, step=0.1)
+stopLoss = input.float(25, title="Stop Loss (%)", minval=0.0, step=0.1)
+trailingStop = input.float(0.2, title="Trailing Stop (%)", minval=0.0, step=0.1)
+
+longTakeProfit = strategy.position_avg_price * (1 + takeProfit / 100)
+longStopLoss = strategy.position_avg_price * (1 - stopLoss / 100)
+float trailingLong = 0.0
+trailingLong := if strategy.position_size > 0 
+    trailClose = close * (1 - trailingStop) 
+    math.max(trailClose, trailingLong[1])
+else 
     0
 
-isGreen = true
-for i = 0 to validationPeriod-1
-    isGreen := haClose[i] >= haOpen[i]
+// Exit Conditions
+strategy.exit("Exit Long", "Buy", stop=longStopLoss)
+strategy.exit("Exit Short", "Sell", profit=longTakeProfit)
+
+plot(shortSMA, color=color.blue, title='Short SMA')
+plot(longSMA, color=color.red, title='Long SMA')
 ```
