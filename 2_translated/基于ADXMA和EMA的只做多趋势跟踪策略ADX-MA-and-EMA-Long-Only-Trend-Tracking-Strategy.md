@@ -1,17 +1,3 @@
-> Strategy Arguments
-
-
-
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|14|ADX Smoothing|
-|v_input_2|14|DI Length|
-|v_input_3|50|MA Period|
-|v_input_4|50|EMA Period|
-
-
-> Source (PineScript)
-
 ``` pinescript
 /*backtest
 start: 2023-01-22 00:00:00
@@ -59,3 +45,5 @@ plot(maValue, color=color.blue, title="MA")
 plot(emaValue, color=color.orange, title="EMA")
 plot(sig, color=color.red, title="ADX")
 ```
+
+This Pine Script code defines a trading strategy that uses ADX, MA, and EMA to identify upward trends. The script includes the necessary inputs for configuring the ADX smoothing period, DI length, and moving average periods. It also implements logic for entering long positions based on these indicators and provides exit conditions. The plotted lines represent the Moving Average (blue), Exponential Moving Average (orange), and ADX values (red) to visually indicate the trend direction.
