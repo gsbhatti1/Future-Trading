@@ -14,58 +14,7 @@ ChaoZhang
 
 ### Overview
 
-The Relative Momentum Index (RMI) strategy is an improved version of the momentum index. This strategy calculates price momentum over a period to determine if the market is overbought or oversold, in order to capture reversal opportunities.
-
-### Strategy Logic
-
-The RMI calculation formula is as follows:
-
-```
-xMom = xPrice - xPrice[Length]  // Price change over Length periods
-xMU = If xMom >= 0: previous xMU minus xMU/Length plus xMom; else: previous xMU
-xMD = If xMom <= 0: previous xMD minus xMD/Length plus absolute value of xMom; else: 0 
-RM = xMU / xMD  
-RMI = 100 * (RM / (1 + RM))
-```
-
-First, calculate the price change `xMom` over `Length` periods. If `xMom >= 0`, indicating an upward price movement, accumulate it into `xMU`. If `xMom < 0`, indicating a downward price movement, accumulate its absolute value into `xMD`. `RM` is the ratio between `xMU` and `xMD`, representing the momentum of ups and downs. RMI normalizes `RM` into the range of 0-100.
-
-When RMI is higher than the threshold `SellZone`, it indicates overbought, so go short. When RMI is lower than `BuyZone`, it indicates oversold, so go long.
-
-### Advantages
-
-- Compared to RSI, RMI is more sensitive and can capture reversal opportunities earlier.
-- RMI measures the momentum of ups and downs, less affected by consolidation.
-- Based on momentum, RMI can better determine overbought/oversold status.
-
-### Risks
-
-- Like other reversal strategies, RMI has the risk of being stopped out by strong trends. Long signals may get breached.
-- RMI parameters need to be optimized for different products; otherwise, results may be poor.
-- Overbought/oversold thresholds need to be set reasonably; otherwise, too many false signals may occur.
-
-Risks can be reduced by widening stop loss, optimizing parameters, combining with trend strategies etc.
-
-### Improvement
-
-The RMI strategy can be improved from the following aspects:
-
-- Optimize `Length` parameter to maximize return.
-- Optimize overbought/oversold thresholds to reduce false signals.
-- Add stop loss to control single loss.
-- Combine with trend following or moving average strategies to increase winning rate.
-- Select appropriate trading sessions based on product characteristics to improve stability.
-
-### Conclusion
-
-The RMI strategy captures short-term pullback opportunities by measuring price momentum change. Compared to RSI, RMI is more sensitive and robust to consolidation. However, risks of being stopped out still exist. Parameters need to be optimized and combined with trend strategies to maximize performance.
-
-||
-
-
-### Overview
-
-The Relative Momentum Index (RMI) strategy is an improved version based on the momentum index. It calculates price momentum over a period to determine if the market is overbought or oversold, in order to capture reversal opportunities.
+The Relative Momentum Index (RMI) strategy is an improved version based on the momentum index. This strategy calculates price changes over a period to determine if the market is overbought or oversold, aiming to capture reversal opportunities.
 
 ### Strategy Logic
 
@@ -79,37 +28,88 @@ RM = xMU / xMD
 RMI = 100 * (RM / (1 + RM))
 ```
 
-First calculate the price change `xMom` over `Length` periods. If `xMom >= 0`, meaning price rises, accumulate it into `xMU`; if `xMom < 0`, meaning price drops, accumulate its absolute value into `xMD`. `RM` is the ratio between `xMU` and `xMD`, representing the momentum of ups and downs. RMI normalizes `RM` into the range of 0-100.
+First, calculate the price change `xMom` over `Length` periods. If `xMom >= 0`, indicating a rise in price, accumulate it into `xMU`; if `xMom < 0`, indicating a drop in price, accumulate its absolute value into `xMD`. The ratio `RM` between `xMU` and `xMD` represents the momentum of ups and downs. RMI normalizes `RM` into an index ranging from 0 to 100.
 
-When RMI is higher than the threshold `SellZone`, the market is overbought, go short. When RMI is lower than `BuyZone`, the market is oversold, go long.
+When RMI is higher than the threshold `SellZone`, it indicates overbought conditions, prompting a short position. When RMI is lower than `BuyZone`, it suggests oversold conditions, prompting a long position.
+
+### Advantages
+
+- Compared to the Relative Strength Index (RSI), RMI is more sensitive and can capture reversal opportunities earlier.
+- RMI measures the momentum of ups and downs, making it less affected by consolidation phases.
+- Based on momentum, RMI can better determine overbought/oversold conditions.
+
+### Risks
+
+- Like other reversal strategies, RMI has the risk of being stopped out during strong trends. Long signals may be breached.
+- RMI parameters need to be optimized for different products; otherwise, performance may suffer.
+- Overbought/oversold thresholds must be set reasonably to avoid generating too many false signals.
+
+Risks can be mitigated by widening stop loss levels, optimizing parameter combinations, combining with trend strategies, and selecting appropriate trading sessions based on product characteristics.
+
+### Strategy Optimization
+
+The RMI strategy can be optimized in the following ways:
+
+- Optimize the `Length` parameter to maximize profitability.
+- Optimize overbought/oversold thresholds to reduce false signals.
+- Add stop loss mechanisms to control single losses.
+- Combine with trend tracking or moving average strategies to increase winning rate.
+- Choose appropriate trading sessions based on product characteristics to enhance stability.
+
+### Conclusion
+
+The RMI strategy captures short-term pullback opportunities by measuring price momentum changes. Compared to the RSI, RMI is more sensitive and robust against consolidation phases. However, risks of being stopped out exist. Parameters need to be optimized and combined with trend strategies to maximize performance.
+
+||
+
+
+### Overview
+
+The Relative Momentum Index (RMI) strategy is an improved version based on the momentum index. It calculates price changes over a period to determine if the market is overbought or oversold, in order to capture reversal opportunities.
+
+### Strategy Logic
+
+The RMI calculation formula is as follows:
+
+```
+xMom = xPrice - xPrice[Length]  // Price change over Length periods
+xMU = If xMom >= 0: previous xMU minus xMU/Length plus xMom; else: previous xMU
+xMD = If xMom <= 0: previous xMD minus xMD/Length plus absolute value of xMom; else: 0 
+RM = xMU / xMD
+RMI = 100 * (RM / (1 + RM))
+```
+
+First calculate the price change `xMom` over `Length` periods. If `xMom >= 0`, meaning price rises, accumulate it into `xMU`; if `xMom < 0`, meaning price drops, accumulate its absolute value into `xMD`. The ratio `RM` between `xMU` and `xMD` represents the momentum of ups and downs. RMI normalizes `RM` into an index ranging from 0 to 100.
+
+When RMI is higher than the threshold `SellZone`, it indicates overbought conditions, prompting a short position. When RMI is lower than `BuyZone`, it suggests oversold conditions, prompting a long position.
 
 ### Advantages
 
 - Compared to RSI, RMI is more sensitive and can capture reversal opportunities earlier.
-- RMI measures the momentum of ups and downs, less affected by consolidation.
-- Based on momentum, RMI can better determine overbought/oversold status.
+- RMI measures the momentum of ups and downs, making it less affected by consolidation phases.
+- Based on momentum, RMI can better determine overbought/oversold conditions.
 
 ### Risks
 
-- Like other reversal strategies, RMI has the risk of being stopped out by strong trends. Long signals may get breached.
-- RMI parameters need to be optimized for different products; otherwise, results may be poor.
-- Overbought/oversold thresholds need to be set reasonably; otherwise, too many false signals may occur.
+- Like other reversal strategies, RMI has the risk of being stopped out during strong trends. Long signals may be breached.
+- RMI parameters need to be optimized for different products; otherwise, performance may suffer.
+- Overbought/oversold thresholds must be set reasonably to avoid generating too many false signals.
 
-Risks can be reduced by widening stop loss, optimizing parameters, combining with trend strategies etc.
+Risks can be mitigated by widening stop loss levels, optimizing parameter combinations, combining with trend strategies, and selecting appropriate trading sessions based on product characteristics.
 
-### Improvement
+### Strategy Optimization
 
-The RMI strategy can be improved from the following aspects:
+The RMI strategy can be optimized in the following ways:
 
-- Optimize `Length` parameter to maximize return.
+- Optimize the `Length` parameter to maximize profitability.
 - Optimize overbought/oversold thresholds to reduce false signals.
-- Add stop loss to control single loss.
-- Combine with trend following or moving average strategies to increase winning rate.
-- Select appropriate trading sessions based on product characteristics to improve stability.
+- Add stop loss mechanisms to control single losses.
+- Combine with trend tracking or moving average strategies to increase winning rate.
+- Choose appropriate trading sessions based on product characteristics to enhance stability.
 
 ### Conclusion
 
-The RMI strategy captures short-term pullback opportunities by measuring price momentum change. Compared to RSI, RMI is more sensitive and robust to consolidation. However, risks of being stopped out still exist. Parameters need to be optimized and combined with trend strategies to maximize performance.
+The RMI strategy captures short-term pullback opportunities by measuring price momentum changes. Compared to the RSI, RMI is more sensitive and robust against consolidation phases. However, risks of being stopped out exist. Parameters need to be optimized and combined with trend strategies to maximize performance.
 
 ||
 
@@ -162,11 +162,11 @@ xMD = iff(xMom <= 0, nz(xMD[1], 1) - (nz(xMD[1],1) / Length) + abs(xMom), nz(xMD
 RM = xMU / xMD
 nRes = 100 * (RM / (1+RM))
 pos = iff(nRes < BuyZone, 1,
-         iff(nRes > SellZone, -1, nz(pos[1], 0))) 
+	   iff(nRes > SellZone, -1, nz(pos[1], 0))) 
 possig = iff(reverse and pos == 1, -1,
           iff(reverse and pos == -1, 1, pos))	   
 if (possig == 1) 
     strategy.entry("Long", strategy.long)
 if (possig == -1)
-     strategy.close("Long")
+     strategy.close("Long")  
 ```
