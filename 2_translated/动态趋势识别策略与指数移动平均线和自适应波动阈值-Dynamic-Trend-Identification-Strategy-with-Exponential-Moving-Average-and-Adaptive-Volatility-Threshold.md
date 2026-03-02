@@ -1,6 +1,6 @@
 > Name
 
-Dynamic Trend Identification Strategy with Exponential Moving Average and Adaptive Volatility Threshold - Dynamic-Trend-Identification-Strategy-with-Exponential-Moving-Average-and-Adaptive-Volatility-Threshold
+Dynamic-Trend-Identification-Strategy-with-Exponential-Moving-Average-and-Adaptive-Volatility-Threshold
 
 > Author
 
@@ -15,7 +15,7 @@ ianzeng123
 [trans]
 #### Overview
 
-The OneTrend Lite EMA strategy is an innovative trend-tracking trading method that combines Exponential Moving Averages (EMA), Average Directional Index (ADX), and Average True Range (ATR) to identify and capture market trends. The strategy aims to provide clear, rule-based trading signals while dynamically adjusting sensitivity to market volatility.
+OneTrend Lite EMA strategy is an innovative trend-following trading approach that combines Exponential Moving Averages (EMA), Average Directional Index (ADX), and Average True Range (ATR) to identify and capture market trends. The strategy aims to provide clear, rule-based trading signals while dynamically adjusting sensitivity to market volatility.
 
 #### Strategy Principles
 
@@ -50,11 +50,11 @@ The strategy uses a 30-period fast EMA and a 60-period slow EMA, generating trad
 
 The OneTrend Lite EMA strategy provides traders with a flexible and intuitive trend-tracking method through innovative indicator combinations and adaptive thresholds. Despite inherent risks, its multi-dimensional analysis and dynamic adjustment capabilities make it a strategy worthy of in-depth research.
 
-||
+|| 
 
 #### Overview
 
-The OneTrend Lite EMA strategy is an innovative trend-tracking trading approach that combines Exponential Moving Averages (EMA), Average Directional Index (ADX), and Average True Range (ATR) to identify and capture market trends. The strategy aims to provide clear, rule-based trading signals while dynamically adjusting sensitivity to market volatility.
+The OneTrend Lite EMA strategy is an innovative trend-following trading approach that combines Exponential Moving Averages (EMA), Average Directional Index (ADX), and Average True Range (ATR) to identify and capture market trends. The strategy aims to provide clear, rule-based trading signals while dynamically adjusting sensitivity to market volatility.
 
 #### Strategy Principles
 
@@ -89,7 +89,7 @@ The strategy uses a 30-period fast EMA and a 60-period slow EMA, generating trad
 
 The OneTrend Lite EMA strategy provides traders with a flexible and intuitive trend-tracking method through innovative indicator combinations and adaptive thresholds. Despite inherent risks, its multi-dimensional analysis and dynamic adjustment capabilities make it a strategy worthy of in-depth research.
 
-||
+|| 
 
 > Source (PineScript)
 
