@@ -1,116 +1,116 @@
-<!-- AUTO-TRANSLATE FAILED: the JSON object must be str, bytes or bytearray, not NoneType -->
-
 ---
+> Name
 
-**Name**
+RSI-Based Bull Trend Tracking Strategy RSI-Trend-Tracking-Long-Only-Strategy
 
-RSI-Based Long Only Trend Tracking Strategy RSI-Trend-Tracking-Long-Only-Strategy
-
-**Author**
+> Author
 
 ChaoZhang
 
-**Strategy Description**
+> Strategy Description
 
 ![IMG](https://www.fmz.com/upload/asset/1483945845b7d65d5e7.png)
 [trans]
 
 ## Overview
 
-This strategy implements a long-only trend tracking approach using the RSI indicator. It enters into a long position when the RSI reaches an overbought level and employs fixed take profit and stop loss ratios. The strategy is simple and straightforward, suitable for bull markets.
+This strategy implements a trend tracking approach that is long-only and does not enter short positions. When the RSI indicator reaches an oversold level, it enters a long position with fixed take profit and stop loss levels. The strategy is straightforward and suitable for bull markets.
 
 ## Strategy Logic
 
-The strategy uses the RSI indicator to determine entry signals. When the RSI drops below 25 (over-sold level), it enters a long position. After entering, fixed take profit and stop loss levels are set based on the entry price. Specifically, the take profit level is 7% above the entry price, while the stop loss level is 3.5% below the entry price.
+The strategy uses the RSI indicator to determine entry points. It goes long when the RSI drops below the oversold level of 25. After entering, fixed take profit and stop loss levels are set based on the entry price. Specifically, the take profit level is set at 7% above the entry price, while the stop loss level is set at 3.5% below the entry price.
 
-The strategy only goes long and does not go short, making it a trend tracking strategy. It aims to capture the upward trend after prices bounce back from over-sold RSI levels. When the RSI is over-sold, it suggests that the price might be in a short-term oversold condition. Entering a long position at this point can benefit from the rebound.
+This strategy only goes long and does not go short. It is a trend tracking strategy aimed at capturing upward trends after prices bounce back from oversold RSI levels. When RSI is oversold, it suggests that the price may have been in a short-term oversold condition, allowing for potential rebounds by going long.
 
 ## Advantage Analysis
 
 The advantages of this strategy include:
 
-1. Clear and simple logic, easy to understand and implement.
-2. Only goes long, avoiding risks associated with regularity FD003.
-3. Long signals come from the RSI indicator, effectively identifying over-sold reversal opportunities.
-4. Fixed take profit/stop loss ratios control single trade losses.
+1. Clear and simple logic, making it easy to understand and implement.
+2. Distinctive long-only approach, avoiding risks associated with regularity FD003.
+3. Long signals are derived from the RSI indicator, effectively identifying oversold rebound opportunities.
+4. Fixed take profit/stop loss ratios help control single trade losses.
 
 ## Risk Analysis
 
-There are also some risks associated with this strategy:
+This strategy also has some drawbacks:
 
-1. It works better in bull markets and cannot generate profits in bear markets.
-2. It misses opportunities to enter based on new high breakouts.
-3. The fixed stop loss ratio does not adapt to changing market volatility.
-4. Incorrect RSI parameter settings may lead to over-trading or insufficient signals.
+1. It performs well in bull markets but cannot generate profits during bear markets.
+2. It misses opportunities to enter on new high breakouts.
+3. The fixed stop loss ratio does not adapt to changes in market volatility.
+4. Improper RSI parameter settings may result in overtrading or insufficient signals.
 
 ## Optimization Directions
 
-The strategy can be optimized by:
+The strategy can be improved by:
 
-1. Adding a short-side strategy to profit from bear markets.
-2. Considering additional entry conditions, such as new high breakouts or pattern signals, to improve accuracy.
+1. Adding a short side strategy to profit from bear markets.
+2. Incorporating new entry conditions such as breakouts of new highs or pattern signals to enhance accuracy.
 3. Optimizing RSI parameters through training to reduce errors.
-4. Making the stop loss mechanism more intelligent by combining it with ATR (Average True Range) to adjust based on volatility.
+4. Making the stop loss mechanism more intelligent, integrating ATR indicators for adjusting based on volatility.
 
 ## Summary
 
-Overall, this strategy has a clear and straightforward logic for identifying over-sold opportunities and tracking bull trends. Its advantages include simplicity and reliability but have limitations in only working for bull markets, with significant room for improvement. This can serve as the foundation for a long-side trend tracking strategy. Additional conditions, filters, and indicators could be introduced to turn it into a reliable positive swing system.
+Overall, this strategy uses the RSI indicator to identify oversold opportunities and track bull trends. Its strengths lie in simplicity and reliability, but it is limited to bull markets with significant room for improvement. It can serve as a foundational long-side trend tracking strategy, potentially enhanced by introducing additional conditions and technical indicators to form a reliable positive swing system.
 
 ||
 
 ## Overview  
 
-This strategy implements a long-only trend tracking approach based on the RSI indicator. It goes long when the RSI reaches an overbought level and uses fixed take profit and stop loss ratios. The strategy is simple and straightforward, suitable for bull markets.
+This strategy implements a long-only trend tracking approach based on the RSI indicator. It enters long positions when the RSI reaches an oversold level and employs fixed take profit and stop loss ratios. The strategy is simple and straightforward, suitable for bull markets.   
 
 ## Strategy Logic
 
-The strategy uses the RSI indicator to determine entry signals. When the RSI drops below 25 (over-sold level), it enters a long position. After entering, fixed take profit and stop loss levels are set based on the entry price. Specifically, the take profit level is 7% above the entry price, while the stop loss level is 3.5% below the entry price.
+The strategy uses the RSI indicator to determine entry signals. It goes long when the RSI drops below the oversold level of 25. After entering, fixed take profit and stop loss levels are set based on the entry price. Specifically, the take profit level is 7% above the entry price, and the stop loss level is 3.5% below the entry price.
 
-The strategy only goes long and does not go short, making it a trend tracking strategy. It aims to capture the upward trend after prices bounce back from over-sold RSI levels. When the RSI is over-sold, it suggests that the price might be in a short-term oversold condition. Entering a long position at this point can benefit from the rebound.
+The strategy only goes long and does not go short. It is a trend tracking strategy aimed at capturing upward trends after prices rebound from oversold RSI levels. When RSI is oversold, it suggests that the price may have been in a short-term oversold condition, allowing for potential rebounds by going long.
 
 ## Advantage Analysis
 
 The advantages of this strategy include:
 
-1. Clear and simple logic, easy to understand and implement.
-2. Only goes long, avoiding risks associated with regularity FD003.
-3. Long signals come from the RSI indicator, effectively identifying over-sold reversal opportunities.
-4. Fixed take profit/stop loss ratios control single trade losses.
+1. Clear and simple logic, making it easy to understand and implement.
+2. Distinctive long-only approach, avoiding risks associated with regularity FD003.
+3. Long signals are derived from the RSI indicator, effectively identifying oversold rebound opportunities.
+4. Fixed take profit/stop loss ratios help control single trade losses.
 
 ## Risk Analysis
 
-There are also some risks associated with this strategy:
+This strategy also has some drawbacks:
 
-1. It works better in bull markets and cannot generate profits in bear markets.
-2. It misses opportunities to enter based on new high breakouts.
-3. The fixed stop loss ratio does not adapt to changing market volatility.
-4. Incorrect RSI parameter settings may lead to over-trading or insufficient signals.
+1. It performs well in bull markets but cannot generate profits during bear markets.
+2. It misses opportunities to enter on new high breakouts.
+3. The fixed stop loss ratio does not adapt to changes in market volatility.
+4. Improper RSI parameter settings may result in overtrading or insufficient signals.
 
-## Improvement Areas
+## Optimization Directions
 
 The strategy can be improved by:
 
-1. Adding a short-side strategy to profit from bear markets.
-2. Considering additional entry conditions, such as new high breakouts or pattern signals, to improve accuracy.
+1. Adding a short side strategy to profit from bear markets.
+2. Incorporating new entry conditions such as breakouts of new highs or pattern signals to enhance accuracy.
 3. Optimizing RSI parameters through training to reduce errors.
-4. Making the stop loss mechanism more intelligent by combining it with ATR (Average True Range) to adjust based on volatility.
+4. Making the stop loss mechanism more intelligent, integrating ATR indicators for adjusting based on volatility.
 
 ## Conclusion
 
-In summary, this strategy has a clear and straightforward logic for identifying over-sold opportunities and tracking bull trends. Its advantages include simplicity and reliability but have limitations in only working for bull markets, with significant room for improvement. This can serve as the foundation for a long-side trend tracking strategy. Additional conditions, filters, and indicators could be introduced to turn it into a reliable positive swing system.
+In summary, this strategy uses clear logic to enter long positions during oversold RSI levels and track bull trends. Its strengths lie in simplicity and reliability, but it is limited to bull markets with significant room for improvement. It can serve as a foundational long-side trend tracking strategy, potentially enhanced by introducing additional conditions and technical indicators to form a reliable positive swing system.
 
 ---
 
-**Strategy Arguments**
+> Strategy Arguments
+
+
 
 |Argument|Default|Description|
-|---|---|---|
+|----|----|----|
 |v_input_1|14|RSI Length|
 |v_input_2|25|Overbought Level|
 |v_input_3|0.07|Long Take Profit %|
 |v_input_4|0.035|Long Stop Loss %|
 
-**Source (PineScript)**
+
+> Source (PineScript)
 
 ```pinescript
 /*backtest
@@ -129,7 +129,7 @@ overSold = input(25, title="Overbought Level")
 price = close
 vrsi = ta.rsi(price, length)
 
-// Plot Entry and Levels in the Chart for Over-sold Zones
+// Plot Einstiege und Levels im Chart für überverkaufte Zonen
 plotshape(series=strategy.position_avg_price > 0 and vrsi[1] <= overSold and vrsi > overSold,
          title="Long Entry",
          color=color.green,
@@ -154,10 +154,10 @@ if (not na(vrsi))
         strategy.exit("Take Profit/Stop Loss", "Long", limit=long_take_level, stop=long_stop_level)
 ```
 
-**Detail**
+> Detail
 
 https://www.fmz.com/strategy/437800
 
-**Last Modified**
+> Last Modified
 
 2024-01-05 16:19:57
