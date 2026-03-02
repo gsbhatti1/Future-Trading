@@ -11,7 +11,7 @@
 
 > Source (PineScript)
 
-``` pinescript
+```pinescript
 /*backtest
 start: 2024-01-24 00:00:00
 end: 2024-01-31 00:00:00
@@ -23,63 +23,43 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0
 
 //@version=5
-strategy("Moving-Average Trend Following Strategy", overlay=true)
+strategy("Moving-Average-Trend-Following-Strategy", overlay=true)
 
-// Input Parameters
-fast_length = input(50, title="Fast MA Length")
-slow_length = input(200, title="Slow MA Length")
-rr_ratio = input(2, title="Risk-Reward Ratio")
+// Input parameters
+fast_ma_len = input.int(50, title="Fast MA Length")
+slow_ma_len = input.int(200, title="Slow MA Length")
+risk_reward_ratio = input.float(2.0, title="Risk-Reward Ratio")
 
-// Calculate Moving Averages
-src = close
-fast_ma = ta.sma(src, fast_length)
-slow_ma = ta.sma(src, slow_length)
+// Calculate the moving averages
+fast_ma = ta.sma(close, fast_ma_len)
+slow_ma = ta.sma(close, slow_ma_len)
 
-// Buy Condition: Fast MA crosses above Slow MA
-cross_above = ta.crossover(fast_ma, slow_ma)
-buy_price = na
-if (cross_above)
-    buy_price := close
-
-// Sell Condition: Fast MA crosses below Slow MA
-cross_below = ta.crossunder(fast_ma, slow_ma)
-sell_price = na
-if (cross_below)
-    sell_price := close
-
-// Enter Long or Short based on conditions
-long_enter = na(buy_price) == false and cross_above
-short_enter = na(sell_price) == false and cross_below
-
-if long_enter
-    strategy.entry("Long", strategy.long)
-
-if short_enter
-    strategy.entry("Short", strategy.short)
-
-// Stop Loss and Take Profit Levels
-stop_loss_level = rr_ratio * (strategy.position_avg_price - close)
-take_profit_level = rr_ratio * (close - strategy.position_avg_price)
-
-// Trail Stop
-trail_stop = ta.valuewhen(strategy.opentrades.exists(), stop_loss_level, 0) < 
-             ta.valuewhen(strategy.opentrades.exists(), take_profit_level, 0) ? 
-             strategy.opentrades.entry_price(strategy.opentrades.id(1)) : 
-             na
-
-if long_enter and not na(trail_stop)
-    strategy.exit("Trail Stop Long", "Long", stop=trail_stop)
-
-if short_enter and not na(trail_stop)
-    strategy.exit("Trail Stop Short", "Short", stop=trail_stop)
-
-// Plot Moving Averages
+// Plot the moving averages on the chart
 plot(fast_ma, color=color.blue, title="Fast MA")
 plot(slow_ma, color=color.red, title="Slow MA")
 
-// Output Buy/Sell Signals
-alertcondition(cross_above, title="Buy Signal", message="Cross Above Detected")
-alertcondition(cross_below, title="Sell Signal", message="Cross Below Detected")
+// Define entry conditions
+long_condition = ta.crossover(fast_ma, slow_ma)
+short_condition = ta.crossunder(fast_ma, slow_ma)
+
+// Execute trades based on the conditions
+if (long_condition)
+    strategy.entry("Long", strategy.long)
+
+if (short_condition)
+    strategy.entry("Short", strategy.short)
+
+// Set stop loss and take profit levels
+stop_loss_level = risk_reward_ratio * strategy.point_size * close / risk_reward_ratio - close
+take_profit_level = risk_reward_ratio * strategy.point_size * close + close
+
+// Apply trailing stops
+strategy.exit("Long Exit", "Long", stop=stop_loss_level, limit=take_profit_level)
+strategy.exit("Short Exit", "Short", stop=stop_loss_level, limit=take_profit_level)
+
+// Plot the exit levels on the chart
+plot(stop_loss_level, color=color.green, title="Stop Loss")
+plot(take_profit_level, color=color.orange, title="Take Profit")
 ```
 
-This Pine Script implements the Moving-Average Trend Following Strategy with customizable inputs for moving average lengths and risk-reward ratios. It calculates the strategy based on the crossovers of fast and slow moving averages and uses trailing stop to manage positions.
+This Pine Script code implements a moving average trend-following strategy that uses fast and slow moving averages to identify trading opportunities. The script sets up entry conditions based on crossovers of these moving averages and manages risk through trailing stop losses and take profits.
