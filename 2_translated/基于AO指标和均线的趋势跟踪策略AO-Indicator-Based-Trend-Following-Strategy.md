@@ -14,80 +14,43 @@ ChaoZhang
 
 #### Overview
 
-This strategy uses the Awesome Oscillator (AO) indicator to determine trend direction and moving averages to confirm the trend, falling under the category of a trend-following strategy. When the AO crosses above the 0 line and the fast MA crosses above the slow MA, go long; when the AO crosses below the 0 line and the fast MA crosses below the slow MA, go short. This leverages trends for profit.
+This strategy uses the Awesome Oscillator (AO) indicator to determine trend direction and moving averages to confirm the trend, belonging to a trend-following strategy. It goes long when the AO indicator crosses above the 0 line and the fast MA crosses above the slow MA, and it goes short when the AO indicator crosses below the 0 line and the fast MA crosses below the slow MA, taking advantage of trend directionality for profits.
 
 #### Strategy Logic
 
-The primary focus of this strategy is to use the AO indicator to determine trend direction. The AO is calculated as the difference between the mid-price and a simple moving average (SMA) over 5 periods and 34 periods. It falls under the Momentum category. When AO is positive, it means the short-term SMA is above the long-term SMA, interpreted as a bullish sign; when AO is negative, it means the short-term SMA is below the long-term SMA, interpreted as a bearish sign.
+This strategy mainly relies on the AO indicator to determine the short-term trend direction. The AO indicator is calculated based on the difference between the mid-price’s 5-period and 34-period simple moving averages, categorizing it as a Momentum type indicator. When the AO is positive, it means the short-term MA is above the long-term MA, which should be interpreted as a bullish sign. Conversely, when the AO is negative, it indicates the short-term MA is below the long-term MA, interpreted as a bearish sign.
 
-Thus, the AO indicator can effectively determine trend direction. Crossing above the 0 line signals a bullish market and suggests going long; crossing below the 0 line signals a bearish market and suggests going short. Additionally, this strategy includes 20-period and 200-period moving averages to gauge medium to long-term trends. While relying on AO for short-term direction is sufficient, confirming with moving averages provides more robust signals.
+Therefore, the AO indicator can effectively determine the direction of the trend. When the AO crosses above the 0 line, it signals that the market trend has turned bullish and we should go long. When the AO crosses below the 0 line, it indicates a bearish shift in the market trend and a signal to go short.
 
-When the fast MA crosses above the slow MA, indicating a bullish medium-to-long term trend, we go long when the AO crosses above 0 and ride the uptrend. Conversely, when the fast MA crosses below the slow MA, signaling a bearish medium-to-long term trend, we go short when the AO crosses below 0 to benefit from the downtrend.
+Additionally, this strategy incorporates 20-period and 200-period moving averages. These MAs represent the direction of medium to long-term trends. Relying solely on the AO indicator for short-term trend direction is not sufficient; confirmation from mid-to-long term trends is also needed, thus incorporating MA crossovers.
 
-#### Advantages
-
-1. Accurate determination of short-term trend direction using the AO indicator.
-2. Incorporation of moving averages for mid-to-long-term trend confirmation, effectively filtering false breakouts.
-3. Fast profits suitable for short-term trading.
-
-#### Risk Analysis
-
-1. When going short and the AO crosses below 0 with MA signals, prices may continue to rise before reversing downward, posing an entry risk.
-2. When going long and the AO crosses above 0 with MA signals, prices may continue to fall before reversing upward, posing an entry risk.
-3. Risk of false signals at major technical levels.
-
-#### Optimization Directions
-
-1. Test different moving average combinations, such as 10-period and 50-period MAs, to find better settings.
-2. Integrate other indicators like RSI for signal confirmation.
-3. Optimize fixed stop loss percentage for a better risk/reward ratio.
-
-#### Summary
-
-This is a simple trend-following strategy that relies on the AO indicator to determine short-term trends while confirming with mid-to-long-term moving averages, which is logically sound and widely used. The combination of AO and moving averages shows maturity and reliability. Further parameter optimization and integration of other indicators can enhance its performance.
-
-||
-
-#### Overview
-
-This strategy uses the Awesome Oscillator (AO) to determine trend direction and moving averages to confirm trends, falling under the category of a trend-following strategy. When the AO crosses above the 0 line and the fast MA crosses above the slow MA, go long; when the AO crosses below the 0 line and the fast MA crosses below the slow MA, go short, taking advantage of trend directionality to profit.
-
-#### Strategy Logic
-
-The primary focus of this strategy is to use the AO indicator to determine the short-term trend direction. The AO is calculated based on the difference between the mid-price and simple moving averages (SMA) over 5 periods and 34 periods, which falls under the Momentum category of indicators. When AO is positive, it means the short-term SMA is above the long-term SMA, interpreted as a bullish sign; when AO is negative, it means the short-term SMA is below the long-term SMA, interpreted as a bearish sign.
-
-Therefore, the AO indicator can effectively determine trend direction. Crossing above the 0 line signals that the market trend has turned bullish and suggests going long. Conversely, crossing below the 0 line signals that the market trend has turned bearish and suggests going short. 
-
-In addition, this strategy also incorporates 20-period and 200-period moving averages to indicate medium to long-term trends. Judging only by the AO for short-term trend direction is not enough; confirmation from mid-to-long term trends using MAs is also necessary.
-
-When the fast MA crosses above the slow MA, indicating a bullish medium-to-long term trend, we go long when the AO crosses above 0 and ride the uptrend. Conversely, when the fast MA crosses below the slow MA, indicating a bearish medium-to-long term trend, we go short when the AO crosses below 0 to benefit from the downtrend.
+When the fast MA crosses above the slow MA, indicating a bullish shift in the mid-to-long-term trend, we go long when the AO crosses above 0 to ride the uptrend. Conversely, when the fast MA crosses below the slow MA, indicating a bearish shift in the mid-to-long-term trend, we go short when the AO crosses below 0 to follow the downtrend.
 
 #### Advantages
 
-1. Accurately determining short-term trend direction using the AO indicator.
-2. Adding moving averages for mid-to-long-term trend confirmation, effectively avoiding false breakouts.
-3. Fast profits suitable for short-term trading.
+1. Accurately determining short-term trend direction using the AO indicator
+2. Adding MAs for mid-to-long term trend confirmation helps avoid false breakouts
+3. Quick profits suitable for short-term trading
 
 #### Risk Analysis
 
-1. When going short and the AO crosses below 0 with MA signals, prices may continue to rise before reversing downward, posing an entry risk.
-2. When going long and the AO crosses above 0 with MA signals, prices may continue to fall before reversing upward, posing an entry risk.
+1. Risk of failed entry when going short; price may continue rising even after an AO cross below 0 and MA signals a sell before turning down.
+2. Risk of failed entry when going long; price may continue falling even after an AO cross above 0 and MA signals a buy before turning up.
 3. Risk of distorted AO signals at major technical levels.
 
-#### Optimization Directions
+#### Improvement Directions
 
-1. Test different moving average combinations, such as 10-period and 50-period MAs, to find better settings.
-2. Integrate other indicators like RSI for signal confirmation.
-3. Optimize fixed stop loss percentage for a better risk/reward ratio.
+1. Test different combinations of MAs, such as 10- and 50-periods, to find better settings
+2. Integrate other indicators like RSI for enhanced signal reliability
+3. Optimize fixed stop loss percentages to improve risk-reward ratio
 
 #### Conclusion
 
-This is a simple trend-following strategy that relies on the AO indicator to determine short-term trends while confirming with mid-to-long-term moving averages, which is logically sound and widely used. The combination of AO and MAs shows maturity and reliability. Further optimization of parameters and integration of other indicators can improve its performance.
+This is a simple trend-following strategy that uses the AO indicator for short-term trend direction with mid-to-long term MAs to confirm trends, making logical sense. The combination of AO and MAs has widespread use and maturity, ensuring this strategy’s reliability. Further optimization through parameter tuning and integrating other indicators can enhance its performance.
 
 [/trans]
 
 > Strategy Arguments
-
 
 
 |Argument|Default|Description|
@@ -133,5 +96,5 @@ plot(0, color=color.white)
 var float pentry = 0.0
 var float lentry = 0.0
 var bool oab = false
-// oab := ta.crossover(ao, 0) ? true : ta.crossunder(0, ao)
+// oab := ta.crossover(ao, 0) ? true : ta.crossunder(0, ao) ? false : oab
 ```
