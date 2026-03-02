@@ -1,4 +1,55 @@
+> Name
+
+MACD Dual Moving Average Tracking Strategy
+
+> Author
+
+ChaoZhang
+
+> Strategy Description
+
+![IMG](https://www.fmz.com/upload/asset/d8ab917cbddfbc4105.png)
+ [trans]
+
+## Overview  
+
+This strategy is named **MACD Dual Moving Average Tracking Strategy**. It uses MACD indicator’s golden cross and death cross of dual moving averages as trading signals, combined with the previous day’s lowest price as the stop loss point to track the short-term price movement.
+
+## Strategy Logic   
+
+1. Calculate fast EMA(close,5), slow EMA(close,8) and signal SMA(MACD,3)  
+2. Define long signal: when fast MA crosses above slow MA
+3. Define short signal: when fast MA crosses below slow MA or closing price is lower than previous day’s lowest price  
+4. Position size is initial capital 2000 USD divided by closing price
+5. Use short signal to close long position as stop loss
+
+## Advantage Analysis
+
+1. Use MACD indicator to determine overbought and oversold zones, with dual MAs to form trading signals, avoiding false breakout
+2. Track short-term trends, timely stop loss
+3. Dynamic adjustment of position size avoids excessively large single loss
+
+## Risk Analysis   
+
+1. MACD indicator has lagging effect, may miss short-term opportunities  
+2. Dual MA trading signals may produce false signals  
+3. Stop loss point is too aggressive, with high frequency of being stopped out
+
+## Optimization Directions  
+
+1. Optimize MACD parameters combination to improve indicator sensitivity
+2. Add trend judgment to avoid false signals from market consolidation  
+3. Combine with Volatility Index to assess market volatility, adjust stop loss point
+
+## Summary   
+
+This strategy uses the classic MACD dual moving average combination indicator to determine overbought and oversold zones, generating trading signals, while introducing dynamic position sizing and previous day’s lowest price as a stop loss point design to capture short-term price fluctuations. The overall strategy logic is clear and easy to understand, worth further testing and optimization.
+
+[/trans]
+
 > Strategy Arguments
+
+
 
 |Argument|Default|Description|
 |----|----|----|
@@ -14,9 +65,10 @@
 |v_input_10|8|slowLength|
 |v_input_11|3|signalLength|
 
+
 > Source (PineScript)
 
-``` pinescript
+```pinescript
 /*backtest
 start: 2023-12-10 00:00:00
 end: 2023-12-13 02:00:00
@@ -80,5 +132,5 @@ signal_color = macd_colorChange ? macd_IsAbove ? yellow : yellow : lime
 circleYPosition = outSignal
  
 plot(smd and outMacD ? outMacD : na, title="MACD", color=macd_color, linewidth=4)
-plot(smd and outSignal ? outSignal : na, title="Signal Line", color=signal_color, style=line)
+plot(smd and outSignal ? outSignal : na, title="Signal Line", color=signal_color, style=ligne
 ```
