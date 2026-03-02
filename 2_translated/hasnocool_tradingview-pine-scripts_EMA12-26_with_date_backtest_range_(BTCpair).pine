@@ -1,0 +1,91 @@
+# SOURCE: https://github.com/hasnocool/tradingview-pine-scripts
+# FILE  : EMA12-26 with date backtest range (BTCpair).pine
+
+Script Name: EMA12-26 with date backtest range (BTCpair)
+Author: HomoDeus666
+Description: This version including specific back test period function , and default unit per one order is 0.02BTC , if you would like to use it in USD unit please go to setting to change the setting.
+This script's mainly indicator author is Chaloke.com. this version is just only add strategy back test and specific period function.
+Thanks😀
+PineScript code:
+
+Pine Script™ strategy
+EMA12/26 with date backtest range (BTCpair)
+Copy code
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © HomoDeus666
+//@version=5
+strategy("CDC actionzone with date backtest range (BTCpair)", overlay=true,initial_capital = 1,commission_type = strategy.commission.percent,default_qty_value = 0.02,currency = currency.BTC,default_qty_type = strategy.cash)
+//input date and time
+useDateFilter = input.bool(false, title="Filter Date Range of Backtest",
+     group="Backtest Time Period")
+backtestStartDate = input.time(timestamp("1 Jan 2021"), 
+     title="Start Date", group="Backtest Time Period",
+     tooltip="This start date is in the time zone of the exchange " + 
+     "where the chart's instrument trades. It doesn't use the time " + 
+     "zone of the chart or of your computer.")
+backtestEndDate = input.time(timestamp("1 Jan 2022"),
+     title="End Date", group="Backtest Time Period",
+     tooltip="This end date is in the time zone of the exchange " + 
+     "where the chart's instrument trades. It doesn't use the time " + 
+     "zone of the chart or of your computer.")
+     
+//check date and time option
+inTradeWindow = not useDateFilter or (time >= backtestStartDate and
+     time < backtestEndDate)
+/// plot and indicator
+fastEMA = ta.ema(close,12), slowEMA=ta.ema(close,26)
+plot(fastEMA,color=color.green,linewidth = 2)
+plot(slowEMA,color=color.red,linewidth=2)
+//entry when condition
+longCondition = ta.crossover(fastEMA,slowEMA)
+if (longCondition) and inTradeWindow
+    strategy.entry("buy", strategy.long)
+if ta.crossunder(ta.ema(close, 12), ta.ema(close, 26)) and inTradeWindow
+    strategy.close("buy")
+    
+// trades and cancel all unfilled pending orders
+if not inTradeWindow and inTradeWindow[1]
+    strategy.cancel_all()
+    strategy.close_all(comment="Date Range Exit")
+Expand (41 lines)
