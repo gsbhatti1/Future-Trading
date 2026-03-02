@@ -19,7 +19,7 @@ This strategy is an automated trading system that combines multi-timeframe trend
 The core logic is based on trend determination across two timeframes:
 1. Uses a 200-period EMA on the 5-minute timeframe as the main trend filter, allowing long positions only above this line and short positions only below it.
 2. On the 1-minute timeframe, a 20-period EMA serves as the entry trigger. Long signals are generated when price crosses above this EMA, and short signals when it crosses below.
-3. Risk management employs a fixed percentage approach, with stops set at 0.5% from the entry price and profit targets at twice the stop distance, creating a 1:2 risk-reward ratio.
+3. Risk management employs a fixed percentage approach, with stops set at 0.5% from entry price and profit targets at twice the stop distance, creating a 1:2 risk-reward ratio.
 
 #### Strategy Advantages
 1. Multi-timeframe analysis provides more reliable trend identification, reducing false breakout risks.
@@ -45,6 +45,7 @@ The core logic is based on trend determination across two timeframes:
 #### Summary
 This is a well-structured trend following strategy with clear logic. By combining multi-timeframe analysis with strict risk management, the strategy effectively captures market trends while protecting capital. While there is room for optimization, the basic framework is robust and serves as an excellent foundation for further improvements and customization.
 
+||
 
 ```pinescript
 /*backtest
@@ -103,3 +104,8 @@ if (shortCondition)
     entryPrice = close
     // Stop loss for short: 0.5% above entry
     shortStop := entryPrice * (1 + riskPerc)
+    // Take profit: twice the risk distance (1:2 risk-reward)
+    shortTP   := entryPrice - 2 * (shortStop - entryPrice)
+    strategy.entry("Short", strategy.short)
+    strategy.exit("Short Exit", from_entry="Short", stop=shortStop, limit=shortTP)
+```

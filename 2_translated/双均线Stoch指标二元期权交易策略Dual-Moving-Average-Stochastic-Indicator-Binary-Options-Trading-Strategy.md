@@ -1,9 +1,22 @@
-```markdown
+> Name
+
+Dual-Moving-Average-Stochastic-Indicator-Binary-Options-Trading-Strategy
+
+> Author
+
+ChaoZhang
+
+> Strategy Description
+
+![IMG](https://www.fmz.com/upload/asset/10398691d19a3b33943.png)
+[trans]
+
+
 ## Overview
 
-This strategy combines dual moving averages and the Stochastic indicator to implement a simple and effective binary options trading strategy. It uses the EMA of high prices, EMA of low prices, and EMA of closing prices to build a dual moving average system, and incorporates the Stochastic indicator to generate trading signals, in order to capture short-term price fluctuations in binary options.
+This strategy combines dual moving averages and the Stochastic indicator to implement a simple and effective binary options trading strategy. It uses the EMA of high prices, EMA of low prices, and EMA of closing prices to build a dual moving average system, and incorporates the Stochastic indicator to generate trading signals, in order to capture short-term price fluctuations.
 
-## Principles 
+## Principles
 
 The strategy is mainly based on the following principles:
 
@@ -57,21 +70,19 @@ Through the above optimization means, strategy stability and profitability can b
 
 This strategy integrates the advantages of dual moving averages and Stochastic oscillator into a simple and reliable short-term binary options trading strategy. It standardizes trading rules for better risk control. Although there is still room for improvement, its logic is clear and easy to implement, making it a viable choice worth considering. By optimizing parameters and rules, better strategy performance may be achieved.
 
----
+[/trans]
 
-### Strategy Arguments
+> Strategy Arguments
 
-| Argument | Default | Description |
-| --- | --- | --- |
-| v_input_1 | 14 | length1 |
-| v_input_2 | true | smoothK |
-| v_input_3 | 3 | smoothD |
-| v_input_4 | 4 | Length |
-| v_input_5_high | 0 | Source: high/close/low/open/hl2/hlc3/hlcc4/ohlc4 |
-| v_input_6 | 4 | Length |
-| v_input_7_low | 0 | Source: low/high/close/open/hl2/hlc3/hlcc4/ohlc4 |
-| v_input_8 | 21 | Length |
-| v_input_9_close | 0 | Source: close/high/low |
-```
 
-This translation keeps the original structure and formatting intact while providing an English explanation of the trading strategy, its principles, advantages, risks, optimization directions, and arguments.
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|14|length1|
+|v_input_2|true|smoothK|
+|v_input_3|3|smoothD|
+|v_input_4|4|Length|
+|v_input_5_high|0|Source: high|close|low|open|hl2|hlc3|hlcc4|ohlc4|
+|v_input_6|4|Length|
+|v_input_7_low|0|Source: low|high|close|open|hl2|hlc3|hlcc4|ohlc4|
+|v_input_8|21|Length|
+|v_input_9_close|0|Source: close|high|low|
