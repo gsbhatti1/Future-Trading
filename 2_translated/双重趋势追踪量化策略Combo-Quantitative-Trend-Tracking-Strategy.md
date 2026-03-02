@@ -43,42 +43,54 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 // - For purpose educate only
 */
 
-study("Combo-Quantitative-Trend-Tracking-Strategy", shorttitle="CQTTS")
+study("双重趋势追踪量化策略", shorttitle="Combo-Quantitative-Trend-Tracking-Strategy", overlay=true)
 
-// Input parameters for 123 Reversal Strategy
-var bool input_1 = true
-var int input_2 = 14
-var bool input_3 = true
-var int input_4 = 3
-var int input_5 = 50
+// Input parameters
+var input1 = input(true, title="---- 123 Reversal ----")
+length = input(14, title="Length")
+kSmoothing = input(true, title="KSmoothing")
+dLength = input(3, title="DLength")
+level = input(50, title="Level")
+input6 = input(true, title="---- Rainbow Oscillator ----")
+lengthRO = input(2, title="LengthRO")
+hhvllvLookback = input(10, title="HHV/LLV Lookback")
+tradeReverse = input(false, title="Trade reverse")
 
-// Input parameters for Rainbow Oscillator Indicator
-var bool input_6 = true
-var int input_7 = 2
-var int input_8 = 10
-var bool input_9 = false
+// 123 Reversal Strategy
+longCondition = close[2] < close and close > close[1] and stochs(kSmoothing, dLength)[9] < level
+shortCondition = close[2] > close and close < close[1] and stochf(kSmoothing, dLength)[9] > level
 
-// Stochastic K and D lines
-slowk, slowd = stoch(close, high, low, input_4)
-fastk, fastd = stoch(high, low, close, input_4)
+if (longCondition)
+    strategy.entry("Long", strategy.long)
 
-// Rainbow Oscillator Indicator values
-ro_length = input(input_7, title="LengthRO")
-ro_lookback = input(input_8, title="HHV/LLV Lookback")
+if (shortCondition)
+    strategy.entry("Short", strategy.short)
 
-highs = high[ro_lookback]
-lows = low[ro_lookback]
+// Rainbow Oscillator Strategy
+rsi = rsi(close, lengthRO) / 100
+oscillatorValue = vwap(hhv(close, hhvllvLookback), llv(close, hhvllvLookback)) - close
 
-ro = (highs + lows) / 2
+if (oscillatorValue > 80 or oscillatorValue < 20)
+    if (tradeReverse and strategy.is_long)
+        strategy.close("Long")
+    else
+        strategy.close("Short")
 
-// Buy condition
-buy_condition = close[1] < close[2] and slowk < input_5 and not(input_9)
-if buy_condition
-    strategy.entry("Buy", strategy.long)
+// Plotting
+plot(rsi, title="RSI", color=color.blue)
+plot(oscillatorValue, title="Rainbow Oscillator", color=color.red)
 
-// Sell condition
-sell_condition = close[1] > close[2] and fastd > input_5 and input_9
-if sell_condition
-    strategy.exit("Sell", "Buy")
+// Strategy Arguments
 
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|true|---- 123 Reversal ----|
+|v_input_2|14|Length|
+|v_input_3|true|KSmoothing|
+|v_input_4|3|DLength|
+|v_input_5|50|Level|
+|v_input_6|true|---- Rainbow Oscillator ----|
+|v_input_7|2|LengthRO|
+|v_input_8|10|HHV/LLV Lookback|
+|v_input_9|false|Trade reverse|
 ```
