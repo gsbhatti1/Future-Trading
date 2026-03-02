@@ -10,7 +10,6 @@ ChaoZhang
 
 ![IMG](https://www.fmz.com/upload/asset/884d26d3f4663c5b13.png)
 
-[trans]
 #### Overview
 This strategy is a dual-timeframe momentum trading system based on the Stochastic indicator. It identifies potential trading opportunities by analyzing Stochastic crossover signals across different timeframes, combining momentum principles and trend-following methods for more accurate market trend judgment and trade timing. The strategy also incorporates risk management mechanisms, including take-profit and stop-loss settings, for better money management.
 
@@ -45,10 +44,9 @@ The core logic is based on the following key elements:
 5. Optimize parameter adaptation: dynamically adjust parameters based on market conditions.
 
 #### Summary
-This is a well-structured trading strategy with clear logic, capturing market opportunities through dual-timeframe Stochastic indicator analysis. The strategy's strengths lie in its multiple confirmation mechanisms and comprehensive risk control, but attention must be paid to risks such as false breakouts and parameter sensitivity. Through continuous optimization and improvement, the strategy has the potential to achieve better trading results.[/trans]
+This is a well-structured trading strategy with clear logic, capturing market opportunities through dual-timeframe Stochastic indicator analysis. The strategy's strengths lie in its multiple confirmation mechanisms and comprehensive risk control, but attention must be paid to risks such as false breakouts and parameter sensitivity. Through continuous optimization and improvement, the strategy has the potential to achieve better trading results.
 
-
-> Source (PineScript)
+#### Source (PineScript)
 
 ``` pinescript
 /*backtest
@@ -84,7 +82,7 @@ cu = ta.crossunder(k, d) // %K crosses below %D
 longCondition = co and k < OverSold
 shortCondition = cu and k > OverBought
 
-// Prices for TP and SL
+// Price for TP and SL
 var float longTP = na
 var float longSL = na
 var float shortTP = na
@@ -105,5 +103,4 @@ if (shortCondition)
 // Plot Stochastic and Levels
 hline(OverBought, "Overbought", color=color.red, linestyle=hline.style_dotted)
 hline(OverSold, "Oversold", color=color.green, linestyle=hline.style_dotted)
-hline(50, "Midline", color=color.blue)
-```
+hline(50, "Midline", color=colo
