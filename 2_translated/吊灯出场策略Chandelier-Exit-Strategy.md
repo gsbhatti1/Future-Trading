@@ -1,3 +1,102 @@
+> Name
+
+Chandelier Exit Strategy
+
+> Author
+
+ChaoZhang
+
+> Strategy Description
+
+![IMG](https://www.fmz.com/upload/asset/1cbb20b898e9c99d3f1.png)
+
+[trans]
+
+## Overview
+This strategy uses the Chandelier Exit indicator to determine the direction and momentum of price breakouts, generating buy and sell signals. It only performs buy operations.
+
+## Strategy Logic  
+The strategy is based on the Chandelier Exit indicator, which sets stop-loss lines based on the highest high, lowest low, and the Average True Range (ATR). Specifically, it calculates a 22-day ATR and multiplies it by a coefficient (default of 3) to derive values for long and short stop lines. The strategy generates a sell signal when price breaks below the long stop line while holding a long position, and a buy signal when price breaks above the short stop line while holding a short position.
+
+The strategy only performs buy operations. It triggers a long entry when price breaks above the previous long stop line, and creates an exit signal when price falls below the short stop line, closing the long position.
+
+## Advantage Analysis
+- Utilizes dynamic stop loss lines from Chandelier Exit to effectively control risks.
+- Combines price breakouts to capture trending moves.
+- Implements a strategy that avoids upside/downside reversals by only buying.
+- Alert conditions trigger notifications to monitor strategy status.
+
+## Risk Analysis
+- The Chandelier Exit indicator is sensitive to volatility expansion, which may cause false signals.
+- No stop loss in place after buying to limit losses.
+- No profit-taking mechanism to lock in gains.
+
+Risk Mitigations:
+1. Add filters with other indicators to avoid false signals.
+2. Implement a stop loss to limit maximum loss percentage.
+3. Incorporate trailing profit stops, such as dynamic adjustment of the sell line or partial exits.
+
+## Enhancement Opportunities 
+1. Test different parameter sets to optimize entries and exits.
+2. Add indicator filters to confirm signals and avoid false signals.
+3. Consider allowing both buy and sell operations.
+4. Introduce stop loss and take profit mechanisms.
+
+## Conclusion
+This strategy identifies reversal opportunities using the dynamic stop lines from the Chandelier Exit indicator. It buys on upside breaks of the long stop line and sells when prices fall below the short stop line, implementing a simple one-sided strategy that avoids upside/downside reversals. It effectively controls risk but lacks stop loss and take profit provisions. Optimization opportunities include adding filters and stop loss/profit-taking mechanisms to make the strategy more robust.
+
+||
+
+## Overview
+This strategy uses the Chandelier Exit indicator to determine the direction and momentum of price breakouts, generating buy and sell signals. It only performs buy operations.
+
+## Strategy Logic  
+The strategy is based on the Chandelier Exit indicator, which sets stop-loss lines based on the highest high, lowest low, and the Average True Range (ATR). Specifically, it calculates a 22-day ATR and multiplies it by a coefficient (default of 3) to derive values for long and short stop lines. The strategy generates a sell signal when price breaks below the long stop line while holding a long position, and a buy signal when price breaks above the short stop line while holding a short position.
+
+The strategy only performs buy operations. It triggers a long entry when price breaks above the previous long stop line, and creates an exit signal when price falls below the short stop line, closing the long position.
+
+## Advantage Analysis
+- Utilizes dynamic stop loss lines from Chandelier Exit to effectively control risks.
+- Combines price breakouts to capture trending moves.
+- Implements a strategy that avoids upside/downside reversals by only buying.
+- Alert conditions trigger notifications to monitor strategy status.
+
+## Risk Analysis
+- The Chandelier Exit indicator is sensitive to volatility expansion, which may cause false signals.
+- No stop loss in place after buying to limit losses.
+- No profit-taking mechanism to lock in gains.
+
+Risk Mitigations:
+1. Add filters with other indicators to avoid false signals.
+2. Implement a stop loss to limit maximum loss percentage.
+3. Incorporate trailing profit stops, such as dynamic adjustment of the sell line or partial exits.
+
+## Enhancement Opportunities 
+1. Test different parameter sets to optimize entries and exits.
+2. Add indicator filters to confirm signals and avoid false signals.
+3. Consider allowing both buy and sell operations.
+4. Introduce stop loss and take profit mechanisms.
+
+## Conclusion
+This strategy identifies reversal opportunities using the dynamic stop lines from the Chandelier Exit indicator. It buys on upside breaks of the long stop line and sells when prices fall below the short stop line, implementing a simple one-sided strategy that avoids upside/downside reversals. It effectively controls risk but lacks stop loss and take profit provisions. Optimization opportunities include adding filters and stop loss/profit-taking mechanisms to make the strategy more robust.
+
+||
+
+## Strategy Arguments
+
+
+
+|Argument|Default|Description|
+|----|----|----|
+|v_input_1|22|ATR Period|
+|v_input_float_1|3|ATR Multiplier|
+|v_input_2|true|Show Buy/Sell Labels ?|
+|v_input_3|true|Use Close Price for Extremums ?|
+|v_input_4|true|Highlight State ?|
+
+
+> Source (PineScript)
+
 ``` pinescript
 /*backtest
 start: 2023-12-28 00:00:00
