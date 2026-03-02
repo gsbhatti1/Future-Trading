@@ -14,80 +14,161 @@ ChaoZhang
 
 ## Overview
 
-This strategy generates trading signals based on the crossover of the positive directional indicator (DI+) and negative directional indicator (DI-) calculated from the average true range (ATR). It belongs to the trend following strategy that identifies trend reversal points through the crossover of DI+ and DI-. ATR is used to set stop loss and take profit levels.
+This strategy is based on the crossover of the positive directional indicator (DI+) and negative directional indicator (DI-) derived from the Average True Range (ATR) indicator. It identifies buy and sell opportunities by detecting these crossovers, making it a trend-following strategy that uses DI+ and DI- crossovers to determine trend reversals. ATR is employed to set stop loss and take profit levels.
 
 ## Strategy Logic
 
 1. Calculate ATR(14): Compute the average true range over the past 14 days using high, low, and close prices.
+
 2. Compute DI+ and DI-:
 
-    - DI+ = 100 * RMA(MAX(UP,0),N) / ATNR
-    - DI- = 100 * RMA(MAX(DOWN,0),N) / ATNR
+    - DI+ = 100 * RMA(MAX(UP, 0), N) / ATNR  
 
-    Where UP is the difference between current high and previous close, DOWN is the difference between current low and previous close, N is the parameter period, default to 14, and ATNR is the ATR calculated from step 1.
+    - DI- = 100 * RMA(MAX(DOWN, 0), N) / ATNR
+
+    Where UP is the difference between today's high and yesterday's close, DOWN is the difference between today's low and yesterday's close, N is the parameter length (default to 14), and ATNR is the ATR calculated from step 1.
+
 3. Determine entry and exit:
 
     - When DI+ crosses over DI-, a buy signal is generated.
+
     - When DI+ crosses below DI-, a sell signal is generated.
+
 4. Set stop loss and take profit:
 
-    - Long stop loss is entry price minus ATR multiplied by the stop loss multiplier
-    - Long take profit is entry price plus ATR multiplied by the take profit multiplier
-    - Short stop loss is entry price plus ATR multiplied by the stop loss multiplier
-    - Short take profit is entry price minus ATR multiplied by the take profit multiplier
+    - Long stop loss is set at the entry price minus ATR multiplied by the stop loss multiplier.
+
+    - Long take profit is set at the entry price plus ATR multiplied by the take profit multiplier.
+
+    - Short stop loss is set at the entry price plus ATR multiplied by the stop loss multiplier.
+
+    - Short take profit is set at the entry price minus ATR multiplied by the take profit multiplier.
 
 ## Advantage Analysis
 
-1. Using DI+/DI- crossover to determine trend reversal provides timely signal for new trend direction.
+1. Using DI+ and DI- crossovers to determine trend reversals provides timely signals for new trend directions.
+
 2. ATR as a dynamic stop loss/take profit indicator can set reasonable levels based on market volatility.
-3. The strategy has few parameters and is easy to understand and implement.
-4. Backtest results show this strategy has a positive profit factor and outperforms buy & hold.
+
+3. The strategy has few parameters, making it easy to understand and implement.
+
+4. Backtest results show that this strategy has a positive profit factor and outperforms buy-and-hold strategies.
 
 ## Risks and Solutions
 
-1. False signal risk from DI crossover
-    - Filter signals with moving averages etc. to avoid false breakouts.
-2. Stop loss/take profit too close
-    - Adjust ATR multiplier to accommodate volatility.
-3. Ineffective in range-bound market
-    - Combine with other indicators to filter signals in consolidation.
+1. False signal risk from DI crossovers
+
+    - Filter signals with moving averages or other indicators to avoid false breakouts, by adjusting the DI period parameters.
+
+2. Stop loss/take profit levels too close
+
+    - Adjust ATR multipliers to better accommodate market volatility.
+
+3. Ineffective in range-bound markets
+
+    - Combine with other indicators to filter out unnecessary signals during consolidation periods.
+
 4. Drawdown risk
-    - Drawdown is acceptable but unavoidable for systematic strategies. Adjust position sizing to control drawdown.
+
+    - While acceptable, systematic strategies cannot completely avoid drawdowns; adjust position sizing to control them.
 
 ## Optimization Suggestions
 
-1. Add filters like moving average to avoid false signals in range-bound periods.
-2. Implement position sizing like fixed fractional or Martingale to control drawdown and boost profitability.
-3. Optimize ATR parameters to match volatility of different trading instruments.
-4. Parameter optimization on DI period, ATR period, ATR multiplier etc. to find optimum combination.
-5. Add overnight and early session logic to run strategy 24/7.
+1. Add filters like moving averages or other technical indicators to reduce false signals in range-bound markets.
+
+2. Implement position sizing mechanisms such as fixed fractional or Martingale to better manage risk and enhance profitability.
+
+3. Optimize ATR parameters to better match the volatility of different trading instruments.
+
+4. Conduct parameter optimization on DI periods, ATR periods, and ATR multipliers to find the best combination.
+
+5. Add overnight and early session logic to run the strategy continuously 24/7.
 
 ## Conclusion
 
-This is a simple and practical strategy generating signals from DI crossover and setting dynamic stop loss/take profit with ATR. With few parameters, it is easy to test and optimize. But DI crossover is less effective during consolidation. Going forward, combining additional filters is the main improvement area. Overall this strategy demonstrates stable performance suitable for short-term day trading.
+This is a simple and practical day trading strategy that generates signals from DI crossovers and sets stop loss/take profit levels dynamically using ATR. With few parameters, it's easy to test and optimize. However, DI crossover may not perform well in range-bound markets. Future improvements could focus on adding additional filters. Overall, this strategy demonstrates stable performance suitable for short-term day trading.
 
-[/trans]
+|||
 
-> Strategy Arguments
+## Overview
 
+This strategy generates trading signals based on the crossover of the positive directional indicator (DI+) and negative directional indicator (DI-) calculated from the Average True Range (ATR). It belongs to the trend-following category that identifies trend reversals through DI+ and DI- crossovers. ATR is used to set stop loss and take profit levels.
 
-|Argument|Default|Description|
-|----|----|----|
-|v_input_1|true|ATR Multiplier|
-|v_input_2|14|Length di|
+## Strategy Logic
 
+1. Calculate ATR(14): Compute the average true range over the past 14 days using high, low, and close prices.
 
-> Source (PineScript)
+2. Compute DI+ and DI-:
+
+    - DI+ = 100 * RMA(MAX(UP, 0), N) / ATNR  
+
+    - DI- = 100 * RMA(MAX(DOWN, 0), N) / ATNR
+
+    Where UP is the difference between today's high and yesterday's close, DOWN is the difference between today's low and yesterday's close, N is the parameter length (default to 14), and ATNR is the ATR calculated from step 1.
+
+3. Determine entry and exit:
+
+    - When DI+ crosses over DI-, a buy signal is generated.
+
+    - When DI+ crosses below DI-, a sell signal is generated.
+
+4. Set stop loss and take profit:
+
+    - Long stop loss is set at the entry price minus ATR multiplied by the stop loss multiplier.
+
+    - Long take profit is set at the entry price plus ATR multiplied by the take profit multiplier.
+
+    - Short stop loss is set at the entry price plus ATR multiplied by the stop loss multiplier.
+
+    - Short take profit is set at the entry price minus ATR multiplied by the take profit multiplier.
+
+## Advantage Analysis
+
+1. Using DI+ and DI- crossovers to determine trend reversals provides timely signals for new trend directions.
+
+2. ATR as a dynamic stop loss/take profit indicator can set reasonable levels based on market volatility.
+
+3. The strategy has few parameters, making it easy to understand and implement.
+
+4. Backtest results show this strategy has a positive profit factor and outperforms buy-and-hold strategies.
+
+## Risks and Solutions
+
+1. False signal risk from DI crossovers
+
+    - Filter signals with moving averages or other indicators to avoid false breakouts by adjusting the DI period parameters.
+
+2. Stop loss/take profit levels too close
+
+    - Adjust ATR multipliers to better accommodate market volatility.
+
+3. Ineffective in range-bound markets
+
+    - Combine with other indicators to filter out unnecessary signals during consolidation periods.
+
+4. Drawdown risk
+
+    - While acceptable, systematic strategies cannot completely avoid drawdowns; adjust position sizing to control them.
+
+## Optimization Suggestions
+
+1. Add filters like moving averages or other technical indicators to reduce false signals in range-bound markets.
+
+2. Implement position sizing mechanisms such as fixed fractional or Martingale to better manage risk and enhance profitability.
+
+3. Optimize ATR parameters to better match the volatility of different trading instruments.
+
+4. Conduct parameter optimization on DI periods, ATR periods, and ATR multipliers to find the best combination.
+
+5. Add overnight and early session logic to run the strategy continuously 24/7.
+
+## Conclusion
+
+This is a simple and practical day trading strategy that generates signals from DI crossovers and sets stop loss/take profit levels dynamically using ATR. With few parameters, it's easy to test and optimize. However, DI crossover may not perform well in range-bound markets. Future improvements could focus on adding additional filters. Overall, this strategy demonstrates stable performance suitable for short-term day trading.
+
+|||
 
 ```pinescript
-/*backtest
-start: 2022-11-06 00:00:00
-end: 2023-11-12 00:00:00
-period: 1d
-basePeriod: 1h
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
 // This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
 // © TheHulkTrading
 //@version=4
