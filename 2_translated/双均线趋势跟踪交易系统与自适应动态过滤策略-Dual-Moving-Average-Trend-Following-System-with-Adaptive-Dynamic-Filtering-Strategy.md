@@ -21,7 +21,7 @@ ignore_n_candles = input.int(1, "Ignore First N Candles", minval=0)
 run_up_threshold = input.float(0.5, "Run-up Threshold (%)", minval=0.0)
 
 //====================================================================
-hmacondition = ta.hma(close,Lengthhmaribbon) > ta.hma(close,Lengthhmaribbon)[1]
+hmacondition = ta.hma(close, Lengthhmaribbon) > ta.hma(close, Lengthhmaribbon)[1]
 
 //====================================================================
 // Function to drop the first `n` candles
