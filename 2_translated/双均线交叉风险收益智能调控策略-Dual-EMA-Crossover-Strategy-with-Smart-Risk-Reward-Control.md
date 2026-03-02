@@ -1,4 +1,16 @@
-> Overview
+> Name
+
+Dual-EMA-Crossover-Strategy-with-Smart-Risk-Reward-Control
+
+> Author
+
+ChaoZhang
+
+> Strategy Description
+
+![IMG](https://www.fmz.com/upload/asset/12371eb69e6e785438a.png)
+
+#### Overview
 This is a trading strategy based on the crossover of 15-period and 50-period Exponential Moving Averages (EMA). The strategy implements intelligent stop-loss and take-profit levels to optimize risk-reward control. It not only captures trend reversal signals but also automatically adjusts trading parameters based on market volatility, thereby improving strategy stability and profitability.
 
 #### Strategy Principle
@@ -27,17 +39,9 @@ The core logic is based on crossover signals between the fast EMA (15-period) an
 #### Summary
 This is a well-structured EMA crossover strategy with clear logic. By combining classical technical analysis methods with modern risk management techniques, the strategy achieves favorable risk-reward characteristics. While there is room for optimization, the basic framework demonstrates good practicality and extensibility. Through the suggested optimization directions, the strategy's performance can be further enhanced.
 
-> Source (PineScript)
+#### Source (PineScript)
 
-``` pinescript
-/*backtest
-start: 2019-12-23 08:00:00
-end: 2024-12-11 08:00:00
-period: 1d
-basePeriod: 1d
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
+```pinescript
 //@version=5
 strategy("EMA Cross - Any Direction", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=30)
 
@@ -67,4 +71,11 @@ long_take_profit = close + 2 * (close - long_stop_loss)
 short_take_profit = close - 2 * (short_stop_loss - close)
 
 // Execute Trades
+if (cross_condition)
+    strategy.entry("Long", strategy.long, when=is_long)
+    strategy.exit("Long Exit", "Long", stop=long_stop_loss, limit=long_take_profit)
+    
+    strategy.entry("Short", strategy.short, when=is_short)
+    strategy.exit("Short Exit", "Short", stop=short_stop_loss, limit=short_take_profit)
+```
 ```
