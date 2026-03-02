@@ -1,49 +1,19 @@
 ---
-> Name
+
+### Name
 
 Dual-Momentum-Breakthrough-Confirmation-Quantitative-Trading-Strategy
 
-> Author
+### Author
 
 ChaoZhang
 
-> Strategy Description
+### Strategy Description
 
 ![IMG](https://www.fmz.com/upload/asset/c396085912c9e11605.png)
 
-[trans]
 #### Overview
-This is a quantitative trading strategy based on dual momentum breakthrough confirmation using Williams %R and Relative Strength Index (RSI). The strategy identifies trading signals through the cross-breakthrough of two momentum indicators, effectively reducing the risk of false breakouts. It seeks trading opportunities in overbought and oversold areas, improving trading accuracy through mutual confirmation of both indicators.
-
-#### Strategy Principle
-The strategy employs a 30-period Williams %R and 7-period RSI as primary indicators. A buy signal is triggered when Williams %R crosses above -80 and RSI simultaneously crosses above 20; a sell signal is generated when Williams %R crosses below -20 and RSI simultaneously crosses below 80. This dual confirmation mechanism effectively filters out potential false signals from single indicators. The strategy implements manual calculation of Williams %R by computing the highest and lowest prices within the period for more precise indicator values.
-
-#### Strategy Advantages
-1. Dual confirmation mechanism significantly improves trading signal reliability
-2. Trading in overbought and oversold zones offers higher win rates and profit potential
-3. Indicator parameters can be flexibly adjusted for different market conditions
-4. Strategy logic is simple and clear, easy to understand and maintain
-5. Manual calculation of indicator values provides greater optimization potential
-
-#### Strategy Risks
-1. May generate excessive trading signals in ranging markets
-2. Dual confirmation mechanism might lead to slightly delayed entry points
-3. Fixed overbought and oversold thresholds may need adjustment in different market environments
-4. Short-period RSI might be sensitive to price fluctuations
-5. Trading costs need to be considered for strategy profitability
-
-#### Strategy Optimization Directions
-1. Introduce trend filters to avoid counter-trend trading in strong trend markets
-2. Add trailing stop-loss mechanisms to protect existing profits
-3. Develop adaptive overbought and oversold threshold calculation methods
-4. Optimize period parameter combinations for Williams %R and RSI
-5. Consider adding volume indicators as auxiliary confirmation signals
-
-#### Summary
-The strategy constructs a robust trading system through the synergy of Williams %R and RSI. The dual momentum confirmation mechanism effectively reduces false signal risks, while trading in overbought and oversold zones offers good profit potential. Through proper risk control and continuous optimization, the strategy can maintain stable performance across different market environments.[/trans]
-
-#### Overview
-This is a quantitative trading strategy based on dual momentum breakthrough confirmation using Williams %R and Relative Strength Index (RSI). The strategy identifies trading signals through the cross-breakthrough of two momentum indicators, effectively reducing the risk of false breakouts. It seeks trading opportunities in overbought and oversold areas, improving trading accuracy through mutual confirmation of both indicators.
+This is a quantitative trading strategy based on dual momentum breakout confirmation using Williams %R and Relative Strength Index (RSI). The strategy identifies trading signals through the cross-breakthrough of two momentum indicators, effectively reducing the risk of false breakouts. It seeks trading opportunities in overbought and oversold areas, improving trading accuracy through mutual confirmation of both indicators.
 
 #### Strategy Principle
 The strategy employs a 30-period Williams %R and 7-period RSI as primary indicators. A buy signal is triggered when Williams %R crosses above -80 and RSI simultaneously crosses above 20; a sell signal is generated when Williams %R crosses below -20 and RSI simultaneously crosses below 80. This dual confirmation mechanism effectively filters out potential false signals from single indicators. The strategy implements manual calculation of Williams %R by computing the highest and lowest prices within the period for more precise indicator values.
@@ -71,8 +41,6 @@ The strategy employs a 30-period Williams %R and 7-period RSI as primary indicat
 
 #### Summary
 The strategy constructs a robust trading system through the synergy of Williams %R and RSI. The dual momentum confirmation mechanism effectively reduces false signal risks, while trading in overbought and oversold zones offers good profit potential. Through proper risk control and continuous optimization, the strategy can maintain stable performance across different market environments.
-
----
 
 #### Source (PineScript)
 
@@ -121,8 +89,6 @@ if (longCondition)
 if (shortCondition)
     strategy.entry("Sell", strategy.short)
 ```
-
----
 
 #### Detail
 
