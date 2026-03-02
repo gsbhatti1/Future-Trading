@@ -11,19 +11,19 @@ ChaoZhang
 ![IMG](https://www.fmz.com/upload/asset/1e1d7482bf8258a29e2.png)
 [trans]
 ## Overview
-This strategy uses average line double filtering and multi-level trend direction confirmation mechanisms to design a relatively stable tracking system. It consists of three main parts:
+This strategy utilizes average line double filtering and a multi-level trend direction confirmation mechanism to design a relatively stable tracking system. It consists of three main parts:
 
-1. An optimized trend tracking system based on improved double peak oscillators to determine the major trend direction.
-  
+1. An optimized trend tracking system based on improved dual peak oscillators to determine the major trend direction.
+
 2. A sub-trend filtering system based on a combination of multiple cycle moving averages to further filter out some noise.
 
 3. The Alpha Index provides final confirmation to ensure reliability of trading signals.
 
-With the triple protection described above, the strategy can judge major trends more accurately and filter short-term market noise very effectively.
+With the triple protection described above, the strategy can judge major trends more accurately and effectively filter short-term market noise.
 
 ## Principle 
 ### Main Trend Tracking
-It uses an improved double peak oscillator TOTT and a Close Series double trend filter to calculate the main trend direction. TOTT itself has very strong filtering capabilities against noise. The Close Series provides an additional level of confirmation. The combination of the two can determine major trends very accurately.
+It uses an improved dual peak oscillator TOTT and a Close Series double trend filter to calculate the main trend direction. TOTT itself has very strong filtering capabilities against noise. The Close Series provides an additional level of confirmation. The combination of the two can determine major trends very accurately.
 
 ### Subtrend Filtering  
 In addition to the main trend judging system, the strategy also sets up a sub-trend filtering system based on EMA combinations of multiple cycles. According to the Golden Cross and Dead Cross confirmation levels of the EMA lines, the reliability of judgments on the main trend direction is further improved and more noise is filtered out.
@@ -46,18 +46,64 @@ To mitigate the risks, parameters can be adjusted to optimize tracker sensitivit
 ## Optimization Directions
 - Adjust double peak oscillator parameters to find better parameter combinations
 - Try parameter optimization of different moving average types  
-- Optimize EMA line cycle periods in the combination
+- Optimize moving average cycles in EMA combination
 - Enhance Alpha filtering mechanism
 - Add stop loss mechanism  
 
 ## Conclusion
-The overall design of this strategy is robust, with proper measures and multiple protections. The powerful noise filtering gives it stable performance. There is room for further improvement through continuous parameter optimization and mechanism enhancements.  
-[/trans]
+The overall design of this strategy is robust, with proper measures and multiple protections. The powerful noise filtering gives it stable performance. There is room for further improvement through continuous parameter optimization and mechanism enhancements.
 
-> Strategy Arguments
+---
+
+||
+
+## Overview
+This strategy uses average line double filtering and multi-level trend direction confirmation mechanisms to design a relatively stable tracking system. It consists of three main parts:
+
+1. An optimized trend tracking system based on improved dual peak oscillators to determine the major trend direction.
+  
+2. A sub-trend filtering system based on a combination of multiple cycle moving averages to further filter out some noise.
+
+3. The Alpha Index provides final confirmation to ensure reliability of trading signals.
+
+With the triple protection described above, the strategy can judge major trends more accurately and effectively filter short-term market noise.
+
+## Principle 
+### Main Trend Tracking
+It uses an improved dual peak oscillator TOTT and a Close Series double trend filter to calculate the main trend direction. TOTT itself has very strong filtering capabilities against noise. The Close Series provides an additional level of confirmation. The combination of the two can determine major trends very accurately.
+
+### Subtrend Filtering  
+In addition to the main trend judging system, the strategy also sets up a sub-trend filtering system based on EMA combinations of multiple cycles. According to the Golden Cross and Dead Cross confirmation levels of the EMA lines, the reliability of judgments on the main trend direction is further improved and more noise is filtered out.
+
+### Alpha Confirmation
+When entering and exiting positions, the strategy also checks the value of the Alpha Index to ensure reliability of final trading signals. Alpha reflects the buying and selling power in the market and is a good confirmation indicator.
+
+## Advantages
+- Multi-level protection design for more accurate major trend judgments  
+- Powerful noise filtering capability
+- Stable and reliable trading signals
+- Large parameter optimization space
+
+## Risks
+- Signal frequency may be low
+- The tracking system uses moving averages, which can be broken in drastic market changes
+
+To mitigate the risks, parameters can be adjusted to optimize tracker sensitivity, or more reversal indicators can be added as final filters.  
+
+## Optimization Directions
+- Adjust double peak oscillator parameters to find better parameter combinations
+- Try parameter optimization of different moving average types  
+- Optimize moving average cycles in EMA combination
+- Enhance Alpha filtering mechanism
+- Add stop loss mechanism  
+
+## Conclusion
+The overall design of this strategy is robust, with proper measures and multiple protections. The powerful noise filtering gives it stable performance. There is room for further improvement through continuous parameter optimization and mechanism enhancements.
+
+---
 
 |Argument|Default|Description|
-|---|---|---|
+|----|----|----|
 |v_input_1_close|0|Source: close|high|low|open|hl2|hlc3|hlcc4|ohlc4|
 |v_input_int_1|18|OTT Period|
 |v_input_float_1|true|Optimization Constant|
