@@ -1,0 +1,1 @@
+parameters, optimizing stop loss points, and improving trend judgment indicators, making it a long-term modifiable and effective quantitative strategy.
