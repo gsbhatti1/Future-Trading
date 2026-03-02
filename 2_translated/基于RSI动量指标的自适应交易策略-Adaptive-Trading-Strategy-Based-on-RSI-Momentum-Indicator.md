@@ -1,4 +1,3 @@
----
 #### Overview
 This strategy is a momentum trading system based on the Relative Strength Index (RSI), which executes trades by identifying overbought and oversold market conditions. The strategy employs fixed percentage stop-loss and take-profit targets for automated risk-reward management. The system operates on a 15-minute timeframe and is suitable for instruments with good liquidity.
 
@@ -6,34 +5,32 @@ This strategy is a momentum trading system based on the Relative Strength Index 
 The core of the strategy utilizes the RSI indicator to identify overbought and oversold market conditions. When RSI falls below 30, indicating potential oversold conditions, the system opens a long position; when RSI rises above 70, indicating potential overbought conditions, it opens a short position. Each trade is managed with fixed percentage-based stop-loss (0.2%) and take-profit (0.6%) levels, automating risk management.
 
 #### Strategy Advantages
-1. Clear Operating Rules: Uses the widely recognized RSI indicator, providing clear trading signals that are easy to understand and execute.
-2. Comprehensive Risk Management: Employs fixed-ratio stop-loss and take-profit settings, effectively controlling risk for each trade.
-3. High Automation Level: The entire trading process from entry to exit is automated, reducing human intervention.
-4. Strong Adaptability: Strategy can be applied to different trading instruments with good universality.
-5. High Computational Efficiency: Uses basic technical indicators, minimizing computational load for real-time trading.
+1. Clear Operating Rules: Uses the widely recognized RSI indicator, providing clear trading signals that are easy to understand and execute
+2. Comprehensive Risk Management: Employs fixed-ratio stop-loss and take-profit settings, effectively controlling risk for each trade
+3. High Automation Level: The entire trading process from entry to exit is automated, reducing human intervention
+4. Strong Adaptability: Strategy can be applied to different trading instruments with good universality
+5. High Computational Efficiency: Uses basic technical indicators, minimizing computational load for real-time trading
 
 #### Strategy Risks
-1. Sideways Market Risk: May generate frequent false signals in range-bound markets.
-2. Trend Breakout Risk: Fixed stop-loss levels may be easily triggered during strong trends.
-3. Parameter Sensitivity: Strategy performance is highly dependent on RSI period and threshold settings.
-4. Slippage Risk: Actual execution prices may deviate from expected levels during high volatility.
-5. Systematic Risk: May incur significant losses during extreme market conditions.
+1. Sideways Market Risk: May generate frequent false signals in range-bound markets
+2. Trend Breakout Risk: Fixed stop-loss levels may be easily triggered during strong trends
+3. Parameter Sensitivity: Strategy performance is highly dependent on RSI period and threshold settings
+4. Slippage Risk: Actual execution prices may deviate from expected levels during high volatility
+5. Systematic Risk: May incur significant losses during extreme market conditions
 
 #### Optimization Directions
-1. Introduce Trend Filters: Incorporate moving averages or other trend indicators to reduce false signals.
-2. Dynamic Stop-Loss Setting: Automatically adjust stop-loss levels based on market volatility.
-3. Optimize Entry Timing: Add volume and other auxiliary indicators to improve entry accuracy.
-4. Money Management Optimization: Implement dynamic position sizing based on account equity and market volatility.
-5. Add Time Filters: Avoid trading during high-volatility periods such as major news releases.
+1. Introduce Trend Filters: Incorporate moving averages or other trend indicators to reduce false signals
+2. Dynamic Stop-Loss Setting: Automatically adjust stop-loss levels based on market volatility
+3. Optimize Entry Timing: Add volume and other auxiliary indicators to improve entry accuracy
+4. Money Management Optimization: Implement dynamic position sizing based on account equity and market volatility
+5. Add Time Filters: Avoid trading during high-volatility periods such as major news releases
 
 #### Summary
 This is a well-structured, logically sound automated trading strategy. It captures market overbought and oversold opportunities through the RSI indicator, coupled with fixed-ratio risk management for complete trading automation. The strategy's main advantages lie in its clear operational rules and controllable risk, though market conditions significantly impact its performance. Through the suggested optimization directions, there is room for further strategy enhancement.
 
----
-
 #### Source (PineScript)
 
-```pinescript
+``` pinescript
 /*backtest
 start: 2024-02-24 00:00:00
 end: 2025-02-22 08:00:00
@@ -82,9 +79,8 @@ if (strategy.position_size < 0)  // If there is a short position
     shortStopLoss = shortPrice * (1 + FIXED_SL)
     shortTakeProfit = shortPrice * (1 - FIXED_TP)
     strategy.exit("Exit Sell", from_entry="Sell", stop=shortStopLoss, limit=shortTakeProfit)
-```
 
----
+```
 
 #### Detail
 

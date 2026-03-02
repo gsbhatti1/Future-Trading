@@ -8,13 +8,13 @@ Inventor Quantification-Little Dream
 
 Strategy Description
 
-Moving average strategy (python version) is teaching in nature, use it with caution in real trading.
+The moving average strategy (python version) is teaching in nature, use it with caution in real trading.
 
 Strategy Arguments
 
 
 |Argument|Default|Description|
-|--------|------|----------|
+|--------|-------|-----------|
 |FastPeriod|3|Market entry fast period|
 |SlowPeriod|7|Slow market entry period|
 |EnterPeriod|3|Market observation period|
@@ -44,20 +44,17 @@ def main():
                     state = PD_LONG if n > 0 else PD_SHORT
                     Log("Opening Details",Dict,"Cross Period",n)
                 else:
-                    pass
-        else:
-            n = ext.Cross(ExitFastPeriod,ExitSlowPeriod) # Indicator cross function
-            if abs(n) >= ExitPeriod and ((state == PD_LONG and n < 0) or (state == PD_SHORT and n > 0)) :
-                nowAccount = ext.GetAccount()
-                Dict2 = ext.Sell(nowAccount.Stocks - initAccount.Stocks) if state == PD_LONG else ext.Buy(initAccount.Stocks - nowAccount.Stocks)
-                state = STATE_IDLE
-                nowAccount = ext.GetAccount()
-                LogProfit(nowAccount.Balance - initAccount.Balance,'Money:',nowAccount.Balance,'Coins:',nowAccount.Stocks,'Close details:',Dict2,'Crossover period:',n)
-            Sleep(Interval * 1000)
+                    n = ext.Cross(ExitFastPeriod,ExitSlowPeriod) # Indicator cross function
+                    if abs(n) >= ExitPeriod and ((state == PD_LONG and n < 0) or (state == PD_SHORT and n > 0)) :
+                        nowAccount = ext.GetAccount()
+                        Dict2 = ext.Sell(nowAccount.Stocks - initAccount.Stocks) if state == PD_LONG else ext.Buy(initAccount.Stocks - nowAccount.Stocks)
+                        state = STATE_IDLE
+                        nowAccount = ext.GetAccount()
+                        LogProfit(nowAccount.Balance - initAccount.Balance,'Money:',nowAccount.Balance,'Coins:',nowAccount.Stocks,'Close details:',Dict2,'Crossover period:',n)
+                        Sleep(Interval * 1000)
 
 
 ```
-
 
 Detail
 
