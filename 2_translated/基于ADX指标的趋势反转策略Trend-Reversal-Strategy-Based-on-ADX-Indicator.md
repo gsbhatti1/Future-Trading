@@ -9,30 +9,32 @@ ChaoZhang
 > Strategy Description
 
 
-```plaintext
+
+```markdown
 This strategy is named "Trend Reversal Strategy Based on ADX Indicator". It uses the ADX indicator to gauge trend strength and capture reversal opportunities when overbought/oversold.
 
 ADX stands for Average Directional Index, reflecting the strength of a trend. The higher the ADX value, the stronger the trend. When ADX is above 25, it suggests a significant trend is present.
 
 DMI includes DI+ and DI- lines. DI+ above DI- shows an uptrend, while DI- above DI+ indicates a downtrend.
 
-The trading logic is:
+The trading logic of this strategy:
 
 1. When ADX is above 45, the trend is considered very strong.
-2. If DI+ is below DI-, it signals an oversold state and a reversal opportunity, so go long.
+2. If DI+ is below DI-, it signals an oversold state and a trend reversal opportunity, so go long.
 3. Conversely, if DI- is below DI+, it suggests overbought conditions and a reversal opportunity for going short.
 4. Take profit promptly after reversal.
 
 The advantage of this strategy is using ADX to determine strong trend reversal points. High ADX values effectively filter out false signals from ranging markets. However, ADX parameters need optimization, and the stop loss strategy is also very important.
 
-In conclusion, the ADX indicator is adept at gauging strong trend reversal timing. But traders still need to watch more factors, using ADX as just one supplementary indicator.
+In general, the ADX indicator is better at determining the timing of strong trend reversals. Nevertheless, traders still need to consider more factors, using ADX as one of many auxiliary indicators.
 ```
 
 > Strategy Arguments
 
 
+
 |Argument|Default|Description|
-|---|---|---|
+|----|----|----|
 |v_input_1|true|From Month|
 |v_input_2|true|From Day|
 |v_input_3|2021|From Year|
@@ -45,10 +47,18 @@ In conclusion, the ADX indicator is adept at gauging strong trend reversal timin
 > Source (PineScript)
 
 ```pinescript
+/*backtest
+start: 2023-08-13 00:00:00
+end: 2023-09-12 00:00:00
+Period: 2h
+basePeriod: 15m
+exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
+*/
+
 //@version=4
 strategy(shorttitle='DMI swings', title='DMI swings', overlay=true, initial_capital = 100, process_orders_on_close=true, default_qty_type = strategy.percent_of_equity, default_qty_value = 100, commission_type=strategy.commission.percent, commission_value=0.1)
 
-// Backtest dates
+//Backtest dates
 fromMonth = input(defval = 1, title = "From Month", type = input.integer, minval = 1, maxval = 12)
 fromDay = input(defval = 1, title = "From Day", type = input.integer, minval = 1, maxval = 31)
 fromYear = input(defval = 2021, title = "From Year", type = input.integer, minval = 1970)
@@ -64,10 +74,10 @@ window() => true // create function "within window of time"
 
 [pos_dm, neg_dm, avg_dm] = dmi(14, 14)
 
-// Entry
+//Entry
 strategy.entry(id="long", long = true, when = avg_dm > 45 and pos_dm < neg_dm and window())
 
-// Exit
+//Exit
 strategy.close("long", when = avg_dm > 45 and pos_dm > neg_dm and window())
 ```
 
