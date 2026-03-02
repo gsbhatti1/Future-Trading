@@ -1,6 +1,6 @@
 > Name
 
-Dynamic Trend Following with Volatility Filtering Strategy Based on ADX and CI Dual Confirmation - Dynamic-Trend-Following-with-Volatility-Filtering-ADX-and-CI-Dual-Confirmed-Strategy
+Dynamic Trend Following with Volatility Filtering Strategy Based on ADX and CI Dual Confirmation - Dynamic-Trend-Following-with-Volatility-Filtering-ADX-and-CI-Dual-Confirmed-Moving-Average-Crossover-System
 
 > Author
 
@@ -21,7 +21,7 @@ The core logic consists of three key components:
 2. Trend Strength Confirmation: Validates trend strength through the ADX indicator (threshold set at 20) to ensure trading only in clear trending market conditions.
 3. Market Volatility Filtering: Incorporates the Choppiness Index (threshold at 50) to identify market volatility characteristics and avoid trading in highly choppy markets.
 
-The strategy employs optimized technical indicator calculations, including custom sum functions, highest and lowest value calculations, and standardized True Range (TR) calculations, ensuring signal accuracy and computational efficiency.
+The strategy employs optimized technical indicator calculations, including custom sum functions, highest value and lowest value calculations, and standardized True Range (TR) calculations, ensuring signal accuracy and computational efficiency.
 
 #### Strategy Advantages
 1. Multiple Confirmation Mechanism: Combines MA crossover, ADX, and CI triple filtering to significantly improve trading signal reliability.
@@ -42,13 +42,21 @@ The strategy employs optimized technical indicator calculations, including custo
 4. Computational Efficiency Improvement: Optimize indicator calculation methods, especially performance in handling long-period data.
 
 #### Summary
-This strategy constructs a complete trading system by combining classical moving average crossover strategy with modern technical indicators. It focuses not only on trend capture but also pays special attention to market environment suitability, enhancing trading stability through multiple filtering mechanisms. While there are some parameter sensitivity and lag issues, there is significant room for improvement through the proposed optimization directions. Overall, this is a logically complete and highly practical trading strategy.
+This strategy constructs a complete trading system by combining classical moving average crossover strategies with modern technical indicators. It focuses not only on trend capture but also pays special attention to market environment suitability, enhancing trading stability through multiple filtering mechanisms. While there are some parameter sensitivity and lag issues, there is significant room for improvement through the proposed optimization directions. Overall, this is a logically complete and highly practical trading strategy.
 
 ||
 
 #### Source (PineScript)
 
 ```pinescript
+/*backtest
+start: 2024-02-22 00:00:00
+end: 2024-12-06 00:00:00
+period: 1d
+basePeriod: 1d
+exchanges: [{"eid":"Binance","currency":"ETH_USDT"}]
+*/
+
 //@version=6
 strategy("MA9/MA21 Cross with ADX & CHOP Filter", overlay=true, initial_capital=10000, currency=currency.USD)
 
@@ -57,7 +65,7 @@ strategy("MA9/MA21 Cross with ADX & CHOP Filter", overlay=true, initial_capital=
 f_sum(src, len) =>
     s = 0.0
     for i = 0 to len - 1
-        s := s + src[i]
+        s += src[i]
     s
 
 // Custom function to compute the highest value over the last 'len' bars.
