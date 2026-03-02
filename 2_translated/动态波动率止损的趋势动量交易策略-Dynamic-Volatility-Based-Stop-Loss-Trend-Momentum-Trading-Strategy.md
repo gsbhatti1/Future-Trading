@@ -1,6 +1,6 @@
 > Name
 
-Dynamic Volatility-Based Stop-Loss Trend Momentum Trading Strategy - Dynamic-Volatility-Based-Stop-Loss-Trend-Momentum-Trading-Strategy
+Dynamic Volatility-Based Stop Loss Trend Momentum Trading Strategy - Dynamic-Volatility-Based-Stop-Loss-Trend-Momentum-Trading-Strategy
 
 > Author
 
@@ -11,6 +11,8 @@ ianzeng123
 ![IMG](https://www.fmz.com/upload/asset/2d879a12178ffb5b2d022.png)
 ![IMG](https://www.fmz.com/upload/asset/2d8795569ceb0e51aaa6e.png)
 
+
+[trans]
 #### Overview
 This strategy is a trading system that combines moving average trend following with dynamic stop-loss management. It utilizes MACD (Moving Average Convergence Divergence) for momentum capture, EMA (Exponential Moving Average) for trend confirmation, and ATR (Average True Range) for dynamic stop-loss positioning. This multi-dimensional analysis approach effectively captures market opportunities while maintaining robust risk control.
 
@@ -40,6 +42,9 @@ The core logic comprises three dimensions:
 
 #### Summary
 This strategy builds a comprehensive trading system by combining trend following, momentum analysis, and dynamic risk control. Its main feature is achieving effective market opportunity capture and dynamic risk control while maintaining strategy robustness. While inherent risks exist, the strategy holds good practical application value through appropriate parameter settings and continuous optimization.
+[/trans]
+
+#### Source (PineScript)
 
 ```pinescript
 /*backtest
@@ -85,6 +90,15 @@ var float stopLossLevel = na
 var float trailingStopLevel = na
 
 if (buyCondition)
-    // Set initial stop-loss level
     stopLossLevel := close - atr * stopLossMultiplier
+else if (sellCondition)
+    trailingStopLevel := close + atr * trailATRMultiplier
+    
+// Apply Stop Loss
+strategy.exit("Exit Long", from_entry="Enter Long", stop=stopLossLevel)
+
+// Apply Trailing Stop
+if (useTrailingStop and strategy.position_size > 0)
+    strategy.exit("Exit Long with Trail", from_entry="Enter Long", stop=trailingStopLevel)
+```
 ```
