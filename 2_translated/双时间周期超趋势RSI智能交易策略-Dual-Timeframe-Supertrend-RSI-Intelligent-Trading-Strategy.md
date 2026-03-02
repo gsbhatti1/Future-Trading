@@ -32,36 +32,51 @@ trailStoplossMode = input.string("Off", title="Trailing Stoploss Mode", options=
 trailStoplossValue = input.float(5, title="Trailing Stoploss Value", step=0.1)
 
 // Supertrend settings
-atrPeriod = input(10, title="ATR Period")
-factor = input(3.0, title="Factor")
+atrPeriod = input.int(10, title="ATR Period")
+factor = input.float(3.0, title="ATR Factor")
 
-// RSI settings
-rsiLength = input(14, title="RSI Length")
-overboughtLevel = input.int(70, title="Overbought Level")
-oversoldLevel = input.int(30, title="Oversold Level")
-
-// Supertrend calculation for 5-minute and 60-minute timeframes
+// Calculate Supertrend for 5-minute and 60-minute timeframes
 [supertrend5m, direction5m] = supertrend(close, atrPeriod, factor)
-[supertrend60m, direction60m] = supertrend(close, atrPeriod, factor)
+[supertrend60m, direction60m] = supertrend(high, low, close, atrPeriod, factor)
 
-// RSI calculation for 5-minute and 60-minute timeframes
-rsi5m = rsi(close, rsiLength)
-rsi60m = rsi(close, rsiLength)
+// RSI calculation
+rsiValue = rsi(close, 14)
 
-// Trade signals based on Supertrend and RSI conditions
-buyCondition = (direction5m == direction60m and direction5m == 1 and rsi5m > overboughtLevel) or 
-               (direction5m == direction60m and direction5m == -1 and rsi5m < oversoldLevel)
-sellCondition = not buyCondition
+// Strategy logic based on Supertrend and RSI conditions
+if (systemMode == "Intraday")
+    isIntradaySession = time >= startSession and time <= endSession
 
-// Intraday session check
-inSession = time >= startSession and time <= endSession
+buyCondition = direction5m > 0 and direction60m > 0 and rsiValue > 60
+sellCondition = direction5m < 0 and direction60m < 0 and rsiValue < 40
 
-if systemMode == "Intraday" and inSession
-    // Open positions during intraday sessions based on signals
+if (systemMode == "Positional" or isIntradaySession)
     if buyCondition
         strategy.entry("Buy", strategy.long)
+
     if sellCondition
+        strategy.entry("Sell", strategy.short)
+
+// Exit conditions based on Supertrend direction change
+if direction5m != previousDirection5m
+    if direction5m > 0
         strategy.close("Buy")
+    else
+        strategy.close("Sell")
+
+previousDirection5m := na(previousDirection5m) ? direction5m : previousDirection5m
+
+// Stoploss and takeprofit handling
+if (stoplossMode == "Points" or stoplossMode == "%")
+    stopLoss = stoplossValue / 100 * close
+    if systemMode == "Positional" or isIntradaySession
+        strategy.exit("Exit Buy", "Buy", stop=stopLoss)
+        strategy.exit("Exit Sell", "Sell", stop=stopLoss)
+
+if (trailStoplossMode == "Points" or trailStoplossMode == "%")
+    trailingStop = trailStoplossValue / 100 * close
+    if systemMode == "Positional" or isIntradaySession
+        strategy.exit("Trailing Exit Buy", "Buy", stop=trailingStop)
+        strategy.exit("Trailing Exit Sell", "Sell", stop=trailingStop)
 ```
 
-This Pine Script code is a translation of the provided Chinese document, maintaining all original code blocks and formatting as specified.
+This Pine Script code defines the trading strategy described in the Chinese document, ensuring that all inputs and conditions are correctly translated into English while maintaining the original formatting.
