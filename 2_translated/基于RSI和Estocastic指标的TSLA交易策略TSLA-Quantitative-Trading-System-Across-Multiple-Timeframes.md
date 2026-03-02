@@ -1,14 +1,12 @@
----
+> Name
 
-**Name**
+RSI and Estocastic Indicator-Based Trading Strategy for TSLA in Multiple Timeframes
 
-Trading Strategy for TSLA Based on RSI and Estocastic Indicators Across Multiple Timeframes
-
-**Author**
+> Author
 
 ChaoZhang
 
-**Strategy Description**
+> Strategy Description
 
 ![IMG](https://www.fmz.com/upload/asset/11f106c662ba999a7e7.png)
 [trans]
@@ -56,10 +54,6 @@ To conclude, this is a typical mean-reversion strategy based on overbought and o
 
 [/trans]
 
----
-
-**Source (PineScript)**
-
 ```pinescript
 /*backtest
 start: 2023-11-21 00:00:00
@@ -70,28 +64,28 @@ exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
 */
 
 //@version=5
-strategy("Estrategia de Trading TSLA", overlay=true)
+strategy("RSI and Estocastic Indicator-Based Trading Strategy for TSLA in Multiple Timeframes", overlay=true)
 
 // Entry Conditions
-rsi5 = ta.rsi(close, 5) // RSI on the 5-minute chart of TSLA
-rsiUS100 = ta.rsi(request.security(syminfo.tickerid, "1", close), 14) // RSI on the 1-minute chart of US100
+rsi5 = ta.rsi(close, 5) // RSI on the TSLA 5-minute chart
+rsiUS100 = ta.rsi(request.security(syminfo.tickerid, "1", close), 14) // RSI on the S&P 100 1-minute chart
 
-// Entry Conditions
+// Entry Condition
 condicion_entrada = rsi5 < 30 and rsiUS100 < 30
 
-// Number of shares to buy
+// Quantity to buy
 cantidad_compra = 2
 
 // Exit Conditions
-estocastico = ta.stoch(close, high, low, 14) // Stochastic on the 1-minute chart of TSLA
+estocastico = ta.stoch(close, high, low, 14) // Stochastic on the TSLA 1-minute chart
 condicion_salida = estocastico > 78
 
 // Stop Loss
 stop_loss = strategy.position_avg_price * 0.03
 
-// Execute the strategy
+// Execute Strategy
 if condicion_entrada
-    strategy.entry("Compra", strategy.long, qty=cantidad_compra)
+    strategy.entry("Compra", strategy.long, qty = cantidad_compra)
 
 if condicion_salida or ta.highest(high, 10) <= stop_loss
     strategy.close("Compra")
@@ -100,14 +94,13 @@ if condicion_salida or ta.highest(high, 10) <= stop_loss
 plot(rsi5, "RSI 5 (TSLA)", color=color.blue)
 plot(rsiUS100, "RSI US100", color=color.red)
 plot(estocastico, "Estocástico (TSLA)", color=color.green)
+
 ```
 
----
-
-**Detail**
+> Detail
 
 https://www.fmz.com/strategy/436222
 
-**Last Modified**
+> Last Modified
 
 2023-12-22 12:50:55
