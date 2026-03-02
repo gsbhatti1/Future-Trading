@@ -1,6 +1,6 @@
 > Name
 
-AlphaTrend-Based Cross-Period Strategy AlphaTrend-Cross-Period-Strategy
+AlphaTrend-Cross-Period-Strategy Based on AlphaTrend Indicator
 
 > Author
 
@@ -8,61 +8,63 @@ ChaoZhang
 
 > Strategy Description
 
+[trans]
+
 
 ## Overview
 
-This strategy is based on the AlphaTrend indicator, which combines the advantages of RSI and MFI indicators to achieve good results in both bullish and bearish trending markets. The strategy mainly judges whether the price breaks through the AlphaTrend curve to capture the trend direction.
+This strategy is based on the AlphaTrend indicator, which combines the advantages of RSI and MFI indicators and can achieve good results in both bullish and bearish trending markets. The strategy mainly judges whether the price breaks through the AlphaTrend curve to determine the direction of the trend.
 
 ## Strategy Logic
 
-1. Calculate the ATR indicator to measure market volatility.
-2. Use RSI if no volume data; use MFI if volume data exists.
-3. Calculate upper and lower bands based on ATR and market direction.
-4. Compute the AlphaTrend curve, which incorporates dynamic upper and lower bands.
-5. Generate buy and sell signals when price crosses above or below the AlphaTrend curve.
+1. Calculate the ATR indicator to measure market volatility
+2. Use RSI to determine market direction if no volume data; use MFI if volume data exists
+3. Calculate upper and lower bands based on ATR and market direction
+4. Compute AlphaTrend curve, which incorporates dynamic upper and lower bands
+5. Generate buy and sell signals when price crosses above or below the AlphaTrend curve
 
-The strategy primarily relies on the AlphaTrend curve to determine the trend direction. It considers ATR, RSI/MFI, and can effectively track price trends. When the price penetrates the curve, it indicates a change in the trend and forms the entry point.
+The strategy relies mainly on the AlphaTrend curve to determine the price trend direction. It takes into account ATR, RSI/MFI, and can track the trend effectively. When price penetrates the curve, it signals a change in the trend and forms the entry point.
 
 ## Advantages
 
-1. The AlphaTrend indicator combines the strengths of RSI and MFI, making it adaptable to both bull and bear markets.
-2. Dynamic upper and lower bands automatically adjust based on market volatility.
-3. Incorporates both price and volume information, avoiding false signals.
-4. Breakout approach clearly identifies trend direction.
-5. Simple and easy-to-understand logic.
+1. AlphaTrend combines the strengths of RSI and MFI, adaptable to both bull and bear markets
+2. Dynamic upper and lower bands automatically adjust based on market volatility
+3. Incorporates both price and volume information, avoiding false signals  
+4. Breakout approach clearly identifies trend direction
+5. Simple and easy-to-understand logic
 
-In summary, this strategy works for both bullish and bearish markets, effectively filters out market noise, accurately identifies trends, and is an efficient trend-following strategy.
+In summary, this strategy works for both bullish and bearish markets, filters out market noise effectively, identifies trends accurately, and is an efficient trend following strategy.
 
 ## Risks
 
-1. The AlphaTrend curve may have false breakouts, requiring confirmation from other indicators.
-2. Many false signals may occur during market consolidation.
-3. Ineffective results from poor parameter tuning.
-4. Stop loss may be taken out during spikes, incurring large losses.
+1. AlphaTrend curve may have false breakouts, requiring confirmation from other indicators
+2. Many false signals may occur during market consolidation
+3. Ineffective results from poor parameter tuning
+4. Stop loss may be taken out during spikes, incurring large losses
 
 To address the risks, stop loss can control single trade loss; combine with other indicators to avoid false signals; adjust parameters based on different markets.
 
-## Enhancement Opportunities
+## Enhancement Opportunities 
 
-1. Test different parameter combinations for optimized settings.
-2. Incorporate other indicators to form confirmation conditions.
-3. Employ dynamic or trailing stop loss to control risks.
-4. Trade on different timeframes (5m, 15m, etc.) based on market conditions.
-5. Refine entry timing system for more precise entry.
+1. Test different parameter combinations for optimized settings
+2. Incorporate other indicators to form confirmation conditions
+3. Employ dynamic or trailing stop loss to control risks
+4. Trade on different timeframes (5m, 15m, etc) based on market conditions
+5. Refine entry timing system for more precise entry
 
 Further optimizations can be done by testing on different markets and parameters so that the strategy is adaptable to more market conditions.
 
 ## Conclusion
 
-Overall, this AlphaTrend strategy is a simple and efficient trend-following system. It incorporates both price and volume information to adapt to bullish and bearish markets. The breakout mechanism provides clear entry signals. With proper risk control, it can achieve good results. Further testing and enhancement can help stabilize its profitability over more market conditions.
+Overall this AlphaTrend strategy is a simple and efficient trend following system. It incorporates both price and volume information to adapt to bullish and bearish markets. The breakout mechanism provides clear entry signals. With proper risk control, it can achieve good results. Further testing and enhancement can help stabilize its profitability over more market conditions.
 
----
+[/trans]
 
-## Strategy Arguments
+> Strategy Arguments
 
 
 |Argument|Default|Description|
-|----|----|----|
+|--------|-------|-----------|
 |v_input_float_1|1.5|Multiplier|
 |v_input_1|15|Common Period|
 |v_input_2|false|Change calculation (no volume data)?|
@@ -76,7 +78,7 @@ Overall, this AlphaTrend strategy is a simple and efficient trend-following syst
 |v_input_bool_1|false|Test Alerts|
 
 
-## Source (PineScript)
+> Source (PineScript)
 
 ```pinescript
 // This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
