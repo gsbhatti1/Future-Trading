@@ -1,3 +1,5 @@
+||
+
 ## Overview
 
 The core idea of this strategy is to use the golden cross and death cross of the fast and slow moving average lines to judge the trend of the market and implement low-risk trading. When the fast moving average line crosses above the slow moving average line, it indicates that the market may be entering an uptrend, so go long; when the fast moving average line crosses below the slow moving average line, it indicates that the market may be entering a downtrend, so go short.
@@ -27,7 +29,7 @@ This strategy also has some risks:
 1. When prices fluctuate violently, the moving average may give wrong signals, which may lead to unnecessary losses.
 2. This strategy is based solely on technical indicators without considering fundamentals, and may suffer greater losses in the face of major negative news.
 3. The stop loss and take profit set by the ATR indicator may not suit all market environments, which may be too loose or too tight.
-4. The setting of moving average periods is not the only optimal scheme, and different combinations of period parameters will produce different effects.
+4. The setting of moving average periods is not the only optimal scheme; different combinations of period parameters will produce different effects.
 
 To address the above risks, we can optimize from the following aspects:
 
@@ -41,10 +43,10 @@ This strategy can be further optimized in the following aspects:
 
 1. Use machine learning methods to automatically optimize moving average parameters for better adaptability.
 2. Add fundamentals as filtering conditions to avoid going long or short blindly when major negative news arrives, such as Fed rate decisions and important macro data releases.
-3. Set upper and lower limits for volatility, pause trading when ATR gets too high or too low to avoid losses in extreme market environments.
+3. Set upper and lower limits for volatility; pause trading when ATR gets too high or too low to avoid losses in extreme market environments.
 4. Incorporate stock fundamentals like P/E ratio and trading volume expansion to set dynamic stop loss and take profit ranges.
 5. Add position sizing mechanisms, gradually reducing positions when profit ratio reaches a level, suspending trading for a period when suffering relatively large losses, etc.
 
 ## Conclusion
 
-The overall logic of this strategy is clear and simple, through the dual moving average crossover to judge market trends, it belongs to a typical trend-following strategy. At the same time, the strategy also effectively controls risks by using the ATR indicator to dynamically set stop loss and take profit levels. Through further optimization, the strategy can improve its performance in drawdown control and following the trend, thus achieving more stable investment results.
+The overall logic of this strategy is clear and simple, using the dual moving average crossover to determine market trends, which belongs to a typical trend-following strategy. At the same time, the strategy effectively controls risk by utilizing the ATR indicator to dynamically set stop loss and take profit levels. Through further optimization, it can improve performance in terms of drawdown control and顺势操作, thereby achieving more stable investment returns.
