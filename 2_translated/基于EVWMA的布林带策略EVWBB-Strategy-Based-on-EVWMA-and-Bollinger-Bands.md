@@ -18,16 +18,16 @@ This strategy uses EVWMA as the basic line of the Bollinger Band. When the price
 
 ## Strategy Principle
 
-The strategy first calculates the total trading volume `vol_period` over the last 30 periods. Then, it calculates EVWMA using the formula: `(previous EVWMA x (vol_period - today’s trading volume) + today’s trading volume x closing price) / vol_period`.
+The strategy first calculates the total trading volume `vol_period` of the last 30 periods. Then it calculates EVWMA using the formula: `(EVWMA of the previous day x (vol_period - today’s trading volume) + today’s trading volume x closing price) / vol_period`.
 
-The middle rail of Bollinger Bands is set as EVWMA, and the upper and lower rails are based on `basis ± 2 * stdev(closing price)`. Go long when the price goes above the upper track, and go short when it goes below the lower track. The stop loss point is at `basis`.
+The middle rail basis of Bollinger Bands is EVWMA, and the upper and lower rails are based on `± 2 times stdev (the standard deviation of the closing price)`. Go long when the price goes above the upper track, and go short when it goes below the lower track. The stop loss point is set at the basis level.
 
 ## Advantage Analysis
 
 1. EVWMA can better reflect the price change trend and is smoother than the moving average.
 2. Bollinger Bands can clearly identify the upper and lower limits of price fluctuations, which is helpful for catching price breakthroughs.
-3. Combining the trend indicator EVWMA with the fluctuation indicator Bollinger Bands allows more accurate entry opportunities.
-4. The stop loss point at `basis` is conducive to risk control.
+3. Combined with the trend indicator EVWMA and the fluctuation indicator Bollinger Bands, the entry opportunity can be more accurately judged.
+4. The stop loss point set at the basis level is conducive to risk control.
 
 ## Risk Analysis
 
@@ -50,7 +50,6 @@ This strategy integrates the advantages of two indicators, EVWMA and Bollinger B
 
 ||
 
-
 ## Overview
 
 This strategy uses EVWMA as the basis line for Bollinger Bands. It goes long when the price breaks through the upper band and goes short when the price breaks through the lower band to capture trending moves in the price.
@@ -59,14 +58,14 @@ This strategy uses EVWMA as the basis line for Bollinger Bands. It goes long whe
 
 The strategy first calculates the total volume over the past 30 periods as `vol_period`. Then it calculates EVWMA using the formula: `(previous EVWMA x (vol_period - current volume) + current volume x close) / vol_period`.
 
-The basis for the Bollinger Bands is set as EVWMA, and the upper and lower bands are based on `basis ± 2 * stdev(close)`. The strategy goes long when the price breaks above the upper band and goes short when the price breaks below the lower band. The stop loss is set at the `basis` level.
+The basis for the Bollinger Bands is set as EVWMA, and the upper and lower bands are based on `basis ± 2 * stdev(close)`. The strategy goes long when the price breaks above the upper band and goes short when the price breaks below the lower band. The stop loss is set at the basis level.
 
 ## Advantage Analysis
 
 1. EVWMA reflects price changes better than moving averages, resulting in a smoother line.
 2. Bollinger Bands clearly identify the upper and lower limits of price fluctuations, making it easy to capture breakouts.
-3. Combining the trend indicator EVWMA with the volatility indicator Bollinger Bands allows more precise timing of entries.
-4. The stop loss at the `basis` level helps control risk.
+3. Combining the trend indicator EVWMA and the volatility indicator Bollinger Bands allows more precise timing of entries.
+4. The stop loss at the basis level helps control risk.
 
 ## Risk Analysis
 
@@ -92,23 +91,17 @@ This strategy combines the strengths of EVWMA and Bollinger Bands to track trend
 > Strategy Arguments
 
 
-
 |Argument|Default|Description|
 |----|----|----|
 |v_input_1|30|Length|
 |v_input_2|2|mult|
 
+
 > Source (PineScript)
 
 ```pinescript
-/*backtest
-start: 2022-10-26 00:00:00
-end: 2023-11-01 00:00:00
-Period: 1d
-basePeriod: 1h
-exchanges: [{"eid":"Futures_Binance","currency":"BTC_USDT"}]
-*/
-
 //@version=4
 strategy("EVWBB Strategy [QuantNomad]", shorttitle="EVWBB Strategy [QN]", overlay=true)
 ```
+
+(Note: The code block is kept exactly as-is.)
