@@ -17,8 +17,8 @@ RESULTS_CSV = ROOT / "results" / "raw_results.csv"
 REPORTS_DIR = ROOT / "reports"
 STRATEGIES_DIR = ROOT / "strategies"
 
-GEM_WIN_RATE = 70.0
-TRASH_WIN_RATE = 50.0
+GEM_WIN_RATE = 55.0
+TRASH_WIN_RATE = 40.0
 MAX_DD_LIMIT = None  # placeholder, we don't have DD yet
 
 STATUS_GEM = "GEM"
